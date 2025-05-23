@@ -27,7 +27,16 @@ export async function handleGetSections(
   todoistClient: TodoistApi,
   args: GetSectionsArgs
 ): Promise<string> {
-  const result = await todoistClient.getSections(args.project_id);
+  // Handle different API signatures for getSections
+  let result;
+  try {
+    // Try the object-based API first
+    result = await todoistClient.getSections(args as any);
+  } catch {
+    // Fallback to string-based API
+    result = await todoistClient.getSections(args.project_id);
+  }
+  
   const sections = Array.isArray(result) ? result : (result as any)?.data || [];
 
   const sectionList = sections
