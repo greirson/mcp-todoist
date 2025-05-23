@@ -34,15 +34,16 @@ The codebase is organized into focused modules:
 - **`src/type-guards.ts`**: Runtime type validation functions
 - **`src/tools.ts`**: MCP tool definitions and schemas
 - **`src/handlers/`**: Business logic handlers separated by domain:
-  - `task-handlers.ts` - Task CRUD operations
+  - `task-handlers.ts` - Task CRUD operations and bulk operations
   - `project-handlers.ts` - Project and section operations
+  - `comment-handlers.ts` - Comment creation and retrieval operations
 - **`src/errors.ts`**: Custom error types with structured error handling
 - **`src/validation.ts`**: Input validation and sanitization
 - **`src/cache.ts`**: Simple in-memory caching for API optimization
 
 ### Tool Architecture
 
-The server exposes 13 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 15 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support
@@ -56,6 +57,10 @@ The server exposes 13 tools organized by entity type with standardized naming co
 - `todoist_tasks_bulk_update` - Updates multiple tasks based on search criteria
 - `todoist_tasks_bulk_delete` - Deletes multiple tasks based on search criteria
 - `todoist_tasks_bulk_complete` - Completes multiple tasks based on search criteria
+
+**Comment Management:**
+- `todoist_comment_create` - Adds comments to tasks with optional file attachments
+- `todoist_comment_get` - Retrieves comments for tasks or projects
 
 **Project Management:**
 - `todoist_project_create` - Creates new projects with optional color and favorite status

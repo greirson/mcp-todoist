@@ -4,7 +4,9 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 
 ## Features
 
-* **Complete Task Management**: Create, read, update, delete, and complete tasks
+* **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
+* **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
+* **Comment System**: Add comments to tasks and retrieve comments with attachment support
 * **Project & Section Organization**: Create and manage projects and sections
 * **Smart Discovery**: List projects and sections to find IDs for organization
 * **Rich Task Attributes**: Support for descriptions, due dates, priorities, labels, deadlines, and project assignment
@@ -23,7 +25,7 @@ npm install -g @greirson/mcp-todoist
 
 ## Tools
 
-The server provides 9 tools organized by entity type:
+The server provides 15 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support
@@ -31,6 +33,16 @@ The server provides 9 tools organized by entity type:
 - **Todoist Task Update**: Update existing tasks (found by name search)
 - **Todoist Task Complete**: Mark tasks as complete
 - **Todoist Task Delete**: Remove tasks
+
+### Bulk Task Operations
+- **Todoist Tasks Bulk Create**: Create multiple tasks at once for improved efficiency
+- **Todoist Tasks Bulk Update**: Update multiple tasks based on search criteria
+- **Todoist Tasks Bulk Delete**: Delete multiple tasks based on search criteria
+- **Todoist Tasks Bulk Complete**: Complete multiple tasks based on search criteria
+
+### Comment Management
+- **Todoist Comment Create**: Add comments to tasks with optional file attachments
+- **Todoist Comment Get**: Retrieve comments for tasks or projects
 
 ### Project Management
 - **Todoist Project Create**: Create new projects with optional color and favorite status
@@ -82,6 +94,22 @@ Add to your `claude_desktop_config.json`:
 "Create high priority task with deadline 2024-12-25"
 "Update meeting task to be in section 67890"
 "Mark the PR review task as complete"
+```
+
+### Bulk Operations
+```
+"Create multiple tasks for project launch: 'Design mockups', 'Write documentation', 'Set up CI/CD'"
+"Update all high priority tasks to be due next week"
+"Complete all tasks containing 'review' in project 12345"
+"Delete all tasks with priority 1 that are overdue"
+```
+
+### Comment Management
+```
+"Add comment 'This needs urgent attention' to task 'Review PR'"
+"Add comment with attachment to task 67890"
+"Show all comments for task 'Team Meeting'"
+"Get comments for project 12345"
 ```
 
 ### Task Discovery
@@ -147,7 +175,7 @@ npm run format:check
 The codebase is organized into focused modules:
 
 - **`src/index.ts`**: Main server entry point with request routing
-- **`src/handlers/`**: Business logic separated by domain (tasks, projects)
+- **`src/handlers/`**: Business logic separated by domain (tasks, projects, comments)
 - **`src/types.ts`**: TypeScript type definitions
 - **`src/type-guards.ts`**: Runtime type validation
 - **`src/validation.ts`**: Input validation and sanitization
@@ -157,7 +185,13 @@ The codebase is organized into focused modules:
 
 ## Changelog
 
-### v0.4.0 (Latest)
+### v0.5.0 (Latest)
+- **Bulk Operations**: Added 4 new bulk tools for efficient multi-task operations (create, update, delete, complete)
+- **Comment System**: Full comment support with create and retrieve functionality, including file attachments
+- **Enhanced Search**: Flexible search criteria for bulk operations (project, priority, date ranges, content matching)
+- **Improved Documentation**: Updated README with comprehensive examples for all new features
+
+### v0.4.0
 - **Modular Architecture**: Refactored monolithic code into focused modules
 - **Performance Optimization**: Added 30-second caching for GET operations
 - **Robust Error Handling**: Custom error types with structured error responses
