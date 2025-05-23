@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/greirson/todoist-mcp.git"
+    "url": "git+https://github.com/greirson/mcp-todoist.git"
   },
   "keywords": [
     "mcp",
@@ -40,9 +40,9 @@
   "author": "greirson",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/greirson/todoist-mcp/issues"
+    "url": "https://github.com/greirson/mcp-todoist/issues"
   },
-  "homepage": "https://github.com/greirson/todoist-mcp#readme",
+  "homepage": "https://github.com/greirson/mcp-todoist#readme",
   "dependencies": {
     "@doist/todoist-api-typescript": "^4.0.4",
     "@modelcontextprotocol/sdk": "1.12.0"
