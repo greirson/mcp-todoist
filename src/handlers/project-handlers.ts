@@ -15,7 +15,9 @@ export async function handleGetProjects(
     .map((project) => `- ${project.name} (ID: ${project.id})`)
     .join("\n");
 
-  return projects.length > 0 ? `Projects:\n${projectList}` : "No projects found";
+  return projects.length > 0
+    ? `Projects:\n${projectList}`
+    : "No projects found";
 }
 
 export async function handleGetSections(
@@ -33,7 +35,9 @@ export async function handleGetSections(
     )
     .join("\n");
 
-  return sections.length > 0 ? `Sections:\n${sectionList}` : "No sections found";
+  return sections.length > 0
+    ? `Sections:\n${sectionList}`
+    : "No sections found";
 }
 
 export async function handleCreateProject(
