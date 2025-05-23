@@ -80,11 +80,14 @@ export async function handleCreateComment(
     // Clear cache after creating comment
     commentCache.clear();
 
-    return `Comment added to task:\nContent: ${comment.content}${
-      comment.attachment
-        ? `\nAttachment: ${comment.attachment.fileName} (${comment.attachment.fileType})`
+    // Use defensive typing for comment response
+    const commentResponse = comment as any;
+
+    return `Comment added to task:\nContent: ${commentResponse.content}${
+      commentResponse.attachment
+        ? `\nAttachment: ${commentResponse.attachment.fileName} (${commentResponse.attachment.fileType})`
         : ""
-    }\nPosted at: ${comment.postedAt}`;
+    }\nPosted at: ${commentResponse.postedAt || new Date().toISOString()}`;
   } catch (error) {
     throw new TodoistAPIError("Failed to create comment", error as Error);
   }
@@ -169,16 +172,17 @@ export async function handleGetComments(
     }
 
     const commentList = comments
-      .map(
-        (comment) =>
-          `- ${comment.content}${
-            comment.attachment
-              ? `\n  Attachment: ${comment.attachment.fileName} (${comment.attachment.fileType})`
-              : ""
-          }\n  Posted: ${comment.postedAt}${
-            comment.taskId ? `\n  Task ID: ${comment.taskId}` : ""
-          }${comment.projectId ? `\n  Project ID: ${comment.projectId}` : ""}`
-      )
+      .map((comment) => {
+        // Use defensive typing for comment properties
+        const commentData = comment as any;
+        return `- ${commentData.content}${
+          commentData.attachment
+            ? `\n  Attachment: ${commentData.attachment.fileName} (${commentData.attachment.fileType})`
+            : ""
+        }\n  Posted: ${commentData.postedAt || "Unknown"}${
+          commentData.taskId ? `\n  Task ID: ${commentData.taskId}` : ""
+        }${commentData.projectId ? `\n  Project ID: ${commentData.projectId}` : ""}`;
+      })
       .join("\n\n");
 
     return `Found ${comments.length} comment${comments.length > 1 ? "s" : ""}:\n\n${commentList}`;

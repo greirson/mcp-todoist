@@ -154,17 +154,17 @@ export interface TodoistCommentData {
   };
 }
 
-// API response interfaces for comments
+// API response interfaces for comments (using flexible typing for API compatibility)
 export interface TodoistComment {
-  id: string;
-  content: string;
+  id?: string;
+  content?: string;
   taskId?: string;
   projectId?: string;
-  postedAt: string;
+  postedAt?: string;
   attachment?: {
-    fileName: string;
-    fileUrl: string;
-    fileType: string;
+    fileName?: string;
+    fileUrl?: string;
+    fileType?: string;
   };
 }
 

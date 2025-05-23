@@ -143,9 +143,10 @@ Bulk operations provide significant efficiency improvements by allowing multiple
 ### API Compatibility Handling
 
 Due to evolving Todoist API types, the codebase uses defensive programming patterns:
-- **Type Assertions**: Strategic use of `any` types for API compatibility
+- **Type Assertions**: Strategic use of `any` types for API compatibility, especially for comment responses
 - **Response Handling**: Flexible response parsing that handles both array and object responses
 - **Error Recovery**: Try-catch patterns for API signature changes
+- **Comment API**: Uses defensive typing since the official Todoist TypeScript types may not include all comment properties like attachments
 
 ### Important Notes
 
