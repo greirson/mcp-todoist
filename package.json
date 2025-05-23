@@ -58,7 +58,7 @@
     "eslint-plugin-prettier": "^5.4.0",
     "jest": "^29.7.0",
     "prettier": "^3.5.3",
-    "shx": "^0.3.4",
+    "shx": "^0.4.0",
     "ts-jest": "^29.3.4",
     "typescript": "^5.7.2"
   }
