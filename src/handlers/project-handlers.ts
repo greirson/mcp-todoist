@@ -4,16 +4,20 @@ import {
   GetSectionsArgs,
   CreateSectionArgs,
   TodoistProjectData,
+  TodoistProject,
+  TodoistSection,
+  ProjectsResponse,
+  SectionsResponse,
 } from "../types.js";
 
 export async function handleGetProjects(
   todoistClient: TodoistApi
 ): Promise<string> {
-  const result = await todoistClient.getProjects();
-  const projects = Array.isArray(result) ? result : (result as any).data || [];
+  const result = (await todoistClient.getProjects()) as ProjectsResponse;
+  const projects = Array.isArray(result) ? result : result.data || [];
 
   const projectList = projects
-    .map((project: any) => `- ${project.name} (ID: ${project.id})`)
+    .map((project: TodoistProject) => `- ${project.name} (ID: ${project.id})`)
     .join("\n");
 
   return projects.length > 0
@@ -25,14 +29,14 @@ export async function handleGetSections(
   todoistClient: TodoistApi,
   args: GetSectionsArgs
 ): Promise<string> {
-  const result = await todoistClient.getSections(
+  const result = (await todoistClient.getSections(
     args.project_id as string | undefined
-  );
-  const sections = Array.isArray(result) ? result : (result as any).data || [];
+  )) as SectionsResponse;
+  const sections = Array.isArray(result) ? result : result.data || [];
 
   const sectionList = sections
     .map(
-      (section: any) =>
+      (section: TodoistSection) =>
         `- ${section.name} (ID: ${section.id}, Project ID: ${section.projectId})`
     )
     .join("\n");
