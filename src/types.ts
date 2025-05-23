@@ -75,6 +75,8 @@ export interface TodoistTask {
   due?: { string: string } | null;
   priority?: number;
   labels?: string[];
+  projectId?: string;
+  sectionId?: string | null;
 }
 
 export interface TodoistProject {
@@ -88,6 +90,39 @@ export interface TodoistSection {
   id: string;
   name: string;
   projectId: string;
+}
+
+// Bulk operation interfaces
+export interface BulkCreateTasksArgs {
+  tasks: CreateTaskArgs[];
+}
+
+export interface BulkUpdateTasksArgs {
+  search_criteria: {
+    project_id?: string;
+    priority?: number;
+    due_before?: string;
+    due_after?: string;
+    content_contains?: string;
+  };
+  updates: {
+    content?: string;
+    description?: string;
+    due_string?: string;
+    priority?: number;
+    project_id?: string;
+    section_id?: string;
+  };
+}
+
+export interface BulkTaskFilterArgs {
+  search_criteria: {
+    project_id?: string;
+    priority?: number;
+    due_before?: string;
+    due_after?: string;
+    content_contains?: string;
+  };
 }
 
 // Union types to handle any API response format

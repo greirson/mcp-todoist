@@ -18,6 +18,9 @@ import {
   isGetSectionsArgs,
   isCreateProjectArgs,
   isCreateSectionArgs,
+  isBulkCreateTasksArgs,
+  isBulkUpdateTasksArgs,
+  isBulkTaskFilterArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -25,6 +28,10 @@ import {
   handleUpdateTask,
   handleDeleteTask,
   handleCompleteTask,
+  handleBulkCreateTasks,
+  handleBulkUpdateTasks,
+  handleBulkDeleteTasks,
+  handleBulkCompleteTasks,
 } from "./handlers/task-handlers.js";
 import {
   handleGetProjects,
@@ -134,6 +141,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_section_create");
         }
         result = await handleCreateSection(todoistClient, args);
+        break;
+
+      case "todoist_tasks_bulk_create":
+        if (!isBulkCreateTasksArgs(args)) {
+          throw new Error("Invalid arguments for todoist_tasks_bulk_create");
+        }
+        result = await handleBulkCreateTasks(todoistClient, args);
+        break;
+
+      case "todoist_tasks_bulk_update":
+        if (!isBulkUpdateTasksArgs(args)) {
+          throw new Error("Invalid arguments for todoist_tasks_bulk_update");
+        }
+        result = await handleBulkUpdateTasks(todoistClient, args);
+        break;
+
+      case "todoist_tasks_bulk_delete":
+        if (!isBulkTaskFilterArgs(args)) {
+          throw new Error("Invalid arguments for todoist_tasks_bulk_delete");
+        }
+        result = await handleBulkDeleteTasks(todoistClient, args);
+        break;
+
+      case "todoist_tasks_bulk_complete":
+        if (!isBulkTaskFilterArgs(args)) {
+          throw new Error("Invalid arguments for todoist_tasks_bulk_complete");
+        }
+        result = await handleBulkCompleteTasks(todoistClient, args);
         break;
 
       default:

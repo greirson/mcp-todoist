@@ -219,6 +219,209 @@ export const CREATE_SECTION_TOOL: Tool = {
   },
 };
 
+export const BULK_CREATE_TASKS_TOOL: Tool = {
+  name: "todoist_tasks_bulk_create",
+  description: "Create multiple tasks in Todoist at once for improved efficiency",
+  inputSchema: {
+    type: "object",
+    properties: {
+      tasks: {
+        type: "array",
+        description: "Array of tasks to create",
+        items: {
+          type: "object",
+          properties: {
+            content: {
+              type: "string",
+              description: "The content/title of the task",
+            },
+            description: {
+              type: "string",
+              description: "Detailed description of the task (optional)",
+            },
+            due_string: {
+              type: "string",
+              description: "Natural language due date like 'tomorrow', 'next Monday', 'Jan 23' (optional)",
+            },
+            priority: {
+              type: "number",
+              description: "Task priority from 1 (normal) to 4 (urgent) (optional)",
+              enum: [1, 2, 3, 4],
+            },
+            labels: {
+              type: "array",
+              items: {
+                type: "string",
+              },
+              description: "Array of label names to assign to the task (optional)",
+            },
+            deadline: {
+              type: "string",
+              description: "Deadline date in YYYY-MM-DD format (optional)",
+            },
+            project_id: {
+              type: "string",
+              description: "Project ID to assign the task to (optional)",
+            },
+            section_id: {
+              type: "string",
+              description: "Section ID within the project to assign the task to (optional)",
+            },
+          },
+          required: ["content"],
+        },
+        minItems: 1,
+      },
+    },
+    required: ["tasks"],
+  },
+};
+
+export const BULK_UPDATE_TASKS_TOOL: Tool = {
+  name: "todoist_tasks_bulk_update",
+  description: "Update multiple tasks in Todoist based on search criteria",
+  inputSchema: {
+    type: "object",
+    properties: {
+      search_criteria: {
+        type: "object",
+        description: "Criteria to find tasks to update",
+        properties: {
+          project_id: {
+            type: "string",
+            description: "Filter by project ID (optional)",
+          },
+          priority: {
+            type: "number",
+            description: "Filter by priority level (1-4) (optional)",
+            enum: [1, 2, 3, 4],
+          },
+          due_before: {
+            type: "string",
+            description: "Filter tasks due before this date (YYYY-MM-DD) (optional)",
+          },
+          due_after: {
+            type: "string",
+            description: "Filter tasks due after this date (YYYY-MM-DD) (optional)",
+          },
+          content_contains: {
+            type: "string",
+            description: "Filter tasks containing this text in content (optional)",
+          },
+        },
+      },
+      updates: {
+        type: "object",
+        description: "Updates to apply to matching tasks",
+        properties: {
+          content: {
+            type: "string",
+            description: "New content/title for the tasks (optional)",
+          },
+          description: {
+            type: "string",
+            description: "New description for the tasks (optional)",
+          },
+          due_string: {
+            type: "string",
+            description: "New due date in natural language (optional)",
+          },
+          priority: {
+            type: "number",
+            description: "New priority level from 1 (normal) to 4 (urgent) (optional)",
+            enum: [1, 2, 3, 4],
+          },
+          project_id: {
+            type: "string",
+            description: "New project ID to move the tasks to (optional)",
+          },
+          section_id: {
+            type: "string",
+            description: "New section ID within the project (optional)",
+          },
+        },
+      },
+    },
+    required: ["search_criteria", "updates"],
+  },
+};
+
+export const BULK_DELETE_TASKS_TOOL: Tool = {
+  name: "todoist_tasks_bulk_delete",
+  description: "Delete multiple tasks in Todoist based on search criteria",
+  inputSchema: {
+    type: "object",
+    properties: {
+      search_criteria: {
+        type: "object",
+        description: "Criteria to find tasks to delete",
+        properties: {
+          project_id: {
+            type: "string",
+            description: "Filter by project ID (optional)",
+          },
+          priority: {
+            type: "number",
+            description: "Filter by priority level (1-4) (optional)",
+            enum: [1, 2, 3, 4],
+          },
+          due_before: {
+            type: "string",
+            description: "Filter tasks due before this date (YYYY-MM-DD) (optional)",
+          },
+          due_after: {
+            type: "string",
+            description: "Filter tasks due after this date (YYYY-MM-DD) (optional)",
+          },
+          content_contains: {
+            type: "string",
+            description: "Filter tasks containing this text in content (optional)",
+          },
+        },
+      },
+    },
+    required: ["search_criteria"],
+  },
+};
+
+export const BULK_COMPLETE_TASKS_TOOL: Tool = {
+  name: "todoist_tasks_bulk_complete",
+  description: "Complete multiple tasks in Todoist based on search criteria",
+  inputSchema: {
+    type: "object",
+    properties: {
+      search_criteria: {
+        type: "object",
+        description: "Criteria to find tasks to complete",
+        properties: {
+          project_id: {
+            type: "string",
+            description: "Filter by project ID (optional)",
+          },
+          priority: {
+            type: "number",
+            description: "Filter by priority level (1-4) (optional)",
+            enum: [1, 2, 3, 4],
+          },
+          due_before: {
+            type: "string",
+            description: "Filter tasks due before this date (YYYY-MM-DD) (optional)",
+          },
+          due_after: {
+            type: "string",
+            description: "Filter tasks due after this date (YYYY-MM-DD) (optional)",
+          },
+          content_contains: {
+            type: "string",
+            description: "Filter tasks containing this text in content (optional)",
+          },
+        },
+      },
+    },
+    required: ["search_criteria"],
+  },
+};
+
 export const ALL_TOOLS = [
   CREATE_TASK_TOOL,
   GET_TASKS_TOOL,
@@ -229,4 +432,8 @@ export const ALL_TOOLS = [
   GET_SECTIONS_TOOL,
   CREATE_PROJECT_TOOL,
   CREATE_SECTION_TOOL,
+  BULK_CREATE_TASKS_TOOL,
+  BULK_UPDATE_TASKS_TOOL,
+  BULK_DELETE_TASKS_TOOL,
+  BULK_COMPLETE_TASKS_TOOL,
 ];
