@@ -42,22 +42,22 @@ The codebase is organized into focused modules:
 
 ### Tool Architecture
 
-The server exposes 9 tools organized by entity type with standardized naming convention "Todoist [Entity] [Action]":
+The server exposes 9 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
-- `Todoist Task Create` - Creates new tasks with full attribute support
-- `Todoist Task Get` - Retrieves and filters tasks (with caching)
-- `Todoist Task Update` - Updates existing tasks found by name search
-- `Todoist Task Delete` - Deletes tasks found by name search
-- `Todoist Task Complete` - Marks tasks as complete found by name search
+- `todoist_task_create` - Creates new tasks with full attribute support
+- `todoist_task_get` - Retrieves and filters tasks (with caching)
+- `todoist_task_update` - Updates existing tasks found by name search
+- `todoist_task_delete` - Deletes tasks found by name search
+- `todoist_task_complete` - Marks tasks as complete found by name search
 
 **Project Management:**
-- `Todoist Project Create` - Creates new projects with optional color and favorite status
-- `Todoist Project Get` - Lists all projects with their IDs and names
+- `todoist_project_create` - Creates new projects with optional color and favorite status
+- `todoist_project_get` - Lists all projects with their IDs and names
 
 **Section Management:**
-- `Todoist Section Create` - Creates sections within projects
-- `Todoist Section Get` - Lists sections within projects
+- `todoist_section_create` - Creates sections within projects
+- `todoist_section_get` - Lists sections within projects
 
 ### Error Handling Strategy
 
@@ -107,4 +107,10 @@ For update, delete, and complete operations, the server uses partial string matc
 
 - Built as ES modules targeting ES2020
 - Executable binary at `dist/index.js` with shebang
-- Published as `@greirson/todoist-mcp-server`
+- Published as `@greirson/mcp-todoist`
+
+### Important Notes
+
+- **Tool Names**: All MCP tool names use underscores (e.g., `todoist_task_create`) to comply with MCP naming requirements `^[a-zA-Z0-9_-]{1,64}$`
+- **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
+- **Task Search**: Update/delete/complete operations use case-insensitive partial string matching against task content
