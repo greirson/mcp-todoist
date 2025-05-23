@@ -6,6 +6,9 @@ import {
   GetSectionsArgs,
   CreateProjectArgs,
   CreateSectionArgs,
+  BulkCreateTasksArgs,
+  BulkUpdateTasksArgs,
+  BulkTaskFilterArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -72,5 +75,42 @@ export function isCreateSectionArgs(args: unknown): args is CreateSectionArgs {
     "project_id" in args &&
     typeof (args as { name: string }).name === "string" &&
     typeof (args as { project_id: string }).project_id === "string"
+  );
+}
+
+export function isBulkCreateTasksArgs(args: unknown): args is BulkCreateTasksArgs {
+  if (typeof args !== "object" || args === null) return false;
+  
+  const obj = args as Record<string, unknown>;
+  return (
+    "tasks" in obj &&
+    Array.isArray(obj.tasks) &&
+    obj.tasks.length > 0 &&
+    obj.tasks.every((task) => isCreateTaskArgs(task))
+  );
+}
+
+export function isBulkUpdateTasksArgs(args: unknown): args is BulkUpdateTasksArgs {
+  if (typeof args !== "object" || args === null) return false;
+  
+  const obj = args as Record<string, unknown>;
+  return (
+    "search_criteria" in obj &&
+    "updates" in obj &&
+    typeof obj.search_criteria === "object" &&
+    obj.search_criteria !== null &&
+    typeof obj.updates === "object" &&
+    obj.updates !== null
+  );
+}
+
+export function isBulkTaskFilterArgs(args: unknown): args is BulkTaskFilterArgs {
+  if (typeof args !== "object" || args === null) return false;
+  
+  const obj = args as Record<string, unknown>;
+  return (
+    "search_criteria" in obj &&
+    typeof obj.search_criteria === "object" &&
+    obj.search_criteria !== null
   );
 }

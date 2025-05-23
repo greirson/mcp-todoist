@@ -42,7 +42,7 @@ The codebase is organized into focused modules:
 
 ### Tool Architecture
 
-The server exposes 9 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 13 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support
@@ -50,6 +50,12 @@ The server exposes 9 tools organized by entity type with standardized naming con
 - `todoist_task_update` - Updates existing tasks found by name search
 - `todoist_task_delete` - Deletes tasks found by name search
 - `todoist_task_complete` - Marks tasks as complete found by name search
+
+**Bulk Task Operations:**
+- `todoist_tasks_bulk_create` - Creates multiple tasks at once for improved efficiency
+- `todoist_tasks_bulk_update` - Updates multiple tasks based on search criteria
+- `todoist_tasks_bulk_delete` - Deletes multiple tasks based on search criteria
+- `todoist_tasks_bulk_complete` - Completes multiple tasks based on search criteria
 
 **Project Management:**
 - `todoist_project_create` - Creates new projects with optional color and favorite status
@@ -76,6 +82,19 @@ Structured error handling with custom error types:
 ### Search Strategy
 
 For update, delete, and complete operations, the server uses partial string matching against task content (case-insensitive) to find tasks, enabling natural language task identification.
+
+### Bulk Operations Strategy
+
+Bulk operations provide significant efficiency improvements by allowing multiple tasks to be processed in a single API call:
+
+- **Bulk Create**: Accepts an array of task objects and creates them sequentially, providing detailed feedback on successes and failures
+- **Bulk Update/Delete/Complete**: Uses flexible search criteria to identify target tasks:
+  - `project_id`: Filter by specific project
+  - `priority`: Filter by priority level (1-4)
+  - `due_before`/`due_after`: Filter by due date ranges (YYYY-MM-DD format)
+  - `content_contains`: Filter by text within task content
+- **Error Handling**: Each bulk operation reports individual successes and failures for better debugging
+- **Cache Management**: Bulk operations automatically clear relevant caches to ensure consistency
 
 ### Data Flow Pattern
 
@@ -109,8 +128,26 @@ For update, delete, and complete operations, the server uses partial string matc
 - Executable binary at `dist/index.js` with shebang
 - Published as `@greirson/mcp-todoist`
 
+### CI/CD and Quality Assurance
+
+- **GitHub Actions**: Automated CI/CD pipeline with multi-Node.js version testing (18.x, 20.x, 22.x)
+- **Dependabot Integration**: Automated dependency updates with CI validation
+- **Pre-commit Hooks**: Linting and type checking enforced before commits
+- **Release Automation**: Automated NPM publishing on version tags
+
+### API Compatibility Handling
+
+Due to evolving Todoist API types, the codebase uses defensive programming patterns:
+- **Type Assertions**: Strategic use of `any` types for API compatibility
+- **Response Handling**: Flexible response parsing that handles both array and object responses
+- **Error Recovery**: Try-catch patterns for API signature changes
+
 ### Important Notes
 
 - **Tool Names**: All MCP tool names use underscores (e.g., `todoist_task_create`) to comply with MCP naming requirements `^[a-zA-Z0-9_-]{1,64}$`
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Task Search**: Update/delete/complete operations use case-insensitive partial string matching against task content
+- **Bulk Operations**: Use bulk tools (e.g., `todoist_tasks_bulk_create`) when working with multiple tasks to improve efficiency and reduce API calls
+- **Bulk Search Criteria**: Bulk operations support flexible filtering by project, priority, due dates, and content matching
+- **Linting**: Always run `npm run lint -- --fix` after making changes to auto-fix formatting issues
+- **Type Safety**: When TypeScript compilation fails due to API changes, use defensive type assertions rather than disabling strict checking
