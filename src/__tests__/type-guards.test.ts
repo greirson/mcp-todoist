@@ -3,8 +3,6 @@ import {
   isGetTasksArgs,
   isUpdateTaskArgs,
   isTaskNameArgs,
-  isGetProjectsArgs,
-  isGetSectionsArgs,
   isCreateProjectArgs,
   isCreateSectionArgs,
 } from "../type-guards";

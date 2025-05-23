@@ -15,12 +15,20 @@ import {
   validateLabels,
   validateProjectId,
   validateSectionId,
-  validateTaskName,
   validateLimit,
 } from "../validation.js";
 
 // Cache for task data (30 second TTL)
-const taskCache = new SimpleCache<any[]>(30000);
+const taskCache = new SimpleCache<
+  Array<{
+    id: string;
+    content: string;
+    description?: string;
+    due?: { string: string } | null;
+    priority?: number;
+    labels?: string[];
+  }>
+>(30000);
 
 export async function handleCreateTask(
   todoistClient: TodoistApi,
@@ -34,7 +42,7 @@ export async function handleCreateTask(
     validateLabels(args.labels);
     validateProjectId(args.project_id);
     validateSectionId(args.section_id);
-    
+
     const taskData: TodoistTaskData = {
       content: args.content,
       description: args.description,
@@ -59,10 +67,10 @@ export async function handleCreateTask(
     }
 
     const task = await todoistClient.addTask(taskData);
-    
+
     // Clear cache after creating task
     taskCache.clear();
-    
+
     return `Task created:\nTitle: ${task.content}${
       task.description ? `\nDescription: ${task.description}` : ""
     }${task.due ? `\nDue: ${task.due.string}` : ""}${
@@ -87,7 +95,7 @@ export async function handleGetTasks(
   validatePriority(args.priority);
   validateProjectId(args.project_id);
   validateLimit(args.limit);
-  
+
   const apiParams: Record<string, string | undefined> = {};
   if (args.project_id) {
     apiParams.projectId = args.project_id;
@@ -142,14 +150,14 @@ export async function handleUpdateTask(
 ): Promise<string> {
   // Clear cache since we're updating
   taskCache.clear();
-  
+
   const tasks = await todoistClient.getTasks();
   const matchingTask = tasks.find((task) =>
     task.content.toLowerCase().includes(args.task_name.toLowerCase())
   );
 
   if (!matchingTask) {
-    throw new Error(`Could not find a task matching "${args.task_name}"`);
+    throw new TaskNotFoundError(args.task_name);
   }
 
   const updateData: Partial<TodoistTaskData> = {};
@@ -160,12 +168,17 @@ export async function handleUpdateTask(
   if (args.project_id) updateData.projectId = args.project_id;
   if (args.section_id) updateData.sectionId = args.section_id;
 
-  const updatedTask = await todoistClient.updateTask(matchingTask.id, updateData);
+  const updatedTask = await todoistClient.updateTask(
+    matchingTask.id,
+    updateData
+  );
 
   return `Task "${matchingTask.content}" updated:\nNew Title: ${
     updatedTask.content
   }${
-    updatedTask.description ? `\nNew Description: ${updatedTask.description}` : ""
+    updatedTask.description
+      ? `\nNew Description: ${updatedTask.description}`
+      : ""
   }${
     updatedTask.due ? `\nNew Due Date: ${updatedTask.due.string}` : ""
   }${updatedTask.priority ? `\nNew Priority: ${updatedTask.priority}` : ""}`;
@@ -177,14 +190,14 @@ export async function handleDeleteTask(
 ): Promise<string> {
   // Clear cache since we're deleting
   taskCache.clear();
-  
+
   const tasks = await todoistClient.getTasks();
   const matchingTask = tasks.find((task) =>
     task.content.toLowerCase().includes(args.task_name.toLowerCase())
   );
 
   if (!matchingTask) {
-    throw new Error(`Could not find a task matching "${args.task_name}"`);
+    throw new TaskNotFoundError(args.task_name);
   }
 
   await todoistClient.deleteTask(matchingTask.id);
@@ -197,14 +210,14 @@ export async function handleCompleteTask(
 ): Promise<string> {
   // Clear cache since we're completing
   taskCache.clear();
-  
+
   const tasks = await todoistClient.getTasks();
   const matchingTask = tasks.find((task) =>
     task.content.toLowerCase().includes(args.task_name.toLowerCase())
   );
 
   if (!matchingTask) {
-    throw new Error(`Could not find a task matching "${args.task_name}"`);
+    throw new TaskNotFoundError(args.task_name);
   }
 
   await todoistClient.closeTask(matchingTask.id);
