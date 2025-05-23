@@ -12,7 +12,7 @@ export async function handleGetProjects(
   todoistClient: TodoistApi
 ): Promise<string> {
   const result = await todoistClient.getProjects();
-  const projects = Array.isArray(result) ? result : (result as any)?.data || [];
+  const projects = Array.isArray(result) ? result : (result as { data?: TodoistProject[] })?.data || [];
 
   const projectList = projects
     .map((project: TodoistProject) => `- ${project.name} (ID: ${project.id})`)
@@ -31,13 +31,13 @@ export async function handleGetSections(
   let result;
   try {
     // Try the object-based API first
-    result = await todoistClient.getSections(args as any);
+    result = await todoistClient.getSections(args as GetSectionsArgs);
   } catch {
     // Fallback to string-based API
     result = await todoistClient.getSections(args.project_id);
   }
-  
-  const sections = Array.isArray(result) ? result : (result as any)?.data || [];
+
+  const sections = Array.isArray(result) ? result : (result as { data?: TodoistSection[] })?.data || [];
 
   const sectionList = sections
     .map(
