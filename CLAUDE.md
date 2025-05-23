@@ -153,6 +153,9 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 - **Tool Names**: All MCP tool names use underscores (e.g., `todoist_task_create`) to comply with MCP naming requirements `^[a-zA-Z0-9_-]{1,64}$`
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Task Search**: Update/delete/complete operations use case-insensitive partial string matching against task content
+- **Due Dates vs Deadlines**: 
+  - `due_string`/`due_date`: When the task appears in "Today" (start date)
+  - `deadline_date`: Actual deadline for task completion (YYYY-MM-DD format)
 - **Bulk Operations**: Use bulk tools (e.g., `todoist_tasks_bulk_create`) when working with multiple tasks to improve efficiency and reduce API calls
 - **Bulk Search Criteria**: Bulk operations support flexible filtering by project, priority, due dates, and content matching
 - **Linting**: Always run `npm run lint -- --fix` after making changes to auto-fix formatting issues

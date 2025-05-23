@@ -43,7 +43,7 @@ export async function handleCreateTask(
     // Validate input
     validateTaskContent(args.content);
     validatePriority(args.priority);
-    validateDateString(args.deadline, "deadline");
+    validateDateString(args.deadline_date, "deadline_date");
     validateLabels(args.labels);
     validateProjectId(args.project_id);
     validateSectionId(args.section_id);
@@ -59,8 +59,8 @@ export async function handleCreateTask(
       taskData.labels = args.labels;
     }
 
-    if (args.deadline) {
-      taskData.deadline = args.deadline;
+    if (args.deadline_date) {
+      taskData.deadlineDate = args.deadline_date;
     }
 
     if (args.project_id) {
@@ -84,7 +84,7 @@ export async function handleCreateTask(
       task.labels && task.labels.length > 0
         ? `\nLabels: ${task.labels.join(", ")}`
         : ""
-    }${args.deadline ? `\nDeadline: ${args.deadline}` : ""}${
+    }${args.deadline_date ? `\nDeadline: ${args.deadline_date}` : ""}${
       args.project_id ? `\nProject ID: ${args.project_id}` : ""
     }${args.section_id ? `\nSection ID: ${args.section_id}` : ""}`;
   } catch (error) {
@@ -141,8 +141,8 @@ export async function handleGetTasks(
         `- ${task.content}${
           task.description ? `\n  Description: ${task.description}` : ""
         }${task.due ? `\n  Due: ${task.due.string}` : ""}${
-          task.priority ? `\n  Priority: ${task.priority}` : ""
-        }`
+          task.deadline ? `\n  Deadline: ${task.deadline.date}` : ""
+        }${task.priority ? `\n  Priority: ${task.priority}` : ""}`
     )
     .join("\n\n");
 
@@ -278,7 +278,7 @@ export async function handleBulkCreateTasks(
         // Validate each task input
         validateTaskContent(taskArgs.content);
         validatePriority(taskArgs.priority);
-        validateDateString(taskArgs.deadline, "deadline");
+        validateDateString(taskArgs.deadline_date, "deadline_date");
         validateLabels(taskArgs.labels);
         validateProjectId(taskArgs.project_id);
         validateSectionId(taskArgs.section_id);
@@ -293,7 +293,8 @@ export async function handleBulkCreateTasks(
         if (taskArgs.labels && taskArgs.labels.length > 0) {
           taskData.labels = taskArgs.labels;
         }
-        if (taskArgs.deadline) taskData.deadline = taskArgs.deadline;
+        if (taskArgs.deadline_date)
+          taskData.deadlineDate = taskArgs.deadline_date;
         if (taskArgs.project_id) taskData.projectId = taskArgs.project_id;
         if (taskArgs.section_id) taskData.sectionId = taskArgs.section_id;
 

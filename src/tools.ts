@@ -32,7 +32,7 @@ export const CREATE_TASK_TOOL: Tool = {
         },
         description: "Array of label names to assign to the task (optional)",
       },
-      deadline: {
+      deadline_date: {
         type: "string",
         description: "Deadline date in YYYY-MM-DD format (optional)",
       },
@@ -255,7 +255,7 @@ export const BULK_CREATE_TASKS_TOOL: Tool = {
               },
               description: "Array of label names to assign to the task (optional)",
             },
-            deadline: {
+            deadline_date: {
               type: "string",
               description: "Deadline date in YYYY-MM-DD format (optional)",
             },
