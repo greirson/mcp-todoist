@@ -125,7 +125,51 @@ export interface BulkTaskFilterArgs {
   };
 }
 
+// Comment operation interfaces
+export interface CreateCommentArgs {
+  task_id?: string;
+  task_name?: string;
+  content: string;
+  attachment?: {
+    file_name: string;
+    file_url: string;
+    file_type: string;
+  };
+}
+
+export interface GetCommentsArgs {
+  task_id?: string;
+  task_name?: string;
+  project_id?: string;
+}
+
+export interface TodoistCommentData {
+  content: string;
+  taskId?: string;
+  projectId?: string;
+  attachment?: {
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+  };
+}
+
+// API response interfaces for comments
+export interface TodoistComment {
+  id: string;
+  content: string;
+  taskId?: string;
+  projectId?: string;
+  postedAt: string;
+  attachment?: {
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+  };
+}
+
 // Union types to handle any API response format
 export type TasksResponse = unknown;
 export type ProjectsResponse = unknown;
 export type SectionsResponse = unknown;
+export type CommentsResponse = unknown;

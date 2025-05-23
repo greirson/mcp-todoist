@@ -9,6 +9,8 @@ import {
   BulkCreateTasksArgs,
   BulkUpdateTasksArgs,
   BulkTaskFilterArgs,
+  CreateCommentArgs,
+  GetCommentsArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -112,5 +114,29 @@ export function isBulkTaskFilterArgs(args: unknown): args is BulkTaskFilterArgs 
     "search_criteria" in obj &&
     typeof obj.search_criteria === "object" &&
     obj.search_criteria !== null
+  );
+}
+
+export function isCreateCommentArgs(args: unknown): args is CreateCommentArgs {
+  if (typeof args !== "object" || args === null) return false;
+  
+  const obj = args as Record<string, unknown>;
+  return (
+    "content" in obj &&
+    typeof obj.content === "string" &&
+    (obj.task_id === undefined || typeof obj.task_id === "string") &&
+    (obj.task_name === undefined || typeof obj.task_name === "string") &&
+    (obj.task_id !== undefined || obj.task_name !== undefined)
+  );
+}
+
+export function isGetCommentsArgs(args: unknown): args is GetCommentsArgs {
+  if (typeof args !== "object" || args === null) return false;
+  
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.task_id === undefined || typeof obj.task_id === "string") &&
+    (obj.task_name === undefined || typeof obj.task_name === "string") &&
+    (obj.project_id === undefined || typeof obj.project_id === "string")
   );
 }

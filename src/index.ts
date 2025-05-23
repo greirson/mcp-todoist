@@ -21,6 +21,8 @@ import {
   isBulkCreateTasksArgs,
   isBulkUpdateTasksArgs,
   isBulkTaskFilterArgs,
+  isCreateCommentArgs,
+  isGetCommentsArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -39,6 +41,10 @@ import {
   handleCreateProject,
   handleCreateSection,
 } from "./handlers/project-handlers.js";
+import {
+  handleCreateComment,
+  handleGetComments,
+} from "./handlers/comment-handlers.js";
 import { handleError } from "./errors.js";
 
 // Server implementation
@@ -169,6 +175,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_tasks_bulk_complete");
         }
         result = await handleBulkCompleteTasks(todoistClient, args);
+        break;
+
+      case "todoist_comment_create":
+        if (!isCreateCommentArgs(args)) {
+          throw new Error("Invalid arguments for todoist_comment_create");
+        }
+        result = await handleCreateComment(todoistClient, args);
+        break;
+
+      case "todoist_comment_get":
+        if (!isGetCommentsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_comment_get");
+        }
+        result = await handleGetComments(todoistClient, args);
         break;
 
       default:
