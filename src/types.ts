@@ -66,3 +66,31 @@ export interface TodoistSectionData {
   name: string;
   projectId: string;
 }
+
+// API response interfaces for backward compatibility
+export interface TodoistTask {
+  id: string;
+  content: string;
+  description?: string;
+  due?: { string: string } | null;
+  priority?: number;
+  labels?: string[];
+}
+
+export interface TodoistProject {
+  id: string;
+  name: string;
+  color?: string;
+  isFavorite?: boolean;
+}
+
+export interface TodoistSection {
+  id: string;
+  name: string;
+  projectId: string;
+}
+
+// Union types to handle both array and response object formats
+export type TasksResponse = TodoistTask[] | { data: TodoistTask[] };
+export type ProjectsResponse = TodoistProject[] | { data: TodoistProject[] };
+export type SectionsResponse = TodoistSection[] | { data: TodoistSection[] };

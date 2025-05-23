@@ -5,6 +5,8 @@ import {
   UpdateTaskArgs,
   TaskNameArgs,
   TodoistTaskData,
+  TodoistTask,
+  TasksResponse,
 } from "../types.js";
 import { SimpleCache } from "../cache.js";
 import { TaskNotFoundError, TodoistAPIError } from "../errors.js";
@@ -19,20 +21,11 @@ import {
 } from "../validation.js";
 
 // Cache for task data (30 second TTL)
-const taskCache = new SimpleCache<
-  Array<{
-    id: string;
-    content: string;
-    description?: string;
-    due?: { string: string } | null;
-    priority?: number;
-    labels?: string[];
-  }>
->(30000);
+const taskCache = new SimpleCache<TodoistTask[]>(30000);
 
 // Helper function to handle API response format changes
-function extractTasksArray(result: any): any[] {
-  return Array.isArray(result) ? result : result?.data || [];
+function extractTasksArray(result: TasksResponse): TodoistTask[] {
+  return Array.isArray(result) ? result : result.data || [];
 }
 
 export async function handleCreateTask(
@@ -114,11 +107,11 @@ export async function handleGetTasks(
   let tasks = taskCache.get(cacheKey);
 
   if (!tasks) {
-    const result = await todoistClient.getTasks(
+    const result = (await todoistClient.getTasks(
       Object.keys(apiParams).length > 0
         ? (apiParams as Parameters<typeof todoistClient.getTasks>[0])
         : undefined
-    );
+    )) as TasksResponse;
     // Handle both array response and object response formats
     tasks = extractTasksArray(result);
     taskCache.set(cacheKey, tasks);
@@ -158,9 +151,9 @@ export async function handleUpdateTask(
   // Clear cache since we're updating
   taskCache.clear();
 
-  const result = await todoistClient.getTasks();
+  const result = (await todoistClient.getTasks()) as TasksResponse;
   const tasks = extractTasksArray(result);
-  const matchingTask = tasks.find((task: any) =>
+  const matchingTask = tasks.find((task: TodoistTask) =>
     task.content.toLowerCase().includes(args.task_name.toLowerCase())
   );
 
@@ -199,9 +192,9 @@ export async function handleDeleteTask(
   // Clear cache since we're deleting
   taskCache.clear();
 
-  const result = await todoistClient.getTasks();
+  const result = (await todoistClient.getTasks()) as TasksResponse;
   const tasks = extractTasksArray(result);
-  const matchingTask = tasks.find((task: any) =>
+  const matchingTask = tasks.find((task: TodoistTask) =>
     task.content.toLowerCase().includes(args.task_name.toLowerCase())
   );
 
@@ -220,9 +213,9 @@ export async function handleCompleteTask(
   // Clear cache since we're completing
   taskCache.clear();
 
-  const result = await todoistClient.getTasks();
+  const result = (await todoistClient.getTasks()) as TasksResponse;
   const tasks = extractTasksArray(result);
-  const matchingTask = tasks.find((task: any) =>
+  const matchingTask = tasks.find((task: TodoistTask) =>
     task.content.toLowerCase().includes(args.task_name.toLowerCase())
   );
 
