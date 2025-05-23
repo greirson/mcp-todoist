@@ -4,7 +4,7 @@ export interface CreateTaskArgs {
   due_string?: string;
   priority?: number;
   labels?: string[];
-  deadline?: string;
+  deadline_date?: string;
   project_id?: string;
   section_id?: string;
 }
@@ -51,7 +51,7 @@ export interface TodoistTaskData {
   dueString?: string;
   priority?: number;
   labels?: string[];
-  deadline?: string;
+  deadlineDate?: string;
   projectId?: string;
   sectionId?: string;
 }
@@ -73,6 +73,7 @@ export interface TodoistTask {
   content: string;
   description?: string;
   due?: { string: string } | null;
+  deadline?: { date: string } | null;
   priority?: number;
   labels?: string[];
   projectId?: string;
