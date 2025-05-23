@@ -90,7 +90,7 @@ export interface TodoistSection {
   projectId: string;
 }
 
-// Union types to handle both array and response object formats
-export type TasksResponse = TodoistTask[] | { data: TodoistTask[] };
-export type ProjectsResponse = TodoistProject[] | { data: TodoistProject[] };
-export type SectionsResponse = TodoistSection[] | { data: TodoistSection[] };
+// Union types to handle any API response format
+export type TasksResponse = unknown;
+export type ProjectsResponse = unknown;
+export type SectionsResponse = unknown;

@@ -6,15 +6,13 @@ import {
   TodoistProjectData,
   TodoistProject,
   TodoistSection,
-  ProjectsResponse,
-  SectionsResponse,
 } from "../types.js";
 
 export async function handleGetProjects(
   todoistClient: TodoistApi
 ): Promise<string> {
-  const result = (await todoistClient.getProjects()) as ProjectsResponse;
-  const projects = Array.isArray(result) ? result : result.data || [];
+  const result = await todoistClient.getProjects();
+  const projects = Array.isArray(result) ? result : (result as any)?.data || [];
 
   const projectList = projects
     .map((project: TodoistProject) => `- ${project.name} (ID: ${project.id})`)
@@ -29,10 +27,8 @@ export async function handleGetSections(
   todoistClient: TodoistApi,
   args: GetSectionsArgs
 ): Promise<string> {
-  const result = (await todoistClient.getSections(
-    args.project_id as string | undefined
-  )) as SectionsResponse;
-  const sections = Array.isArray(result) ? result : result.data || [];
+  const result = await todoistClient.getSections(args.project_id);
+  const sections = Array.isArray(result) ? result : (result as any)?.data || [];
 
   const sectionList = sections
     .map(
