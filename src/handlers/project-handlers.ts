@@ -12,7 +12,9 @@ export async function handleGetProjects(
   todoistClient: TodoistApi
 ): Promise<string> {
   const result = await todoistClient.getProjects();
-  const projects = Array.isArray(result) ? result : (result as { data?: TodoistProject[] })?.data || [];
+  const projects = Array.isArray(result)
+    ? result
+    : (result as { data?: TodoistProject[] })?.data || [];
 
   const projectList = projects
     .map((project: TodoistProject) => `- ${project.name} (ID: ${project.id})`)
@@ -37,7 +39,9 @@ export async function handleGetSections(
     result = await todoistClient.getSections(args as unknown as string);
   }
 
-  const sections = Array.isArray(result) ? result : (result as { data?: TodoistSection[] })?.data || [];
+  const sections = Array.isArray(result)
+    ? result
+    : (result as { data?: TodoistSection[] })?.data || [];
 
   const sectionList = sections
     .map(
