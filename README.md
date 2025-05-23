@@ -2,6 +2,26 @@
 
 An MCP (Model Context Protocol) server that connects Claude with Todoist for complete task and project management through natural language.
 
+## Quick Start
+
+1. Install: `npm install -g @greirson/mcp-todoist`
+2. Get your [Todoist API token](https://todoist.com/app/settings/integrations)
+3. Add to Claude Desktop config with your token
+4. Ask Claude: *"Show me my Todoist projects"*
+
+**That's it!** You can now manage your Todoist tasks directly through Claude.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation & Setup](#installation--setup)
+- [Tools Overview](#tools-overview)
+- [Usage Examples](#usage-examples)
+- [Getting Started Workflow](#getting-started-workflow)
+- [Best Practices](#best-practices)
+- [Troubleshooting](#troubleshooting)
+- [Development](#development)
+
 ## Features
 
 * **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
@@ -16,14 +36,60 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 * **Input Validation**: Comprehensive validation and sanitization of all inputs
 * **Type Safety**: Full TypeScript implementation with runtime type checking
 
-## Installation
+## Installation & Setup
 
-### Manual Installation
+### Step 1: Install the Package
 ```bash
 npm install -g @greirson/mcp-todoist
 ```
 
-## Tools
+### Step 2: Get Your Todoist API Token
+1. Log in to your [Todoist account](https://todoist.com)
+2. Go to **Settings** → **Integrations**
+3. Scroll down to the **Developer** section
+4. Copy your **API token** (keep this secure!)
+
+### Step 3: Configure Claude Desktop
+
+Add the server to your Claude Desktop configuration file:
+
+**On macOS/Linux:**
+- File location: `~/.config/claude_desktop_config.json`
+
+**On Windows:**
+- File location: `%APPDATA%\Claude\claude_desktop_config.json`
+
+Add this configuration:
+
+```json
+{
+  "mcpServers": {
+    "todoist": {
+      "command": "mcp-todoist",
+      "env": {
+        "TODOIST_API_TOKEN": "your_api_token_here"
+      }
+    }
+  }
+}
+```
+
+**⚠️ Important:** Replace `your_api_token_here` with your actual Todoist API token from Step 2.
+
+### Step 4: Restart Claude Desktop
+
+Close and reopen Claude Desktop to load the new MCP server.
+
+### Step 5: Verify Installation
+
+In Claude Desktop, try asking:
+```
+"Show me my Todoist projects"
+```
+
+You should see a list of your Todoist projects, confirming the integration is working!
+
+## Tools Overview
 
 The server provides 15 tools organized by entity type:
 
@@ -52,30 +118,23 @@ The server provides 15 tools organized by entity type:
 - **Todoist Section Create**: Create sections within projects
 - **Todoist Section Get**: List sections within projects
 
-## Setup
+## Troubleshooting
 
-### Getting a Todoist API Token
-1. Log in to your Todoist account
-2. Navigate to Settings → Integrations
-3. Find your API token under "Developer"
+### Common Issues
 
-### Usage with Claude Desktop
+**"No Todoist projects found" or connection errors:**
+- Verify your API token is correct
+- Check that the token is properly set in your claude_desktop_config.json
+- Ensure there are no extra spaces or quotes around your token
 
-Add to your `claude_desktop_config.json`:
+**MCP server not loading:**
+- Confirm the package is installed globally: `npm list -g @greirson/mcp-todoist`
+- Restart Claude Desktop completely
+- Check the configuration file path is correct for your operating system
 
-```json
-{
-  "mcpServers": {
-    "todoist": {
-      "command": "node",
-      "args": ["/path/to/mcp-todoist/dist/index.js"],
-      "env": {
-        "TODOIST_API_TOKEN": "your_api_token_here"
-      }
-    }
-  }
-}
-```
+**Permission errors:**
+- On macOS/Linux, you may need to create the config directory: `mkdir -p ~/.config`
+- Ensure Claude Desktop has permission to read the config file
 
 ## Usage Examples
 
@@ -119,12 +178,42 @@ Add to your `claude_desktop_config.json`:
 "Get tasks in project 12345"
 ```
 
-## Workflow
+## Getting Started Workflow
 
-1. **Discover Projects**: Use "Todoist Project Get" to see available projects
-2. **Create Organization**: Use "Todoist Project Create" and "Todoist Section Create" as needed
-3. **Manage Tasks**: Create, update, and organize tasks using project/section IDs
-4. **Track Progress**: Use task filtering and completion tools
+### 1. First Steps
+```
+"Show me all my Todoist projects"
+"Create a new project called 'Claude Integration Test'"
+```
+
+### 2. Basic Task Management
+```
+"Create a task 'Try out MCP integration' in my Inbox"
+"Add a high priority task 'Review project setup' due tomorrow"
+"Show me all my tasks"
+```
+
+### 3. Advanced Organization
+```
+"Create a section called 'In Progress' in my work project"
+"Move the setup task to the In Progress section"
+"Add a comment 'This is working great!' to my test task"
+```
+
+### 4. Bulk Operations
+```
+"Create multiple tasks: 'Plan meeting agenda', 'Prepare slides', 'Send invites'"
+"Complete all tasks containing 'test' in the Claude project"
+"Update all high priority tasks to be due next week"
+```
+
+## Best Practices
+
+- **Start Simple**: Begin with basic task creation and project viewing
+- **Use Natural Language**: Ask questions as you normally would
+- **Leverage Bulk Operations**: Use bulk tools when working with multiple tasks
+- **Organize First**: Set up projects and sections before creating many tasks
+- **Regular Cleanup**: Use bulk operations to clean up completed or outdated tasks
 
 ## Development
 
