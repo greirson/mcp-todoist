@@ -24,7 +24,7 @@ export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
 
 export function isGetTasksArgs(args: unknown): args is GetTasksArgs {
   if (typeof args !== "object" || args === null) return false;
-  
+
   const obj = args as Record<string, unknown>;
   return (
     (obj.project_id === undefined || typeof obj.project_id === "string") &&
@@ -52,7 +52,9 @@ export function isTaskNameArgs(args: unknown): args is TaskNameArgs {
   );
 }
 
-export function isGetProjectsArgs(args: unknown): args is Record<string, never> {
+export function isGetProjectsArgs(
+  args: unknown
+): args is Record<string, never> {
   return typeof args === "object" && args !== null;
 }
 
@@ -80,9 +82,11 @@ export function isCreateSectionArgs(args: unknown): args is CreateSectionArgs {
   );
 }
 
-export function isBulkCreateTasksArgs(args: unknown): args is BulkCreateTasksArgs {
+export function isBulkCreateTasksArgs(
+  args: unknown
+): args is BulkCreateTasksArgs {
   if (typeof args !== "object" || args === null) return false;
-  
+
   const obj = args as Record<string, unknown>;
   return (
     "tasks" in obj &&
@@ -92,9 +96,11 @@ export function isBulkCreateTasksArgs(args: unknown): args is BulkCreateTasksArg
   );
 }
 
-export function isBulkUpdateTasksArgs(args: unknown): args is BulkUpdateTasksArgs {
+export function isBulkUpdateTasksArgs(
+  args: unknown
+): args is BulkUpdateTasksArgs {
   if (typeof args !== "object" || args === null) return false;
-  
+
   const obj = args as Record<string, unknown>;
   return (
     "search_criteria" in obj &&
@@ -106,9 +112,11 @@ export function isBulkUpdateTasksArgs(args: unknown): args is BulkUpdateTasksArg
   );
 }
 
-export function isBulkTaskFilterArgs(args: unknown): args is BulkTaskFilterArgs {
+export function isBulkTaskFilterArgs(
+  args: unknown
+): args is BulkTaskFilterArgs {
   if (typeof args !== "object" || args === null) return false;
-  
+
   const obj = args as Record<string, unknown>;
   return (
     "search_criteria" in obj &&
@@ -119,7 +127,7 @@ export function isBulkTaskFilterArgs(args: unknown): args is BulkTaskFilterArgs 
 
 export function isCreateCommentArgs(args: unknown): args is CreateCommentArgs {
   if (typeof args !== "object" || args === null) return false;
-  
+
   const obj = args as Record<string, unknown>;
   return (
     "content" in obj &&
@@ -132,7 +140,7 @@ export function isCreateCommentArgs(args: unknown): args is CreateCommentArgs {
 
 export function isGetCommentsArgs(args: unknown): args is GetCommentsArgs {
   if (typeof args !== "object" || args === null) return false;
-  
+
   const obj = args as Record<string, unknown>;
   return (
     (obj.task_id === undefined || typeof obj.task_id === "string") &&
