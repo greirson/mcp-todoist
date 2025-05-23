@@ -9,10 +9,11 @@ import {
 export async function handleGetProjects(
   todoistClient: TodoistApi
 ): Promise<string> {
-  const projects = await todoistClient.getProjects();
+  const result = await todoistClient.getProjects();
+  const projects = Array.isArray(result) ? result : (result as any).data || [];
 
   const projectList = projects
-    .map((project) => `- ${project.name} (ID: ${project.id})`)
+    .map((project: any) => `- ${project.name} (ID: ${project.id})`)
     .join("\n");
 
   return projects.length > 0
@@ -24,13 +25,14 @@ export async function handleGetSections(
   todoistClient: TodoistApi,
   args: GetSectionsArgs
 ): Promise<string> {
-  const sections = await todoistClient.getSections(
+  const result = await todoistClient.getSections(
     args.project_id as string | undefined
   );
+  const sections = Array.isArray(result) ? result : (result as any).data || [];
 
   const sectionList = sections
     .map(
-      (section) =>
+      (section: any) =>
         `- ${section.name} (ID: ${section.id}, Project ID: ${section.projectId})`
     )
     .join("\n");
