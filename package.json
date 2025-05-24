@@ -23,8 +23,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "prepublishOnly": "npm run lint && npm run test && npm run build",
-    "preversion": "npm run lint && npm run test",
-    "postversion": "git push && git push --tags"
+    "preversion": "npm run lint && npm run test"
   },
   "repository": {
     "type": "git",
