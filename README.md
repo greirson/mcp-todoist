@@ -274,7 +274,12 @@ The codebase is organized into focused modules:
 
 ## Changelog
 
-### v0.5.0 (Latest)
+### v0.5.1 (Latest)
+- **Fixed Deadline Parameter**: Changed `deadline` to `deadline_date` parameter (YYYY-MM-DD format) for proper Todoist API compatibility
+- **Deadline Display**: Task retrieval now properly displays deadline information alongside due dates
+- **Improved Documentation**: Updated CLAUDE.md with clarification on due dates vs deadlines
+
+### v0.5.0
 - **Bulk Operations**: Added 4 new bulk tools for efficient multi-task operations (create, update, delete, complete)
 - **Comment System**: Full comment support with create and retrieve functionality, including file attachments
 - **Enhanced Search**: Flexible search criteria for bulk operations (project, priority, date ranges, content matching)
