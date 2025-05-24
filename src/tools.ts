@@ -34,7 +34,7 @@ export const CREATE_TASK_TOOL: Tool = {
       },
       deadline_date: {
         type: "string",
-        description: "Deadline date in YYYY-MM-DD format (optional)",
+        description: "Task deadline in YYYY-MM-DD format (when user mentions 'deadline') (optional)",
       },
       project_id: {
         type: "string",
@@ -257,7 +257,7 @@ export const BULK_CREATE_TASKS_TOOL: Tool = {
             },
             deadline_date: {
               type: "string",
-              description: "Deadline date in YYYY-MM-DD format (optional)",
+              description: "Task deadline in YYYY-MM-DD format (when user mentions 'deadline') (optional)",
             },
             project_id: {
               type: "string",
