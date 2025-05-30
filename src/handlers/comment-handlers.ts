@@ -18,8 +18,9 @@ function extractCommentsArray(result: unknown): TodoistComment[] {
     return result as TodoistComment[];
   }
 
-  const responseObj = result as { data?: TodoistComment[] };
-  return responseObj?.data || [];
+  const responseObj = result as any;
+  // Handle both 'results' and 'data' properties
+  return responseObj?.results || responseObj?.data || [];
 }
 
 // Helper function to extract tasks array (reused from task-handlers)
@@ -28,8 +29,9 @@ function extractTasksArray(result: unknown): TodoistTask[] {
     return result as TodoistTask[];
   }
 
-  const responseObj = result as { data?: TodoistTask[] };
-  return responseObj?.data || [];
+  const responseObj = result as any;
+  // Handle both 'results' and 'data' properties
+  return responseObj?.results || responseObj?.data || [];
 }
 
 export async function handleCreateComment(
