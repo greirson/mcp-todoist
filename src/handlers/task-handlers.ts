@@ -31,8 +31,9 @@ function extractTasksArray(result: unknown): TodoistTask[] {
     return result as TodoistTask[];
   }
 
-  const responseObj = result as { data?: TodoistTask[] };
-  return responseObj?.data || [];
+  const responseObj = result as any;
+  // Handle both 'results' and 'data' properties
+  return responseObj?.results || responseObj?.data || [];
 }
 
 export async function handleCreateTask(
