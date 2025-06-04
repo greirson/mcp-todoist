@@ -12,9 +12,11 @@ export async function handleGetProjects(
   todoistClient: TodoistApi
 ): Promise<string> {
   const result = await todoistClient.getProjects();
+
+  // Handle the new API response format with 'results' property
   const projects = Array.isArray(result)
     ? result
-    : (result as { data?: TodoistProject[] })?.data || [];
+    : (result as any)?.results || (result as any)?.data || [];
 
   const projectList = projects
     .map((project: TodoistProject) => `- ${project.name} (ID: ${project.id})`)
@@ -32,9 +34,10 @@ export async function handleGetSections(
   // Use getSections with proper type handling
   const result = await todoistClient.getSections(args as any);
 
+  // Handle the new API response format with 'results' property
   const sections = Array.isArray(result)
     ? result
-    : (result as { data?: TodoistSection[] })?.data || [];
+    : (result as any)?.results || (result as any)?.data || [];
 
   const sectionList = sections
     .map(
