@@ -21,6 +21,7 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 - [Development](#development)
+- [Changelog](#changelog)
 
 ## Features
 
@@ -28,6 +29,7 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 * **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
 * **Comment System**: Add comments to tasks and retrieve comments with attachment support
 * **Project & Section Organization**: Create and manage projects and sections
+* **Testing & Validation**: Built-in tools to test connectivity, validate functionality, and benchmark performance
 * **Smart Discovery**: List projects and sections to find IDs for organization
 * **Rich Task Attributes**: Support for descriptions, due dates, priorities, labels, deadlines, and project assignment
 * **Natural Language Interface**: Use everyday language to manage your Todoist workspace
@@ -91,7 +93,7 @@ You should see a list of your Todoist projects, confirming the integration is wo
 
 ## Tools Overview
 
-The server provides 15 tools organized by entity type:
+The server provides 18 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support
@@ -117,6 +119,11 @@ The server provides 15 tools organized by entity type:
 ### Section Management
 - **Todoist Section Create**: Create sections within projects
 - **Todoist Section Get**: List sections within projects
+
+### Testing & Validation
+- **Todoist Test Connection**: Validate API token and test connectivity
+- **Todoist Test All Features**: Comprehensive testing of all MCP tools and operations
+- **Todoist Test Performance**: Benchmark API response times with configurable iterations
 
 ## Troubleshooting
 
@@ -178,10 +185,19 @@ The server provides 15 tools organized by entity type:
 "Get tasks in project 12345"
 ```
 
+### Testing & Validation
+```
+"Test my Todoist connection"
+"Run comprehensive tests on all Todoist features"
+"Benchmark Todoist API performance with 10 iterations"
+"Validate that all MCP tools are working correctly"
+```
+
 ## Getting Started Workflow
 
 ### 1. First Steps
 ```
+"Test my Todoist connection"
 "Show me all my Todoist projects"
 "Create a new project called 'Claude Integration Test'"
 ```
@@ -274,39 +290,16 @@ The codebase is organized into focused modules:
 
 ## Changelog
 
-### v0.5.1 (Latest)
-- **Fixed Deadline Parameter**: Changed `deadline` to `deadline_date` parameter (YYYY-MM-DD format) for proper Todoist API compatibility
-- **Deadline Display**: Task retrieval now properly displays deadline information alongside due dates
-- **Improved Documentation**: Updated CLAUDE.md with clarification on due dates vs deadlines
+See [CHANGELOG.md](CHANGELOG.md) for a detailed history of all changes, including:
 
-### v0.5.0
-- **Bulk Operations**: Added 4 new bulk tools for efficient multi-task operations (create, update, delete, complete)
-- **Comment System**: Full comment support with create and retrieve functionality, including file attachments
-- **Enhanced Search**: Flexible search criteria for bulk operations (project, priority, date ranges, content matching)
-- **Improved Documentation**: Updated README with comprehensive examples for all new features
+- **v0.6.0** (Latest): Testing infrastructure, API response handling improvements, and development documentation
+- **v0.5.x**: Bulk operations, comment system, and deadline parameter fixes  
+- **v0.4.0**: Modular architecture, performance optimization, and enhanced error handling
+- **v0.3.0**: Complete project management and enhanced organization
+- **v0.2.0**: Labels and deadline support with improved API compliance
+- **v0.1.0**: Initial release with basic task management functionality
 
-### v0.4.0
-- **Modular Architecture**: Refactored monolithic code into focused modules
-- **Performance Optimization**: Added 30-second caching for GET operations
-- **Robust Error Handling**: Custom error types with structured error responses
-- **Input Validation**: Comprehensive validation and sanitization
-- **Code Quality**: Added ESLint, Prettier, and Jest testing framework
-- **Type Safety**: Eliminated all `any` types, full TypeScript implementation
-
-### v0.3.0
-- **Complete Project Management**: Added project and section creation tools
-- **Enhanced Organization**: Full support for project_id and section_id in task operations
-- **Improved Tool Names**: Cleaner naming convention (e.g., "Todoist Task Create")
-- **Discovery Tools**: Added tools to list projects and sections for ID discovery
-
-### v0.2.0
-- **Enhanced Task Creation**: Added support for labels and deadline parameters
-- **Improved API Compliance**: Better alignment with Todoist API v2 specification
-
-### v0.1.0 (Initial Release)
-- Basic task management (create, read, update, delete, complete)
-- Natural language task search and filtering
-- Support for descriptions, due dates, and priority levels
+For migration guides and breaking changes, see the full changelog.
 
 ## Contributing
 Contributions are welcome! Feel free to submit a Pull Request.

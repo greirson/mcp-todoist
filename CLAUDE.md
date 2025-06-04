@@ -37,13 +37,14 @@ The codebase is organized into focused modules:
   - `task-handlers.ts` - Task CRUD operations and bulk operations
   - `project-handlers.ts` - Project and section operations
   - `comment-handlers.ts` - Comment creation and retrieval operations
+  - `test-handlers.ts` - Testing infrastructure for API validation and performance monitoring
 - **`src/errors.ts`**: Custom error types with structured error handling
 - **`src/validation.ts`**: Input validation and sanitization
 - **`src/cache.ts`**: Simple in-memory caching for API optimization
 
 ### Tool Architecture
 
-The server exposes 15 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 18 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support
@@ -69,6 +70,11 @@ The server exposes 15 tools organized by entity type with standardized naming co
 **Section Management:**
 - `todoist_section_create` - Creates sections within projects
 - `todoist_section_get` - Lists sections within projects
+
+**Testing Infrastructure:**
+- `todoist_test_connection` - Quick API token validation and connection test
+- `todoist_test_all_features` - Comprehensive testing of all MCP tools and API operations
+- `todoist_test_performance` - Performance benchmarking with configurable iterations
 
 ### Error Handling Strategy
 
@@ -115,11 +121,31 @@ Bulk operations provide significant efficiency improvements by allowing multiple
 - `TODOIST_API_TOKEN` environment variable is required and validated at startup
 - Server exits with error code 1 if token is missing
 
-### Testing
+### Testing Infrastructure
 
+The codebase includes comprehensive testing capabilities:
+
+**Unit Tests:**
 - Jest configured for ESM modules with ts-jest
 - Type guard unit tests in `src/__tests__/type-guards.test.ts`
 - Test imports use TypeScript extensions (not .js)
+
+**Integration Tests:**
+- `src/__tests__/integration.test.ts` - Full API integration testing
+- Requires `TODOIST_API_TOKEN` environment variable for execution
+- Tests skip gracefully when token is not available
+- Comprehensive testing of all MCP tools and API operations
+
+**Built-in Testing Tools:**
+- `todoist_test_connection` - Validates API token and connection
+- `todoist_test_all_features` - Tests all tools (tasks, projects, labels, sections, comments)
+- `todoist_test_performance` - Benchmarks API response times with configurable iterations
+
+**Running Tests:**
+- `npm test` - Runs all tests (unit tests always, integration tests if token available)
+- `TODOIST_API_TOKEN=your-token npm test` - Runs with integration tests
+- `npm run test:watch` - Runs tests in watch mode
+- `npm run test:coverage` - Runs tests with coverage report
 
 ### Code Quality
 
@@ -143,10 +169,11 @@ Bulk operations provide significant efficiency improvements by allowing multiple
 ### API Compatibility Handling
 
 Due to evolving Todoist API types, the codebase uses defensive programming patterns:
-- **Type Assertions**: Strategic use of `any` types for API compatibility, especially for comment responses
-- **Response Handling**: Flexible response parsing that handles both array and object responses
+- **Response Format Handling**: Uses `extractArrayFromResponse()` helper to handle multiple API response formats (direct arrays, `result.results`, `result.data`)
+- **Type Assertions**: Strategic type assertions for API compatibility while maintaining type safety
 - **Error Recovery**: Try-catch patterns for API signature changes
-- **Comment API**: Uses defensive typing since the official Todoist TypeScript types may not include all comment properties like attachments
+- **Flexible Response Parsing**: Handles both array and object responses gracefully
+- **Testing Integration**: Built-in test tools validate API compatibility across different response formats
 
 ### Important Notes
 
@@ -158,5 +185,83 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
   - `deadline_date`: Actual deadline for task completion (YYYY-MM-DD format)
 - **Bulk Operations**: Use bulk tools (e.g., `todoist_tasks_bulk_create`) when working with multiple tasks to improve efficiency and reduce API calls
 - **Bulk Search Criteria**: Bulk operations support flexible filtering by project, priority, due dates, and content matching
+- **Testing**: Use `todoist_test_all_features` after making changes to ensure functionality works correctly
 - **Linting**: Always run `npm run lint -- --fix` after making changes to auto-fix formatting issues
-- **Type Safety**: When TypeScript compilation fails due to API changes, use defensive type assertions rather than disabling strict checking
+- **Type Safety**: When TypeScript compilation fails due to API changes, use defensive type assertions with proper interfaces rather than disabling strict checking
+- **Development Workflow**: For API response handling, prefer using `extractArrayFromResponse()` helper function over inline type assertions
+
+## Development Roadmap
+
+The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.md`:
+
+**Completed Phases:**
+- ✅ **Phase 1**: Testing Infrastructure (v0.6.0) - Comprehensive testing tools and integration tests
+
+**Planned Future Phases:**
+- **Phase 2**: Label Management System - Full CRUD operations for labels with usage statistics  
+- **Phase 3**: Subtask Management - Hierarchical task management with parent-child relationships
+- **Phase 4**: Duplicate Detection - Smart task deduplication using similarity algorithms
+- **Phase 5**: Project Analytics - Comprehensive project health metrics and insights
+
+All future development should use the testing infrastructure to validate changes and ensure compatibility.
+
+## Documentation Maintenance Requirements
+
+**CRITICAL: Always keep documentation files updated when making changes to the codebase.**
+
+### Required Documentation Updates
+
+When making ANY changes to the codebase, you MUST update the following files:
+
+#### 1. CHANGELOG.md Updates
+**ALWAYS update CHANGELOG.md for every significant change:**
+- Add new entries following [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format
+- Use semantic versioning for version numbers
+- Categorize changes as: Added, Changed, Deprecated, Removed, Fixed, Security
+- Include specific details about new tools, API changes, or breaking changes
+- Update the unreleased section or create new version entries
+- **Never skip this step** - releases reference "See CHANGELOG.md for full details"
+
+#### 2. README.md Updates
+**Update README.md when:**
+- Adding new MCP tools (update tool count and add to Tools Overview section)
+- Adding new features (update Features section and Usage Examples)
+- Changing installation or setup procedures
+- Adding new usage patterns or best practices
+- Modifying architecture or key components
+
+#### 3. CLAUDE.md Updates
+**Update CLAUDE.md when:**
+- Adding new handlers, modules, or architectural components
+- Changing build commands, testing procedures, or development workflow
+- Adding new important notes, patterns, or best practices
+- Updating tool counts, capabilities, or technical details
+- Modifying the development roadmap or completed phases
+
+### Documentation Update Checklist
+
+For every commit that adds features or changes functionality:
+
+- [ ] **CHANGELOG.md**: Added entry with proper categorization and version
+- [ ] **README.md**: Updated relevant sections (features, tools, examples)
+- [ ] **CLAUDE.md**: Updated technical details and architectural information
+- [ ] **Version consistency**: All files reflect the same tool counts and capabilities
+- [ ] **Cross-references**: Links between files are accurate and up-to-date
+
+### Documentation Standards
+
+- **Be specific**: "Added 3 new testing tools" not "Added testing"
+- **Include examples**: Show usage patterns for new features
+- **Maintain consistency**: Tool counts, version numbers, and feature lists must match across all files
+- **Use proper formatting**: Follow established markdown patterns and structures
+- **Link appropriately**: Ensure cross-references between README.md and CHANGELOG.md work
+
+### Consequences of Not Updating Documentation
+
+- Release notes will be incomplete or inaccurate
+- Users won't know about new features or changes
+- Future developers will have outdated guidance
+- Tool counts and capability descriptions will be wrong
+- Installation and setup instructions may become obsolete
+
+**Remember: Documentation is not optional - it's a required part of every change.**
