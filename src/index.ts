@@ -45,6 +45,11 @@ import {
   handleCreateComment,
   handleGetComments,
 } from "./handlers/comment-handlers.js";
+import {
+  handleTestConnection,
+  handleTestAllFeatures,
+  handleTestPerformance,
+} from "./handlers/test-handlers.js";
 import { handleError } from "./errors.js";
 
 // Server implementation
@@ -189,6 +194,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_comment_get");
         }
         result = await handleGetComments(todoistClient, args);
+        break;
+
+      case "todoist_test_connection":
+        const connectionResult = await handleTestConnection(todoistClient);
+        result = JSON.stringify(connectionResult, null, 2);
+        break;
+
+      case "todoist_test_all_features":
+        const featuresResult = await handleTestAllFeatures(todoistClient);
+        result = JSON.stringify(featuresResult, null, 2);
+        break;
+
+      case "todoist_test_performance":
+        const performanceResult = await handleTestPerformance(todoistClient, args as { iterations?: number });
+        result = JSON.stringify(performanceResult, null, 2);
         break;
 
       default:

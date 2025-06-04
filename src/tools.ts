@@ -490,6 +490,39 @@ export const GET_COMMENTS_TOOL: Tool = {
   },
 };
 
+export const TEST_CONNECTION_TOOL: Tool = {
+  name: "todoist_test_connection",
+  description: "Test the connection to Todoist API and verify API token validity",
+  inputSchema: {
+    type: "object",
+    properties: {},
+  },
+};
+
+export const TEST_ALL_FEATURES_TOOL: Tool = {
+  name: "todoist_test_all_features",
+  description: "Run comprehensive tests on all Todoist MCP features to verify functionality",
+  inputSchema: {
+    type: "object",
+    properties: {},
+  },
+};
+
+export const TEST_PERFORMANCE_TOOL: Tool = {
+  name: "todoist_test_performance",
+  description: "Measure performance and response times of Todoist API operations",
+  inputSchema: {
+    type: "object",
+    properties: {
+      iterations: {
+        type: "number",
+        description: "Number of iterations to run for each test (default: 5)",
+        default: 5,
+      },
+    },
+  },
+};
+
 export const ALL_TOOLS = [
   CREATE_TASK_TOOL,
   GET_TASKS_TOOL,
@@ -506,4 +539,7 @@ export const ALL_TOOLS = [
   BULK_COMPLETE_TASKS_TOOL,
   CREATE_COMMENT_TOOL,
   GET_COMMENTS_TOOL,
+  TEST_CONNECTION_TOOL,
+  TEST_ALL_FEATURES_TOOL,
+  TEST_PERFORMANCE_TOOL,
 ];
