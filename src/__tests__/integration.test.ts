@@ -12,8 +12,8 @@ const describeIfToken = token ? describe : describe.skip;
 if (!token) {
   console.log(
     "⚠️  Skipping integration tests: TODOIST_API_TOKEN environment variable not set.\n" +
-    "   To run integration tests, set your Todoist API token:\n" +
-    "   export TODOIST_API_TOKEN='your-token-here'"
+      "   To run integration tests, set your Todoist API token:\n" +
+      "   export TODOIST_API_TOKEN='your-token-here'"
   );
 }
 

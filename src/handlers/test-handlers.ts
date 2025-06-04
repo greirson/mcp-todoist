@@ -1,5 +1,18 @@
 import { TodoistApi } from "@doist/todoist-api-typescript";
 
+interface ApiResponse {
+  results?: unknown[];
+  data?: unknown[];
+}
+
+function extractArrayFromResponse(response: unknown): unknown[] {
+  if (Array.isArray(response)) {
+    return response;
+  }
+  const apiResponse = response as ApiResponse;
+  return apiResponse?.results || apiResponse?.data || [];
+}
+
 interface TestResult {
   status: "success" | "error";
   message: string;
@@ -57,9 +70,7 @@ async function testTaskOperations(
     // Test task retrieval
     const result = await todoistClient.getTasks({ limit: 5 });
     // Handle various API response formats
-    const taskArray = Array.isArray(result)
-      ? result
-      : (result as any)?.results || (result as any)?.data || [];
+    const taskArray = extractArrayFromResponse(result);
 
     return {
       feature: "Task Operations",
@@ -68,7 +79,8 @@ async function testTaskOperations(
       responseTime: Date.now() - startTime,
       details: {
         taskCount: taskArray.length,
-        sampleTask: taskArray[0]?.content || "No tasks found",
+        sampleTask:
+          (taskArray[0] as { content?: string })?.content || "No tasks found",
       },
     };
   } catch (error) {
@@ -89,9 +101,7 @@ async function testProjectOperations(
   try {
     const result = await todoistClient.getProjects();
     // Handle various API response formats
-    const projectArray = Array.isArray(result)
-      ? result
-      : (result as any)?.results || (result as any)?.data || [];
+    const projectArray = extractArrayFromResponse(result);
 
     return {
       feature: "Project Operations",
@@ -100,7 +110,8 @@ async function testProjectOperations(
       responseTime: Date.now() - startTime,
       details: {
         projectCount: projectArray.length,
-        sampleProject: projectArray[0]?.name || "No projects found",
+        sampleProject:
+          (projectArray[0] as { name?: string })?.name || "No projects found",
       },
     };
   } catch (error) {
@@ -121,9 +132,7 @@ async function testLabelOperations(
   try {
     const result = await todoistClient.getLabels();
     // Handle various API response formats
-    const labelArray = Array.isArray(result)
-      ? result
-      : (result as any)?.results || (result as any)?.data || [];
+    const labelArray = extractArrayFromResponse(result);
 
     return {
       feature: "Label Operations",
@@ -132,7 +141,8 @@ async function testLabelOperations(
       responseTime: Date.now() - startTime,
       details: {
         labelCount: labelArray.length,
-        sampleLabel: labelArray[0]?.name || "No labels found",
+        sampleLabel:
+          (labelArray[0] as { name?: string })?.name || "No labels found",
       },
     };
   } catch (error) {
@@ -154,9 +164,7 @@ async function testSectionOperations(
     // Get projects first to test sections
     const result = await todoistClient.getProjects();
     // Handle various API response formats
-    const projectArray = Array.isArray(result)
-      ? result
-      : (result as any)?.results || (result as any)?.data || [];
+    const projectArray = extractArrayFromResponse(result);
 
     if (projectArray.length === 0) {
       return {
@@ -167,11 +175,11 @@ async function testSectionOperations(
       };
     }
 
-    const sectionsResult = await todoistClient.getSections(projectArray[0].id);
+    const sectionsResult = await todoistClient.getSections({
+      projectId: (projectArray[0] as { id: string }).id,
+    });
     // Handle various API response formats
-    const sectionArray = Array.isArray(sectionsResult)
-      ? sectionsResult
-      : (sectionsResult as any)?.results || (sectionsResult as any)?.data || [];
+    const sectionArray = extractArrayFromResponse(sectionsResult);
 
     return {
       feature: "Section Operations",
@@ -180,7 +188,7 @@ async function testSectionOperations(
       responseTime: Date.now() - startTime,
       details: {
         sectionCount: sectionArray.length,
-        projectId: projectArray[0].id,
+        projectId: (projectArray[0] as { id: string }).id,
       },
     };
   } catch (error) {
@@ -202,9 +210,7 @@ async function testCommentOperations(
     // Get a task to test comments
     const result = await todoistClient.getTasks({ limit: 1 });
     // Handle various API response formats
-    const taskArray = Array.isArray(result)
-      ? result
-      : (result as any)?.results || (result as any)?.data || [];
+    const taskArray = extractArrayFromResponse(result);
 
     if (taskArray.length === 0) {
       return {
@@ -216,12 +222,10 @@ async function testCommentOperations(
     }
 
     const commentsResult = await todoistClient.getComments({
-      taskId: taskArray[0].id,
+      taskId: (taskArray[0] as { id: string }).id,
     });
     // Handle various API response formats
-    const commentArray = Array.isArray(commentsResult)
-      ? commentsResult
-      : (commentsResult as any)?.results || (commentsResult as any)?.data || [];
+    const commentArray = extractArrayFromResponse(commentsResult);
 
     return {
       feature: "Comment Operations",
@@ -230,7 +234,7 @@ async function testCommentOperations(
       responseTime: Date.now() - startTime,
       details: {
         commentCount: commentArray.length,
-        taskId: taskArray[0].id,
+        taskId: (taskArray[0] as { id: string }).id,
       },
     };
   } catch (error) {
