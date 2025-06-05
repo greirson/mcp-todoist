@@ -284,6 +284,15 @@ async function runServer(): Promise<void> {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Todoist MCP Server running on stdio");
+  
+  // Optional: Set up cache monitoring (uncomment to enable)
+  // const cacheManager = CacheManager.getInstance();
+  // setInterval(() => {
+  //   const health = cacheManager.getHealthInfo();
+  //   if (!health.healthy) {
+  //     console.error("Cache health issues:", health.issues);
+  //   }
+  // }, 60000); // Check every minute
 }
 
 runServer().catch((error) => {
