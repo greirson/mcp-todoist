@@ -43,7 +43,7 @@ export async function handleCreateComment(
       );
 
       if (!matchingTask) {
-        ErrorHandler.handleTaskNotFound(args.task_name!, "create comment");
+        ErrorHandler.handleTaskNotFound(args.task_name!);
       }
 
       taskId = matchingTask.id;
@@ -109,7 +109,7 @@ export async function handleGetComments(
       );
 
       if (!matchingTask) {
-        ErrorHandler.handleTaskNotFound(args.task_name!, "get comments");
+        ErrorHandler.handleTaskNotFound(args.task_name!);
       }
 
       const cacheKey = createCacheKey("comments", {
