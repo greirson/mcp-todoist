@@ -59,12 +59,7 @@ export class ErrorHandler {
    * @param context - Additional context about the operation
    * @throws TodoistAPIError with enhanced error information
    */
-  static handleAPIError(
-    operation: string,
-    error: unknown,
-    // eslint-disable-next-line no-unused-vars
-    _context: Partial<ErrorContext> = {}
-  ): never {
+  static handleAPIError(operation: string, error: unknown): never {
     // Enhanced context for potential future use
     // const enhancedContext: ErrorContext = {
     //   operation,
@@ -102,13 +97,7 @@ export class ErrorHandler {
    * @param context - Additional context
    * @throws TaskNotFoundError
    */
-  static handleTaskNotFound(
-    taskName: string,
-
-    _operation: string,
-    // eslint-disable-next-line no-unused-vars
-    _context: Partial<ErrorContext> = {}
-  ): never {
+  static handleTaskNotFound(taskName: string): never {
     // Enhanced context for potential future use
     // const enhancedContext: ErrorContext = {
     //   operation,
@@ -129,13 +118,7 @@ export class ErrorHandler {
    * @param context - Additional context
    * @throws LabelNotFoundError
    */
-  static handleLabelNotFound(
-    labelIdentifier: string,
-
-    _operation: string,
-    // eslint-disable-next-line no-unused-vars
-    _context: Partial<ErrorContext> = {}
-  ): never {
+  static handleLabelNotFound(labelIdentifier: string): never {
     // Enhanced context for potential future use
     // const enhancedContext: ErrorContext = {
     //   operation,
@@ -172,18 +155,16 @@ export class ErrorHandler {
    *
    * @param operation - Description of the operation
    * @param asyncFn - The async function to execute
-   * @param context - Additional context for error handling
    * @returns Promise that resolves to the operation result
    */
   static async wrapAsync<T>(
     operation: string,
-    asyncFn: () => Promise<T>,
-    context: Partial<ErrorContext> = {}
+    asyncFn: () => Promise<T>
   ): Promise<T> {
     try {
       return await asyncFn();
     } catch (error) {
-      this.handleAPIError(operation, error, context);
+      this.handleAPIError(operation, error);
     }
   }
 
@@ -279,20 +260,10 @@ export class ErrorHandler {
  * @param context - Additional context for error handling
  * @returns Method decorator
  */
-export function withErrorHandling(
-  operation: string,
-  context: Partial<ErrorContext> = {}
-): (
-  // eslint-disable-next-line no-unused-vars
-  target: unknown,
-  // eslint-disable-next-line no-unused-vars
-  propertyName: string,
-  descriptor: PropertyDescriptor
-) => void {
+export function withErrorHandling(operation: string): MethodDecorator {
   return function (
     _target: unknown,
-
-    _propertyName: string,
+    _propertyName: string | symbol,
     descriptor: PropertyDescriptor
   ): void {
     const method = descriptor.value;
@@ -301,7 +272,7 @@ export function withErrorHandling(
       try {
         return await method.apply(this, args);
       } catch (error) {
-        ErrorHandler.handleAPIError(operation, error, context);
+        ErrorHandler.handleAPIError(operation, error);
       }
     };
   };

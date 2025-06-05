@@ -10,7 +10,7 @@ import {
   BulkUpdateTasksArgs,
   BulkTaskFilterArgs,
 } from "../types.js";
-import { SimpleCache, CacheManager } from "../cache.js";
+import { CacheManager } from "../cache.js";
 // Removed unused imports - now using ErrorHandler utility
 import {
   validateTaskContent,
@@ -161,7 +161,7 @@ export async function handleUpdateTask(
   );
 
   if (!matchingTask) {
-    ErrorHandler.handleTaskNotFound(args.task_name, "update task");
+    ErrorHandler.handleTaskNotFound(args.task_name);
   }
 
   const updateData: Partial<TodoistTaskData> = {};
@@ -202,7 +202,7 @@ export async function handleDeleteTask(
   );
 
   if (!matchingTask) {
-    ErrorHandler.handleTaskNotFound(args.task_name, "delete task");
+    ErrorHandler.handleTaskNotFound(args.task_name);
   }
 
   await todoistClient.deleteTask(matchingTask!.id);
@@ -223,7 +223,7 @@ export async function handleCompleteTask(
   );
 
   if (!matchingTask) {
-    ErrorHandler.handleTaskNotFound(args.task_name, "complete task");
+    ErrorHandler.handleTaskNotFound(args.task_name);
   }
 
   await todoistClient.closeTask(matchingTask!.id);
