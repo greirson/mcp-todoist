@@ -9,7 +9,7 @@ import {
 } from "../types.js";
 import { SimpleCache } from "../cache.js";
 // Removed unused imports - now using ErrorHandler utility
-import { validateTaskContent } from "../validation.js";
+import { validateCommentContent } from "../validation.js";
 import {
   extractArrayFromResponse,
   createCacheKey,
@@ -26,8 +26,8 @@ export async function handleCreateComment(
   args: CreateCommentArgs
 ): Promise<string> {
   return ErrorHandler.wrapAsync("create comment", async () => {
-    // Validate content
-    validateTaskContent(args.content);
+    // Validate and sanitize content
+    const sanitizedContent = validateCommentContent(args.content);
 
     let taskId: string;
 
@@ -52,7 +52,7 @@ export async function handleCreateComment(
     }
 
     const commentData: CommentCreationData = {
-      content: args.content,
+      content: sanitizedContent,
       taskId: taskId,
     };
 
