@@ -8,6 +8,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.0] - 2024-12-06
 
 ### Added
+- **Code Quality Improvement Phase**: Major architectural enhancements and security improvements
+  - **Shared API Utilities** (`src/utils/api-helpers.ts`): Eliminated code duplication with centralized helper functions
+    - `extractArrayFromResponse<T>()` - Handles multiple API response formats
+    - `createCacheKey()` - Standardized cache key generation
+    - `formatTaskForDisplay()` - Consistent task formatting
+    - Safe type extraction utilities and API response validation
+  - **Standardized Error Handling** (`src/utils/error-handling.ts`): Unified error management across all operations
+    - `ErrorHandler` class with context-aware error processing
+    - Specialized handlers for task/label not found errors
+    - `wrapAsync()` utility for automatic error handling
+    - Enhanced error context tracking and operation monitoring
+  - **Enhanced Input Validation & Sanitization** (`src/validation.ts`): Comprehensive security protection
+    - XSS protection through HTML escaping and script tag removal
+    - SQL injection pattern detection and prevention
+    - File upload security with MIME type restrictions
+    - URL validation with protocol restrictions (HTTP/HTTPS only)
+    - `VALIDATION_LIMITS` constants for consistent validation rules
+    - `sanitizeInput()`, `validateAndSanitizeContent()`, `validateAndSanitizeURL()` functions
+  - **Centralized Cache Management** (`src/cache.ts`): Advanced caching system with monitoring
+    - `CacheManager` singleton for coordinating multiple cache instances
+    - Cache statistics tracking with hit rates and memory usage monitoring
+    - LRU eviction with configurable size limits
+    - Automatic cleanup intervals and cache warming capabilities
+    - Health monitoring with actionable performance recommendations
+
+### Changed
+- **Enhanced Type Safety**: Replaced all `unknown` types with proper `TodoistAPIResponse<T>` interfaces
+- **Refactored Handlers**: All handlers now use shared utilities and standardized error handling
+- **Input Processing**: All user inputs are now sanitized before processing to prevent security vulnerabilities
+- **Validation Functions**: Enhanced to return sanitized values instead of void for better data flow
+- **Cache Architecture**: Task handlers migrated to use centralized cache management
+
+### Fixed
+- **Type Safety**: Resolved all TypeScript build errors and type mismatches
+- **Code Duplication**: Eliminated repeated `extractArrayFromResponse` functions across handlers
+- **Error Handling**: Standardized error patterns across all operations
+- **Linting**: Resolved all ESLint warnings and formatting issues
+
+### Security
+- **XSS Protection**: HTML entity escaping and malicious script detection
+- **Injection Prevention**: SQL injection pattern blocking and dangerous protocol filtering
+- **File Security**: MIME type validation and malicious filename detection
+- **Input Sanitization**: Control character removal and content length validation
+
+## [0.6.0] - 2024-12-06
+
+### Added
 - **Label Management System**: Complete CRUD operations for Todoist labels (Phase 2 completion)
   - `todoist_label_get` - List all labels with IDs, names, and colors
   - `todoist_label_create` - Create new labels with optional color, order, and favorite status
