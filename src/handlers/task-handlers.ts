@@ -11,7 +11,7 @@ import {
   BulkTaskFilterArgs,
 } from "../types.js";
 import { SimpleCache } from "../cache.js";
-import { TaskNotFoundError, TodoistAPIError } from "../errors.js";
+// Removed unused imports - now using ErrorHandler utility
 import {
   validateTaskContent,
   validatePriority,
@@ -21,29 +21,23 @@ import {
   validateSectionId,
   validateLimit,
 } from "../validation.js";
+import {
+  extractArrayFromResponse,
+  createCacheKey,
+  formatTaskForDisplay,
+} from "../utils/api-helpers.js";
+import { ErrorHandler } from "../utils/error-handling.js";
 
 // Cache for task data (30 second TTL)
 const taskCache = new SimpleCache<TodoistTask[]>(30000);
 
-// Helper function to handle API response format changes
-function extractTasksArray(result: unknown): TodoistTask[] {
-  if (Array.isArray(result)) {
-    return result as TodoistTask[];
-  }
-
-  const responseObj = result as {
-    results?: TodoistTask[];
-    data?: TodoistTask[];
-  };
-  // Handle both 'results' and 'data' properties
-  return responseObj?.results || responseObj?.data || [];
-}
+// Using shared utilities from api-helpers.ts
 
 export async function handleCreateTask(
   todoistClient: TodoistApi,
   args: CreateTaskArgs
 ): Promise<string> {
-  try {
+  return ErrorHandler.wrapAsync("create task", async () => {
     // Validate input
     validateTaskContent(args.content);
     validatePriority(args.priority);
@@ -91,9 +85,7 @@ export async function handleCreateTask(
     }${args.deadline_date ? `\nDeadline: ${args.deadline_date}` : ""}${
       args.project_id ? `\nProject ID: ${args.project_id}` : ""
     }${args.section_id ? `\nSection ID: ${args.section_id}` : ""}`;
-  } catch (error) {
-    throw new TodoistAPIError("Failed to create task", error as Error);
-  }
+  });
 }
 
 export async function handleGetTasks(
@@ -114,7 +106,7 @@ export async function handleGetTasks(
   }
 
   // Create cache key based on parameters
-  const cacheKey = `tasks_${JSON.stringify(apiParams)}`;
+  const cacheKey = createCacheKey("tasks", apiParams);
   let tasks = taskCache.get(cacheKey);
 
   if (!tasks) {
@@ -124,7 +116,7 @@ export async function handleGetTasks(
         : undefined
     );
     // Handle both array response and object response formats
-    tasks = extractTasksArray(result);
+    tasks = extractArrayFromResponse<TodoistTask>(result);
     taskCache.set(cacheKey, tasks);
   }
 
@@ -140,14 +132,7 @@ export async function handleGetTasks(
   }
 
   const taskList = filteredTasks
-    .map(
-      (task) =>
-        `- ${task.content}${
-          task.description ? `\n  Description: ${task.description}` : ""
-        }${task.due ? `\n  Due: ${task.due.string}` : ""}${
-          task.deadline ? `\n  Deadline: ${task.deadline.date}` : ""
-        }${task.priority ? `\n  Priority: ${task.priority}` : ""}`
-    )
+    .map((task) => formatTaskForDisplay(task))
     .join("\n\n");
 
   return filteredTasks.length > 0
@@ -163,13 +148,13 @@ export async function handleUpdateTask(
   taskCache.clear();
 
   const result = await todoistClient.getTasks();
-  const tasks = extractTasksArray(result);
+  const tasks = extractArrayFromResponse<TodoistTask>(result);
   const matchingTask = tasks.find((task: TodoistTask) =>
     task.content.toLowerCase().includes(args.task_name.toLowerCase())
   );
 
   if (!matchingTask) {
-    throw new TaskNotFoundError(args.task_name);
+    ErrorHandler.handleTaskNotFound(args.task_name, "update task");
   }
 
   const updateData: Partial<TodoistTaskData> = {};
@@ -204,16 +189,16 @@ export async function handleDeleteTask(
   taskCache.clear();
 
   const result = await todoistClient.getTasks();
-  const tasks = extractTasksArray(result);
+  const tasks = extractArrayFromResponse<TodoistTask>(result);
   const matchingTask = tasks.find((task: TodoistTask) =>
     task.content.toLowerCase().includes(args.task_name.toLowerCase())
   );
 
   if (!matchingTask) {
-    throw new TaskNotFoundError(args.task_name);
+    ErrorHandler.handleTaskNotFound(args.task_name, "delete task");
   }
 
-  await todoistClient.deleteTask(matchingTask.id);
+  await todoistClient.deleteTask(matchingTask!.id);
   return `Successfully deleted task: "${matchingTask.content}"`;
 }
 
@@ -225,16 +210,16 @@ export async function handleCompleteTask(
   taskCache.clear();
 
   const result = await todoistClient.getTasks();
-  const tasks = extractTasksArray(result);
+  const tasks = extractArrayFromResponse<TodoistTask>(result);
   const matchingTask = tasks.find((task: TodoistTask) =>
     task.content.toLowerCase().includes(args.task_name.toLowerCase())
   );
 
   if (!matchingTask) {
-    throw new TaskNotFoundError(args.task_name);
+    ErrorHandler.handleTaskNotFound(args.task_name, "complete task");
   }
 
-  await todoistClient.closeTask(matchingTask.id);
+  await todoistClient.closeTask(matchingTask!.id);
   return `Successfully completed task: "${matchingTask.content}"`;
 }
 
@@ -332,7 +317,7 @@ export async function handleBulkCreateTasks(
 
     return result.trim();
   } catch (error) {
-    throw new TodoistAPIError("Failed to bulk create tasks", error as Error);
+    ErrorHandler.handleAPIError("bulk create tasks", error);
   }
 }
 
@@ -345,7 +330,7 @@ export async function handleBulkUpdateTasks(
     taskCache.clear();
 
     const result = await todoistClient.getTasks();
-    const allTasks = extractTasksArray(result);
+    const allTasks = extractArrayFromResponse<TodoistTask>(result);
     const matchingTasks = filterTasksByCriteria(allTasks, args.search_criteria);
 
     if (matchingTasks.length === 0) {
@@ -393,7 +378,7 @@ export async function handleBulkUpdateTasks(
 
     return response.trim();
   } catch (error) {
-    throw new TodoistAPIError("Failed to bulk update tasks", error as Error);
+    ErrorHandler.handleAPIError("bulk update tasks", error);
   }
 }
 
@@ -406,7 +391,7 @@ export async function handleBulkDeleteTasks(
     taskCache.clear();
 
     const result = await todoistClient.getTasks();
-    const allTasks = extractTasksArray(result);
+    const allTasks = extractArrayFromResponse<TodoistTask>(result);
     const matchingTasks = filterTasksByCriteria(allTasks, args.search_criteria);
 
     if (matchingTasks.length === 0) {
@@ -445,7 +430,7 @@ export async function handleBulkDeleteTasks(
 
     return response.trim();
   } catch (error) {
-    throw new TodoistAPIError("Failed to bulk delete tasks", error as Error);
+    ErrorHandler.handleAPIError("bulk delete tasks", error);
   }
 }
 
@@ -458,7 +443,7 @@ export async function handleBulkCompleteTasks(
     taskCache.clear();
 
     const result = await todoistClient.getTasks();
-    const allTasks = extractTasksArray(result);
+    const allTasks = extractArrayFromResponse<TodoistTask>(result);
     const matchingTasks = filterTasksByCriteria(allTasks, args.search_criteria);
 
     if (matchingTasks.length === 0) {
@@ -497,6 +482,6 @@ export async function handleBulkCompleteTasks(
 
     return response.trim();
   } catch (error) {
-    throw new TodoistAPIError("Failed to bulk complete tasks", error as Error);
+    ErrorHandler.handleAPIError("bulk complete tasks", error);
   }
 }

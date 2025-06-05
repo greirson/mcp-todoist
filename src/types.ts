@@ -208,9 +208,78 @@ export interface LabelStatistics {
   mostRecentUse: string | null;
 }
 
-// Union types to handle any API response format
-export type TasksResponse = unknown;
-export type ProjectsResponse = unknown;
-export type SectionsResponse = unknown;
-export type CommentsResponse = unknown;
-export type LabelsResponse = unknown;
+// Proper API response interfaces to replace unknown types
+
+/**
+ * Generic interface for Todoist API responses that may return data in different formats
+ */
+export interface TodoistAPIResponse<T> {
+  results?: T[];
+  data?: T[];
+}
+
+/**
+ * Specific API response types for each entity
+ */
+export type TasksResponse = TodoistTask[] | TodoistAPIResponse<TodoistTask>;
+export type ProjectsResponse = TodoistProject[] | TodoistAPIResponse<TodoistProject>;
+export type SectionsResponse = TodoistSection[] | TodoistAPIResponse<TodoistSection>;
+export type CommentsResponse = TodoistComment[] | TodoistAPIResponse<TodoistComment>;
+export type LabelsResponse = TodoistLabel[] | TodoistAPIResponse<TodoistLabel>;
+
+/**
+ * Enhanced comment response interface for API compatibility
+ */
+export interface CommentResponse {
+  content: string;
+  attachment?: {
+    fileName: string;
+    fileType: string;
+  };
+  postedAt?: string;
+  taskId?: string;
+  projectId?: string;
+}
+
+/**
+ * Enhanced comment creation data interface
+ */
+export interface CommentCreationData {
+  content: string;
+  taskId: string;
+  attachment?: {
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+  };
+}
+
+/**
+ * API error response interface for structured error handling
+ */
+export interface TodoistAPIErrorResponse {
+  error?: string;
+  error_description?: string;
+  error_code?: number;
+  message?: string;
+}
+
+/**
+ * Cache entry interface for typed cache storage
+ */
+export interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  ttl: number;
+}
+
+/**
+ * Cache statistics interface for monitoring
+ */
+export interface CacheStats {
+  totalKeys: number;
+  hitCount: number;
+  missCount: number;
+  hitRate: number;
+  totalMemoryUsage: number;
+}
