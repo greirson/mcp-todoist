@@ -307,14 +307,7 @@ The codebase is organized into focused modules:
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for a detailed history of all changes, including:
-
-- **v0.6.0** (Latest): Testing infrastructure, API response handling improvements, and development documentation
-- **v0.5.x**: Bulk operations, comment system, and deadline parameter fixes  
-- **v0.4.0**: Modular architecture, performance optimization, and enhanced error handling
-- **v0.3.0**: Complete project management and enhanced organization
-- **v0.2.0**: Labels and deadline support with improved API compliance
-- **v0.1.0**: Initial release with basic task management functionality
+See [CHANGELOG.md](CHANGELOG.md) for a detailed history of all changes.
 
 For migration guides and breaking changes, see the full changelog.
 
