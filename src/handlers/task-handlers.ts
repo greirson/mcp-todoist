@@ -14,6 +14,7 @@ import { SimpleCache } from "../cache.js";
 // Removed unused imports - now using ErrorHandler utility
 import {
   validateTaskContent,
+  validateDescription,
   validatePriority,
   validateDateString,
   validateLabels,
@@ -38,8 +39,9 @@ export async function handleCreateTask(
   args: CreateTaskArgs
 ): Promise<string> {
   return ErrorHandler.wrapAsync("create task", async () => {
-    // Validate input
-    validateTaskContent(args.content);
+    // Validate and sanitize input
+    const sanitizedContent = validateTaskContent(args.content);
+    const sanitizedDescription = validateDescription(args.description);
     validatePriority(args.priority);
     validateDateString(args.deadline_date, "deadline_date");
     validateLabels(args.labels);
@@ -47,8 +49,8 @@ export async function handleCreateTask(
     validateSectionId(args.section_id);
 
     const taskData: TodoistTaskData = {
-      content: args.content,
-      description: args.description,
+      content: sanitizedContent,
+      description: sanitizedDescription,
       dueString: args.due_string,
       priority: args.priority,
     };

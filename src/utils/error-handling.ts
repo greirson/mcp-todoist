@@ -104,7 +104,7 @@ export class ErrorHandler {
    */
   static handleTaskNotFound(
     taskName: string,
-    // eslint-disable-next-line no-unused-vars
+
     _operation: string,
     // eslint-disable-next-line no-unused-vars
     _context: Partial<ErrorContext> = {}
@@ -131,7 +131,7 @@ export class ErrorHandler {
    */
   static handleLabelNotFound(
     labelIdentifier: string,
-    // eslint-disable-next-line no-unused-vars
+
     _operation: string,
     // eslint-disable-next-line no-unused-vars
     _context: Partial<ErrorContext> = {}
@@ -290,9 +290,8 @@ export function withErrorHandling(
   descriptor: PropertyDescriptor
 ) => void {
   return function (
-    // eslint-disable-next-line no-unused-vars
     _target: unknown,
-    // eslint-disable-next-line no-unused-vars
+
     _propertyName: string,
     descriptor: PropertyDescriptor
   ): void {
