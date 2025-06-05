@@ -11,6 +11,9 @@ import {
   BulkTaskFilterArgs,
   CreateCommentArgs,
   GetCommentsArgs,
+  CreateLabelArgs,
+  UpdateLabelArgs,
+  LabelNameArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -147,4 +150,47 @@ export function isGetCommentsArgs(args: unknown): args is GetCommentsArgs {
     (obj.task_name === undefined || typeof obj.task_name === "string") &&
     (obj.project_id === undefined || typeof obj.project_id === "string")
   );
+}
+
+export function isCreateLabelArgs(args: unknown): args is CreateLabelArgs {
+  return (
+    typeof args === "object" &&
+    args !== null &&
+    "name" in args &&
+    typeof (args as { name: string }).name === "string"
+  );
+}
+
+export function isUpdateLabelArgs(args: unknown): args is UpdateLabelArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.label_id === undefined || typeof obj.label_id === "string") &&
+    (obj.label_name === undefined || typeof obj.label_name === "string") &&
+    (obj.label_id !== undefined || obj.label_name !== undefined)
+  );
+}
+
+export function isLabelNameArgs(args: unknown): args is LabelNameArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.label_id === undefined || typeof obj.label_id === "string") &&
+    (obj.label_name === undefined || typeof obj.label_name === "string") &&
+    (obj.label_id !== undefined || obj.label_name !== undefined)
+  );
+}
+
+export function isGetLabelsArgs(
+  args: unknown
+): args is Record<string, never> {
+  return typeof args === "object" && args !== null;
+}
+
+export function isGetLabelStatsArgs(
+  args: unknown
+): args is Record<string, never> {
+  return typeof args === "object" && args !== null;
 }

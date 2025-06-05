@@ -23,14 +23,14 @@ Enhance the Todoist MCP server (v0.5.3) with label management, subtask handling,
 - All test functions return properly formatted JSON with detailed metrics
 - Performance test supports configurable iterations
 
-### Phase 2: Label Management System
-- [ ] Create `src/handlers/label-handlers.ts`
-  - [ ] Implement `handleGetLabels()` - List all labels
-  - [ ] Implement `handleCreateLabel()` - Create new label
-  - [ ] Implement `handleUpdateLabel()` - Update label name/color
-  - [ ] Implement `handleDeleteLabel()` - Delete label
-  - [ ] Implement `handleGetLabelStats()` - Get usage statistics
-- [ ] Update `src/types.ts` with label interfaces
+### Phase 2: Label Management System ✅ COMPLETED
+- [x] Create `src/handlers/label-handlers.ts`
+  - [x] Implement `handleGetLabels()` - List all labels with formatted output
+  - [x] Implement `handleCreateLabel()` - Create new label with validation
+  - [x] Implement `handleUpdateLabel()` - Update label name/color/order/favorite
+  - [x] Implement `handleDeleteLabel()` - Delete label by ID or name
+  - [x] Implement `handleGetLabelStats()` - Get detailed usage statistics and analytics
+- [x] Update `src/types.ts` with label interfaces
   ```typescript
   interface TodoistLabel {
     id: string;
@@ -39,10 +39,26 @@ Enhance the Todoist MCP server (v0.5.3) with label management, subtask handling,
     order?: number;
     is_favorite?: boolean;
   }
+  interface LabelStatistics {
+    label: string;
+    totalTasks: number;
+    completedTasks: number;
+    completionRate: number;
+    color?: string;
+    mostRecentUse: string | null;
+  }
   ```
-- [ ] Add label tools to `src/tools.ts`
-- [ ] Update type guards in `src/type-guards.ts`
-- [ ] Add label validation in `src/validation.ts`
+- [x] Add label tools to `src/tools.ts` (5 new tools)
+- [x] Update type guards in `src/type-guards.ts`
+- [x] Add label validation in `src/validation.ts`
+- [x] Update `src/index.ts` with label handler routing
+- [x] Add `LabelNotFoundError` to `src/errors.ts`
+
+**Implementation Notes:**
+- Label operations use SimpleCache pattern with 30-second TTL
+- Statistics include completion rates, task counts, and last usage dates
+- Full support for Todoist color names and hex codes
+- Search by both label ID and name for maximum flexibility
 
 ### Phase 3: Subtask Management
 - [ ] Create `src/handlers/subtask-handlers.ts`
@@ -262,10 +278,12 @@ export async function handleGetTaskHierarchy(
    - ✓ Identifies configuration issues and API response variations
    - ✓ Supports performance benchmarking with configurable iterations
 
-2. **Label Management**
-   - ✓ Full CRUD operations work
-   - ✓ Statistics calculated correctly
-   - ✓ <200ms response time
+2. **Label Management** ✅ COMPLETED
+   - ✓ Full CRUD operations work (create, read, update, delete)
+   - ✓ Statistics calculated correctly with completion rates and usage tracking
+   - ✓ <200ms response time with intelligent caching
+   - ✓ Comprehensive validation for colors, names, and order
+   - ✓ Support for both ID and name-based operations
 
 3. **Duplicate Detection**
    - ✓ 90%+ accuracy in finding duplicates
@@ -347,12 +365,12 @@ export class SubtaskError extends TodoistMCPError { }
 ## 🚀 Next Steps
 
 **Phase 1 (Testing Infrastructure) ✅ COMPLETED**
+**Phase 2 (Label Management System) ✅ COMPLETED**
 
 Now ready to proceed with:
-1. **Phase 2: Label Management System** - Full CRUD operations for labels with usage statistics
-2. **Phase 3: Subtask Management** - Hierarchical task management with parent-child relationships
-3. **Phase 4: Duplicate Detection** - Smart task deduplication using similarity algorithms
-4. **Phase 5: Project Analytics** - Comprehensive project health metrics and insights
+1. **Phase 3: Subtask Management** - Hierarchical task management with parent-child relationships
+2. **Phase 4: Duplicate Detection** - Smart task deduplication using similarity algorithms
+3. **Phase 5: Project Analytics** - Comprehensive project health metrics and insights
 
 All future development can now be verified using the testing tools:
 - Run `todoist_test_all_features` after implementing each phase

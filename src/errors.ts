@@ -78,6 +78,17 @@ export class AuthenticationError extends TodoistMCPError {
   }
 }
 
+export class LabelNotFoundError extends TodoistMCPError {
+  constructor(labelIdentifier: string) {
+    super(
+      `Could not find label "${labelIdentifier}"`,
+      "LABEL_NOT_FOUND",
+      404
+    );
+    this.name = "LabelNotFoundError";
+  }
+}
+
 export function handleError(error: unknown): { message: string; code: string } {
   if (error instanceof TodoistMCPError) {
     return {

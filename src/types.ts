@@ -169,8 +169,48 @@ export interface TodoistComment {
   };
 }
 
+// Label operation interfaces
+export interface TodoistLabel {
+  id: string;
+  name: string;
+  color?: string;
+  order?: number;
+  is_favorite?: boolean;
+}
+
+export interface CreateLabelArgs {
+  name: string;
+  color?: string;
+  is_favorite?: boolean;
+  order?: number;
+}
+
+export interface UpdateLabelArgs {
+  label_id?: string;
+  label_name?: string;
+  name?: string;
+  color?: string;
+  order?: number;
+  is_favorite?: boolean;
+}
+
+export interface LabelNameArgs {
+  label_id?: string;
+  label_name?: string;
+}
+
+export interface LabelStatistics {
+  label: string;
+  totalTasks: number;
+  completedTasks: number;
+  completionRate: number;
+  color?: string;
+  mostRecentUse: string | null;
+}
+
 // Union types to handle any API response format
 export type TasksResponse = unknown;
 export type ProjectsResponse = unknown;
 export type SectionsResponse = unknown;
 export type CommentsResponse = unknown;
+export type LabelsResponse = unknown;

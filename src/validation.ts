@@ -142,3 +142,88 @@ export function validateLimit(limit?: number): void {
     }
   }
 }
+
+export function validateLabelName(name: string): void {
+  if (!name || typeof name !== "string") {
+    throw new ValidationError("Label name is required and must be a string", "name");
+  }
+  
+  if (name.trim().length === 0) {
+    throw new ValidationError("Label name cannot be empty", "name");
+  }
+  
+  if (name.length > 100) {
+    throw new ValidationError("Label name must be 100 characters or less", "name");
+  }
+}
+
+export function validateLabelColor(color?: string): void {
+  if (color !== undefined) {
+    if (typeof color !== "string") {
+      throw new ValidationError("Label color must be a string", "color");
+    }
+    
+    // Todoist supports specific color names or hex codes
+    const validColors = [
+      "berry_red", "red", "orange", "yellow", "olive_green",
+      "lime_green", "green", "mint_green", "teal", "sky_blue",
+      "light_blue", "blue", "grape", "violet", "lavender",
+      "magenta", "salmon", "charcoal", "grey", "taupe"
+    ];
+    
+    if (!validColors.includes(color) && !color.match(/^#[0-9A-Fa-f]{6}$/)) {
+      throw new ValidationError(
+        "Label color must be a valid Todoist color name or hex code",
+        "color"
+      );
+    }
+  }
+}
+
+export function validateLabelOrder(order?: number): void {
+  if (order !== undefined) {
+    if (!Number.isInteger(order) || order < 0) {
+      throw new ValidationError("Label order must be a non-negative integer", "order");
+    }
+  }
+}
+
+import type { CreateLabelArgs, UpdateLabelArgs } from "./types.js";
+
+export function validateLabelData(data: CreateLabelArgs): CreateLabelArgs {
+  validateLabelName(data.name);
+  validateLabelColor(data.color);
+  validateLabelOrder(data.order);
+  
+  return {
+    name: data.name.trim(),
+    color: data.color,
+    is_favorite: data.is_favorite,
+    order: data.order,
+  };
+}
+
+export function validateLabelUpdate(data: UpdateLabelArgs): UpdateLabelArgs {
+  const updates: UpdateLabelArgs = {};
+  
+  if (data.name !== undefined) {
+    validateLabelName(data.name);
+    updates.name = data.name.trim();
+  }
+  
+  if (data.color !== undefined) {
+    validateLabelColor(data.color);
+    updates.color = data.color;
+  }
+  
+  if (data.order !== undefined) {
+    validateLabelOrder(data.order);
+    updates.order = data.order;
+  }
+  
+  if (data.is_favorite !== undefined) {
+    updates.is_favorite = data.is_favorite;
+  }
+  
+  return updates;
+}

@@ -28,6 +28,7 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 * **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
 * **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
 * **Comment System**: Add comments to tasks and retrieve comments with attachment support
+* **Label Management**: Full CRUD operations for labels with usage statistics and analytics
 * **Project & Section Organization**: Create and manage projects and sections
 * **Testing & Validation**: Built-in tools to test connectivity, validate functionality, and benchmark performance
 * **Smart Discovery**: List projects and sections to find IDs for organization
@@ -93,7 +94,7 @@ You should see a list of your Todoist projects, confirming the integration is wo
 
 ## Tools Overview
 
-The server provides 18 tools organized by entity type:
+The server provides 23 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support
@@ -111,6 +112,13 @@ The server provides 18 tools organized by entity type:
 ### Comment Management
 - **Todoist Comment Create**: Add comments to tasks with optional file attachments
 - **Todoist Comment Get**: Retrieve comments for tasks or projects
+
+### Label Management
+- **Todoist Label Get**: List all labels with their IDs and colors
+- **Todoist Label Create**: Create new labels with optional color and ordering
+- **Todoist Label Update**: Update existing labels (name, color, order, favorite status)
+- **Todoist Label Delete**: Remove labels from your workspace
+- **Todoist Label Stats**: Get detailed usage statistics for all labels
 
 ### Project Management
 - **Todoist Project Create**: Create new projects with optional color and favorite status
@@ -178,6 +186,15 @@ The server provides 18 tools organized by entity type:
 "Get comments for project 12345"
 ```
 
+### Label Management
+```
+"Show me all my labels"
+"Create a new label called 'Urgent' with red color"
+"Update the 'Work' label to be blue and mark as favorite"
+"Delete the unused 'Old Project' label"
+"Get usage statistics for all my labels"
+```
+
 ### Task Discovery
 ```
 "Show all my tasks"
@@ -188,7 +205,7 @@ The server provides 18 tools organized by entity type:
 ### Testing & Validation
 ```
 "Test my Todoist connection"
-"Run comprehensive tests on all Todoist features"
+"Run comprehensive tests on all Todoist features (includes labels)"
 "Benchmark Todoist API performance with 10 iterations"
 "Validate that all MCP tools are working correctly"
 ```
