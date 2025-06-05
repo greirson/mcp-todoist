@@ -10,7 +10,7 @@ import {
   BulkUpdateTasksArgs,
   BulkTaskFilterArgs,
 } from "../types.js";
-import { SimpleCache } from "../cache.js";
+import { SimpleCache, CacheManager } from "../cache.js";
 // Removed unused imports - now using ErrorHandler utility
 import {
   validateTaskContent,
@@ -29,8 +29,13 @@ import {
 } from "../utils/api-helpers.js";
 import { ErrorHandler } from "../utils/error-handling.js";
 
-// Cache for task data (30 second TTL)
-const taskCache = new SimpleCache<TodoistTask[]>(30000);
+// Get centralized cache manager and register task cache
+const cacheManager = CacheManager.getInstance();
+const taskCache = cacheManager.getOrCreateCache<TodoistTask[]>("tasks", 30000, {
+  maxSize: 1000, // Limit to 1000 entries
+  enableStats: true,
+  enableAccessTracking: true,
+});
 
 // Using shared utilities from api-helpers.ts
 
