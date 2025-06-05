@@ -23,6 +23,11 @@ import {
   isBulkTaskFilterArgs,
   isCreateCommentArgs,
   isGetCommentsArgs,
+  isGetLabelsArgs,
+  isCreateLabelArgs,
+  isUpdateLabelArgs,
+  isLabelNameArgs,
+  isGetLabelStatsArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -50,6 +55,13 @@ import {
   handleTestAllFeatures,
   handleTestPerformance,
 } from "./handlers/test-handlers.js";
+import {
+  handleGetLabels,
+  handleCreateLabel,
+  handleUpdateLabel,
+  handleDeleteLabel,
+  handleGetLabelStats,
+} from "./handlers/label-handlers.js";
 import { handleError } from "./errors.js";
 
 // Server implementation
@@ -194,6 +206,41 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_comment_get");
         }
         result = await handleGetComments(todoistClient, args);
+        break;
+
+      case "todoist_label_get":
+        if (!isGetLabelsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_label_get");
+        }
+        result = await handleGetLabels(todoistClient);
+        break;
+
+      case "todoist_label_create":
+        if (!isCreateLabelArgs(args)) {
+          throw new Error("Invalid arguments for todoist_label_create");
+        }
+        result = await handleCreateLabel(todoistClient, args);
+        break;
+
+      case "todoist_label_update":
+        if (!isUpdateLabelArgs(args)) {
+          throw new Error("Invalid arguments for todoist_label_update");
+        }
+        result = await handleUpdateLabel(todoistClient, args);
+        break;
+
+      case "todoist_label_delete":
+        if (!isLabelNameArgs(args)) {
+          throw new Error("Invalid arguments for todoist_label_delete");
+        }
+        result = await handleDeleteLabel(todoistClient, args);
+        break;
+
+      case "todoist_label_stats":
+        if (!isGetLabelStatsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_label_stats");
+        }
+        result = await handleGetLabelStats(todoistClient);
         break;
 
       case "todoist_test_connection":

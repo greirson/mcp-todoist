@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2024-12-06
+
+### Added
+- **Label Management System**: Complete CRUD operations for Todoist labels (Phase 2 completion)
+  - `todoist_label_get` - List all labels with IDs, names, and colors
+  - `todoist_label_create` - Create new labels with optional color, order, and favorite status
+  - `todoist_label_update` - Update existing labels by ID or name (supports all label attributes)
+  - `todoist_label_delete` - Delete labels by ID or name with confirmation
+  - `todoist_label_stats` - Advanced usage statistics with completion rates and last usage dates
+- **Enhanced Type System**: New interfaces for label operations with full TypeScript support
+  - `TodoistLabel`, `CreateLabelArgs`, `UpdateLabelArgs`, `LabelNameArgs`, `LabelStatistics`
+  - Runtime type validation with dedicated type guards for all label operations
+- **Label Validation**: Comprehensive input validation and sanitization
+  - Supports all Todoist color names and hex codes
+  - Label name length validation and trimming
+  - Order position validation for label organization
+- **Caching Integration**: Label operations use intelligent caching for optimal performance
+  - 30-second TTL for label data with automatic cache invalidation
+  - Separate cache management for label statistics
+
+### Changed
+- **Tool Count**: Increased from 18 to 23 total MCP tools
+- **Test Coverage**: Updated `todoist_test_all_features` to include comprehensive label testing
+- **Error Handling**: Added `LabelNotFoundError` for specific label operation failures
+
+### Enhanced
+- **Performance**: Label operations leverage existing caching infrastructure
+- **Documentation**: Updated README.md with label management examples and usage patterns
+
 ## [0.6.0] - 2024-12-06
 
 ### Added

@@ -37,6 +37,7 @@ The codebase is organized into focused modules:
   - `task-handlers.ts` - Task CRUD operations and bulk operations
   - `project-handlers.ts` - Project and section operations
   - `comment-handlers.ts` - Comment creation and retrieval operations
+  - `label-handlers.ts` - Label CRUD operations and usage statistics
   - `test-handlers.ts` - Testing infrastructure for API validation and performance monitoring
 - **`src/errors.ts`**: Custom error types with structured error handling
 - **`src/validation.ts`**: Input validation and sanitization
@@ -44,7 +45,7 @@ The codebase is organized into focused modules:
 
 ### Tool Architecture
 
-The server exposes 18 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 23 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support
@@ -62,6 +63,13 @@ The server exposes 18 tools organized by entity type with standardized naming co
 **Comment Management:**
 - `todoist_comment_create` - Adds comments to tasks with optional file attachments
 - `todoist_comment_get` - Retrieves comments for tasks or projects
+
+**Label Management:**
+- `todoist_label_get` - Lists all labels with IDs, names, and colors
+- `todoist_label_create` - Creates new labels with optional color, order, and favorite status
+- `todoist_label_update` - Updates existing labels by ID or name (supports all attributes)
+- `todoist_label_delete` - Deletes labels by ID or name
+- `todoist_label_stats` - Provides detailed usage statistics and analytics
 
 **Project Management:**
 - `todoist_project_create` - Creates new projects with optional color and favorite status
@@ -81,6 +89,7 @@ The server exposes 18 tools organized by entity type with standardized naming co
 Structured error handling with custom error types:
 - `ValidationError` - Input validation failures
 - `TaskNotFoundError` - Task search failures
+- `LabelNotFoundError` - Label search failures
 - `TodoistAPIError` - Todoist API failures
 - `AuthenticationError` - Token validation failures
 
@@ -196,9 +205,9 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
 
 **Completed Phases:**
 - ✅ **Phase 1**: Testing Infrastructure (v0.6.0) - Comprehensive testing tools and integration tests
+- ✅ **Phase 2**: Label Management System (v0.7.0) - Full CRUD operations for labels with usage statistics and analytics
 
 **Planned Future Phases:**
-- **Phase 2**: Label Management System - Full CRUD operations for labels with usage statistics  
 - **Phase 3**: Subtask Management - Hierarchical task management with parent-child relationships
 - **Phase 4**: Duplicate Detection - Smart task deduplication using similarity algorithms
 - **Phase 5**: Project Analytics - Comprehensive project health metrics and insights
