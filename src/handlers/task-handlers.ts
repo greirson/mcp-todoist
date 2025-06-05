@@ -31,7 +31,10 @@ function extractTasksArray(result: unknown): TodoistTask[] {
     return result as TodoistTask[];
   }
 
-  const responseObj = result as any;
+  const responseObj = result as {
+    results?: TodoistTask[];
+    data?: TodoistTask[];
+  };
   // Handle both 'results' and 'data' properties
   return responseObj?.results || responseObj?.data || [];
 }

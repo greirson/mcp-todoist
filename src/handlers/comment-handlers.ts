@@ -18,7 +18,10 @@ function extractCommentsArray(result: unknown): TodoistComment[] {
     return result as TodoistComment[];
   }
 
-  const responseObj = result as any;
+  const responseObj = result as {
+    results?: TodoistComment[];
+    data?: TodoistComment[];
+  };
   // Handle both 'results' and 'data' properties
   return responseObj?.results || responseObj?.data || [];
 }
@@ -29,7 +32,10 @@ function extractTasksArray(result: unknown): TodoistTask[] {
     return result as TodoistTask[];
   }
 
-  const responseObj = result as any;
+  const responseObj = result as {
+    results?: TodoistTask[];
+    data?: TodoistTask[];
+  };
   // Handle both 'results' and 'data' properties
   return responseObj?.results || responseObj?.data || [];
 }
@@ -64,7 +70,15 @@ export async function handleCreateComment(
       throw new Error("Either task_id or task_name must be provided");
     }
 
-    const commentData: any = {
+    const commentData: {
+      content: string;
+      taskId: string;
+      attachment?: {
+        fileName: string;
+        fileUrl: string;
+        fileType: string;
+      };
+    } = {
       content: args.content,
       taskId: taskId,
     };
@@ -83,7 +97,14 @@ export async function handleCreateComment(
     commentCache.clear();
 
     // Use defensive typing for comment response
-    const commentResponse = comment as any;
+    const commentResponse = comment as {
+      content: string;
+      attachment?: {
+        fileName: string;
+        fileType: string;
+      };
+      postedAt?: string;
+    };
 
     return `Comment added to task:\nContent: ${commentResponse.content}${
       commentResponse.attachment
@@ -176,7 +197,16 @@ export async function handleGetComments(
     const commentList = comments
       .map((comment) => {
         // Use defensive typing for comment properties
-        const commentData = comment as any;
+        const commentData = comment as {
+          content: string;
+          attachment?: {
+            fileName: string;
+            fileType: string;
+          };
+          postedAt?: string;
+          taskId?: string;
+          projectId?: string;
+        };
         return `- ${commentData.content}${
           commentData.attachment
             ? `\n  Attachment: ${commentData.attachment.fileName} (${commentData.attachment.fileType})`
