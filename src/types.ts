@@ -7,6 +7,7 @@ export interface CreateTaskArgs {
   deadline_date?: string;
   project_id?: string;
   section_id?: string;
+  parent_id?: string;
 }
 
 export interface GetTasksArgs {
@@ -78,6 +79,8 @@ export interface TodoistTask {
   labels?: string[];
   projectId?: string;
   sectionId?: string | null;
+  parentId?: string | null;
+  isCompleted?: boolean;
 }
 
 export interface TodoistProject {
@@ -282,4 +285,63 @@ export interface CacheStats {
   missCount: number;
   hitRate: number;
   totalMemoryUsage: number;
+}
+
+// Subtask operation interfaces
+export interface CreateSubtaskArgs {
+  parent_task_id?: string;
+  parent_task_name?: string;
+  content: string;
+  description?: string;
+  due_string?: string;
+  priority?: number;
+  labels?: string[];
+  deadline_date?: string;
+}
+
+export interface BulkCreateSubtasksArgs {
+  parent_task_id?: string;
+  parent_task_name?: string;
+  subtasks: {
+    content: string;
+    description?: string;
+    due_string?: string;
+    priority?: number;
+    labels?: string[];
+    deadline_date?: string;
+  }[];
+}
+
+export interface ConvertToSubtaskArgs {
+  task_id?: string;
+  task_name?: string;
+  parent_task_id?: string;
+  parent_task_name?: string;
+}
+
+export interface PromoteSubtaskArgs {
+  subtask_id?: string;
+  subtask_name?: string;
+  project_id?: string;
+  section_id?: string;
+}
+
+export interface GetTaskHierarchyArgs {
+  task_id?: string;
+  task_name?: string;
+  include_completed?: boolean;
+}
+
+export interface TaskNode {
+  task: TodoistTask;
+  children: TaskNode[];
+  depth: number;
+  completionPercentage: number;
+}
+
+export interface TaskHierarchy {
+  root: TaskNode;
+  totalTasks: number;
+  completedTasks: number;
+  overallCompletion: number;
 }
