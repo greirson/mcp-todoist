@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2024-12-07
+
+### Added
+- **Phase 3: Subtask Management System**: Complete hierarchical task management with parent-child relationships
+  - **Subtask Operations** (`src/handlers/subtask-handlers.ts`): Full CRUD operations for hierarchical tasks
+    - `handleCreateSubtask()` - Create subtasks under parent tasks with full attribute support
+    - `handleBulkCreateSubtasks()` - Create multiple subtasks efficiently under a parent task
+    - `handleConvertToSubtask()` - Convert existing tasks to subtasks (delete & recreate pattern)
+    - `handlePromoteSubtask()` - Promote subtasks to main tasks (remove parent relationship)
+    - `handleGetTaskHierarchy()` - Retrieve task trees with completion percentage tracking
+  - **New MCP Tools**: 5 additional tools for subtask management (total: 28 tools)
+    - `todoist_subtask_create` - Create individual subtasks
+    - `todoist_subtasks_bulk_create` - Create multiple subtasks at once
+    - `todoist_task_convert_to_subtask` - Convert tasks to subtasks
+    - `todoist_subtask_promote` - Promote subtasks to main tasks
+    - `todoist_task_hierarchy_get` - View task hierarchies with completion tracking
+  - **Enhanced Type System**: New interfaces for subtask operations and hierarchy management
+    - `CreateSubtaskArgs`, `BulkCreateSubtasksArgs`, `ConvertToSubtaskArgs`, `PromoteSubtaskArgs`
+    - `GetTaskHierarchyArgs`, `TaskNode`, `TaskHierarchy`, `ExtendedTaskNode`
+    - Updated `TodoistTask` with `parentId` and `isCompleted` properties
+    - Updated `CreateTaskArgs` with `parent_id` support
+
+- **Enhanced Testing Infrastructure**: Comprehensive CRUD testing with automatic cleanup
+  - **Robust Test Handlers** (`src/handlers/test-handlers-enhanced.ts`): Full tool validation
+    - Task Operations Suite: CREATE, READ, UPDATE, COMPLETE, DELETE (5 tests)
+    - Subtask Operations Suite: CREATE, HIERARCHY, BULK_CREATE, PROMOTE (4 tests)
+    - Label Operations Suite: CREATE, READ, UPDATE, STATS, DELETE (5 tests)
+    - Bulk Operations Suite: BULK_CREATE, BULK_UPDATE, BULK_COMPLETE, BULK_DELETE (4 tests)
+  - **Dual Testing Modes**: Basic (read-only) and Enhanced (full CRUD with cleanup)
+    - Enhanced mode parameter: `{ "mode": "enhanced" }` for comprehensive testing
+    - Automatic test data generation with timestamps for uniqueness
+    - Complete cleanup of all test data after testing
+    - Detailed test reporting with response times and success/failure metrics
+
+### Changed
+- **Tool Count**: Increased from 23 to 28 tools with new subtask management capabilities
+- **Test Coverage**: Enhanced `todoist_test_all_features` now supports both basic and enhanced testing modes
+- **API Compatibility**: Implemented workaround for Todoist API parent_id limitations using delete & recreate pattern
+- **Error Handling**: Extended error handling to support subtask-specific operations and validation
+- **Type Guards**: Added comprehensive type validation for all subtask operation parameters
+
+### Technical Implementation
+- **Hierarchical Task Building**: Recursive algorithm for building task trees with completion percentage calculation
+- **Cache Integration**: Subtask operations integrated with existing 30-second TTL caching system
+- **Validation & Security**: All subtask inputs validated using existing security framework
+- **API Response Handling**: Robust handling of various Todoist API response formats for subtask data
+- **Performance Optimization**: Efficient bulk subtask creation with sequential processing and error reporting
+
+### Documentation
+- **README Updates**: Added subtask management examples and updated tool count to 28
+- **Usage Examples**: New subtask workflow examples for natural language interaction
+- **Architecture Documentation**: Updated technical specifications in CLAUDE.md
+
 ## [0.7.0] - 2024-12-06
 
 ### Added

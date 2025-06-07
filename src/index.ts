@@ -102,7 +102,7 @@ function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
 const server = new Server(
   {
     name: "todoist-mcp-server",
-    version: "0.1.0",
+    version: "0.8.0",
   },
   {
     capabilities: {
