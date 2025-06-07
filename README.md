@@ -26,11 +26,12 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 ## Features
 
 * **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
+* **Hierarchical Subtasks**: Create subtasks, convert tasks to subtasks, promote subtasks, and view task hierarchies with completion tracking
 * **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
 * **Comment System**: Add comments to tasks and retrieve comments with attachment support
 * **Label Management**: Full CRUD operations for labels with usage statistics and analytics
 * **Project & Section Organization**: Create and manage projects and sections
-* **Testing & Validation**: Built-in tools to test connectivity, validate functionality, and benchmark performance
+* **Enhanced Testing**: Basic API validation and comprehensive CRUD testing with automatic cleanup
 * **Smart Discovery**: List projects and sections to find IDs for organization
 * **Rich Task Attributes**: Support for descriptions, due dates, priorities, labels, deadlines, and project assignment
 * **Natural Language Interface**: Use everyday language to manage your Todoist workspace
@@ -94,7 +95,7 @@ You should see a list of your Todoist projects, confirming the integration is wo
 
 ## Tools Overview
 
-The server provides 23 tools organized by entity type:
+The server provides 28 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support
@@ -102,6 +103,13 @@ The server provides 23 tools organized by entity type:
 - **Todoist Task Update**: Update existing tasks (found by name search)
 - **Todoist Task Complete**: Mark tasks as complete
 - **Todoist Task Delete**: Remove tasks
+
+### Subtask Management
+- **Todoist Subtask Create**: Create subtasks under parent tasks with full attribute support
+- **Todoist Subtasks Bulk Create**: Create multiple subtasks under a parent task efficiently
+- **Todoist Task Convert to Subtask**: Convert existing tasks to subtasks of another task
+- **Todoist Subtask Promote**: Promote subtasks to main tasks (remove parent relationship)
+- **Todoist Task Hierarchy Get**: View task hierarchies with subtasks and completion tracking
 
 ### Bulk Task Operations
 - **Todoist Tasks Bulk Create**: Create multiple tasks at once for improved efficiency
@@ -130,7 +138,7 @@ The server provides 23 tools organized by entity type:
 
 ### Testing & Validation
 - **Todoist Test Connection**: Validate API token and test connectivity
-- **Todoist Test All Features**: Comprehensive testing of all MCP tools and operations
+- **Todoist Test All Features**: Two modes - basic (read-only API tests) and enhanced (full CRUD testing with cleanup)
 - **Todoist Test Performance**: Benchmark API response times with configurable iterations
 
 ## Troubleshooting
@@ -170,6 +178,15 @@ The server provides 23 tools organized by entity type:
 "Mark the PR review task as complete"
 ```
 
+### Subtask Management
+```
+"Create subtask 'Prepare agenda' under task 'Team Meeting'"
+"Create multiple subtasks for 'Launch Project': 'Design UI', 'Write tests', 'Deploy'"
+"Convert task 'Code Review' to a subtask of 'Release v2.0'"
+"Promote subtask 'Bug Fix' to a main task"
+"Show me the task hierarchy for 'Launch Project' with completion tracking"
+```
+
 ### Bulk Operations
 ```
 "Create multiple tasks for project launch: 'Design mockups', 'Write documentation', 'Set up CI/CD'"
@@ -205,7 +222,8 @@ The server provides 23 tools organized by entity type:
 ### Testing & Validation
 ```
 "Test my Todoist connection"
-"Run comprehensive tests on all Todoist features (includes labels)"
+"Run basic tests on all Todoist features" // Default: read-only API tests
+"Run enhanced tests on all Todoist features" // Full CRUD testing with cleanup
 "Benchmark Todoist API performance with 10 iterations"
 "Validate that all MCP tools are working correctly"
 ```

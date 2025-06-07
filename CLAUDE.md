@@ -35,17 +35,19 @@ The codebase is organized into focused modules:
 - **`src/tools.ts`**: MCP tool definitions and schemas
 - **`src/handlers/`**: Business logic handlers separated by domain:
   - `task-handlers.ts` - Task CRUD operations and bulk operations
+  - `subtask-handlers.ts` - Hierarchical task management and parent-child relationships
   - `project-handlers.ts` - Project and section operations
   - `comment-handlers.ts` - Comment creation and retrieval operations
   - `label-handlers.ts` - Label CRUD operations and usage statistics
   - `test-handlers.ts` - Testing infrastructure for API validation and performance monitoring
+  - `test-handlers-enhanced.ts` - Comprehensive CRUD testing with automatic cleanup
 - **`src/errors.ts`**: Custom error types with structured error handling
 - **`src/validation.ts`**: Input validation and sanitization
 - **`src/cache.ts`**: Simple in-memory caching for API optimization
 
 ### Tool Architecture
 
-The server exposes 23 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 28 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support
@@ -53,6 +55,13 @@ The server exposes 23 tools organized by entity type with standardized naming co
 - `todoist_task_update` - Updates existing tasks found by name search
 - `todoist_task_delete` - Deletes tasks found by name search
 - `todoist_task_complete` - Marks tasks as complete found by name search
+
+**Subtask Management:**
+- `todoist_subtask_create` - Creates subtasks under parent tasks with full attribute support
+- `todoist_subtasks_bulk_create` - Creates multiple subtasks under a parent task efficiently
+- `todoist_task_convert_to_subtask` - Converts existing tasks to subtasks of another task
+- `todoist_subtask_promote` - Promotes subtasks to main tasks (removes parent relationship)
+- `todoist_task_hierarchy_get` - Retrieves task hierarchies with completion percentage tracking
 
 **Bulk Task Operations:**
 - `todoist_tasks_bulk_create` - Creates multiple tasks at once for improved efficiency
@@ -81,7 +90,7 @@ The server exposes 23 tools organized by entity type with standardized naming co
 
 **Testing Infrastructure:**
 - `todoist_test_connection` - Quick API token validation and connection test
-- `todoist_test_all_features` - Comprehensive testing of all MCP tools and API operations
+- `todoist_test_all_features` - Dual-mode testing: basic (read-only) and enhanced (full CRUD with cleanup)
 - `todoist_test_performance` - Performance benchmarking with configurable iterations
 
 ### Error Handling Strategy
@@ -90,6 +99,7 @@ Structured error handling with custom error types:
 - `ValidationError` - Input validation failures
 - `TaskNotFoundError` - Task search failures
 - `LabelNotFoundError` - Label search failures
+- `SubtaskError` - Subtask operation failures
 - `TodoistAPIError` - Todoist API failures
 - `AuthenticationError` - Token validation failures
 
@@ -115,6 +125,22 @@ Bulk operations provide significant efficiency improvements by allowing multiple
   - `content_contains`: Filter by text within task content
 - **Error Handling**: Each bulk operation reports individual successes and failures for better debugging
 - **Cache Management**: Bulk operations automatically clear relevant caches to ensure consistency
+
+### Subtask Architecture
+
+Hierarchical task management with parent-child relationships:
+
+- **Creation Strategy**: Subtasks are created using the `parent_id` field in the Todoist API
+- **API Compatibility**: Uses delete & recreate pattern for converting tasks to subtasks due to API limitations
+- **Hierarchy Building**: Recursive algorithm builds task trees with completion percentage calculation
+- **Task Conversion**: 
+  - `Convert to Subtask`: Deletes original task and recreates with `parent_id`
+  - `Promote Subtask`: Deletes subtask and recreates as main task without `parent_id`
+- **Completion Tracking**: Calculates completion percentages for parent tasks based on subtask status
+- **Bulk Operations**: Efficient creation of multiple subtasks under a single parent
+- **Tree Visualization**: `formatTaskHierarchy()` provides hierarchical display with completion indicators
+- **Cache Integration**: Subtask operations integrated with 30-second TTL caching system
+- **Search Strategy**: Supports both task ID and name-based parent/child identification
 
 ### Data Flow Pattern
 
@@ -147,8 +173,17 @@ The codebase includes comprehensive testing capabilities:
 
 **Built-in Testing Tools:**
 - `todoist_test_connection` - Validates API token and connection
-- `todoist_test_all_features` - Tests all tools (tasks, projects, labels, sections, comments)
+- `todoist_test_all_features` - Dual-mode testing:
+  - Basic mode: Read-only tests for tasks, projects, labels, sections, comments (default)
+  - Enhanced mode: Full CRUD testing with automatic cleanup including subtasks
 - `todoist_test_performance` - Benchmarks API response times with configurable iterations
+
+**Enhanced Testing Infrastructure:**
+- **Comprehensive CRUD Testing**: 18 tests across 4 suites (Task, Subtask, Label, Bulk Operations)
+- **Automatic Test Data Management**: Generates unique test data with timestamps
+- **Complete Cleanup**: Removes all test data after testing to prevent workspace pollution
+- **Detailed Reporting**: Response times, success/failure metrics, and error details
+- **Suite Organization**: Grouped tests by functionality for better debugging
 
 **Running Tests:**
 - `npm test` - Runs all tests (unit tests always, integration tests if token available)
@@ -213,9 +248,14 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - ✅ **Input Validation & Sanitization**: Comprehensive security protection with XSS prevention and injection attack blocking
   - ✅ **Centralized Cache Management**: Advanced caching system with CacheManager singleton and performance monitoring
   - ✅ **Refactored All Handlers**: Updated all handlers to use shared utilities and standardized patterns
+- ✅ **Phase 3**: Subtask Management (v0.8.0) - Hierarchical task management with parent-child relationships
+  - ✅ **Subtask Handlers**: Created `src/handlers/subtask-handlers.ts` with full CRUD operations for hierarchical tasks
+  - ✅ **Enhanced Testing**: Built `src/handlers/test-handlers-enhanced.ts` with comprehensive CRUD testing and automatic cleanup
+  - ✅ **New MCP Tools**: Added 5 subtask management tools (total: 28 tools)
+  - ✅ **Type System Enhancement**: Extended type definitions for subtask operations and hierarchy management
+  - ✅ **API Compatibility**: Implemented workarounds for Todoist API limitations using delete & recreate patterns
 
 **Planned Future Phases:**
-- **Phase 3**: Subtask Management - Hierarchical task management with parent-child relationships
 - **Phase 4**: Duplicate Detection - Smart task deduplication using similarity algorithms
 - **Phase 5**: Project Analytics - Comprehensive project health metrics and insights
 
