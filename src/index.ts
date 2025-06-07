@@ -328,7 +328,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         break;
 
       case "todoist_test_all_features":
-        const featuresResult = await handleTestAllFeatures(todoistClient);
+        const featuresResult = await handleTestAllFeatures(todoistClient, args as { mode?: "basic" | "enhanced" });
         result = JSON.stringify(featuresResult, null, 2);
         break;
 

@@ -504,7 +504,14 @@ export const TEST_ALL_FEATURES_TOOL: Tool = {
   description: "Run comprehensive tests on all Todoist MCP features to verify functionality",
   inputSchema: {
     type: "object",
-    properties: {},
+    properties: {
+      mode: {
+        type: "string",
+        enum: ["basic", "enhanced"],
+        description: "Test mode: 'basic' for read-only API tests, 'enhanced' for full CRUD testing (default: basic)",
+        default: "basic",
+      },
+    },
   },
 };
 
