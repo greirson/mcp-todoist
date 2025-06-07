@@ -89,6 +89,17 @@ export class LabelNotFoundError extends TodoistMCPError {
   }
 }
 
+export class SubtaskError extends TodoistMCPError {
+  constructor(message: string) {
+    super(
+      `Subtask operation error: ${message}`,
+      "SUBTASK_ERROR",
+      400
+    );
+    this.name = "SubtaskError";
+  }
+}
+
 export function handleError(error: unknown): { message: string; code: string } {
   if (error instanceof TodoistMCPError) {
     return {
