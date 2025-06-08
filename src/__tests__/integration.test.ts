@@ -50,7 +50,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
 
   describe("Feature Tests", () => {
     test("should run all feature tests successfully", async () => {
-      const result = await handleTestAllFeatures(todoistClient) as any;
+      const result = (await handleTestAllFeatures(todoistClient)) as any;
 
       expect(result.overallStatus).toMatch(/success|partial/);
       expect(result.totalTests).toBeGreaterThan(0);
@@ -101,7 +101,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
 
   describe("Feature-specific Tests", () => {
     test("Task operations should handle empty results gracefully", async () => {
-      const result = await handleTestAllFeatures(todoistClient) as any;
+      const result = (await handleTestAllFeatures(todoistClient)) as any;
       const taskOps = result.features.find(
         (f: any) => f.feature === "Task Operations"
       );
@@ -114,7 +114,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
     });
 
     test("Project operations should always succeed", async () => {
-      const result = await handleTestAllFeatures(todoistClient) as any;
+      const result = (await handleTestAllFeatures(todoistClient)) as any;
       const projectOps = result.features.find(
         (f: any) => f.feature === "Project Operations"
       );
