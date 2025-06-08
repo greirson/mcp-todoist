@@ -312,16 +312,40 @@ npm run format:check
 
 ### Architecture
 
-The codebase is organized into focused modules:
+The codebase follows a clean, modular architecture designed for maintainability and scalability:
 
+#### Core Structure
 - **`src/index.ts`**: Main server entry point with request routing
-- **`src/handlers/`**: Business logic separated by domain (tasks, projects, comments)
-- **`src/types.ts`**: TypeScript type definitions
-- **`src/type-guards.ts`**: Runtime type validation
+- **`src/types.ts`**: TypeScript type definitions and interfaces
+- **`src/type-guards.ts`**: Runtime type validation functions
 - **`src/validation.ts`**: Input validation and sanitization
 - **`src/errors.ts`**: Custom error types with structured handling
 - **`src/cache.ts`**: In-memory caching for performance optimization
-- **`src/tools.ts`**: MCP tool definitions and schemas
+
+#### Modular Tool Organization
+- **`src/tools/`**: Domain-specific MCP tool definitions organized by functionality:
+  - `task-tools.ts` - Task management (9 tools)
+  - `subtask-tools.ts` - Subtask operations (5 tools)
+  - `project-tools.ts` - Project/section management (4 tools)
+  - `comment-tools.ts` - Comment operations (2 tools)
+  - `label-tools.ts` - Label management (5 tools)
+  - `test-tools.ts` - Testing and validation (3 tools)
+  - `index.ts` - Centralized exports
+
+#### Business Logic Handlers
+- **`src/handlers/`**: Domain-separated business logic modules:
+  - `task-handlers.ts` - Task CRUD and bulk operations
+  - `subtask-handlers.ts` - Hierarchical task management
+  - `project-handlers.ts` - Project and section operations
+  - `comment-handlers.ts` - Comment creation and retrieval
+  - `label-handlers.ts` - Label CRUD and statistics
+  - `test-handlers.ts` - API testing infrastructure
+  - `test-handlers-enhanced/` - Comprehensive CRUD testing framework
+
+#### Utility Modules
+- **`src/utils/`**: Shared utility functions:
+  - `api-helpers.ts` - API response handling utilities
+  - `error-handling.ts` - Centralized error management
 
 ## Changelog
 

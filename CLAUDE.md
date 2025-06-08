@@ -27,23 +27,48 @@ This is an MCP (Model Context Protocol) server that integrates Claude with the T
 
 ### Modular Architecture
 
-The codebase is organized into focused modules:
+The codebase follows a clean, domain-driven architecture with focused modules for improved maintainability:
 
+#### Core Infrastructure
 - **`src/index.ts`**: Main server entry point with request routing
 - **`src/types.ts`**: TypeScript type definitions and interfaces
 - **`src/type-guards.ts`**: Runtime type validation functions
-- **`src/tools.ts`**: MCP tool definitions and schemas
-- **`src/handlers/`**: Business logic handlers separated by domain:
+- **`src/errors.ts`**: Custom error types with structured error handling
+- **`src/validation.ts`**: Input validation and sanitization
+- **`src/cache.ts`**: Simple in-memory caching for API optimization
+
+#### Modular Tool Organization
+- **`src/tools/`**: Domain-specific MCP tool definitions (refactored from single 863-line file):
+  - `task-tools.ts` - Task management tools (CREATE, READ, UPDATE, DELETE, COMPLETE + bulk operations)
+  - `subtask-tools.ts` - Subtask management tools (hierarchical task operations)
+  - `project-tools.ts` - Project and section management tools
+  - `comment-tools.ts` - Comment creation and retrieval tools
+  - `label-tools.ts` - Label CRUD and statistics tools
+  - `test-tools.ts` - Testing and validation tools
+  - `index.ts` - Centralized exports with backward compatibility
+
+#### Business Logic Handlers
+- **`src/handlers/`**: Domain-separated business logic:
   - `task-handlers.ts` - Task CRUD operations and bulk operations
   - `subtask-handlers.ts` - Hierarchical task management and parent-child relationships
   - `project-handlers.ts` - Project and section operations
   - `comment-handlers.ts` - Comment creation and retrieval operations
   - `label-handlers.ts` - Label CRUD operations and usage statistics
   - `test-handlers.ts` - Testing infrastructure for API validation and performance monitoring
-  - `test-handlers-enhanced.ts` - Comprehensive CRUD testing with automatic cleanup
-- **`src/errors.ts`**: Custom error types with structured error handling
-- **`src/validation.ts`**: Input validation and sanitization
-- **`src/cache.ts`**: Simple in-memory caching for API optimization
+
+#### Enhanced Testing Framework
+- **`src/handlers/test-handlers-enhanced/`**: Modular comprehensive testing (refactored from single 755-line file):
+  - `types.ts` - Common test types and utilities
+  - `task-tests.ts` - Task CRUD operation tests (5 tests)
+  - `subtask-tests.ts` - Subtask management tests (4 tests)
+  - `label-tests.ts` - Label operation tests (5 tests)
+  - `bulk-tests.ts` - Bulk operation tests (4 tests)
+  - `index.ts` - Test orchestrator and exports
+
+#### Utility Modules
+- **`src/utils/`**: Shared utility functions:
+  - `api-helpers.ts` - API response handling and formatting utilities
+  - `error-handling.ts` - Centralized error management with context tracking
 
 ### Tool Architecture
 
