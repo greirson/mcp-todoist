@@ -175,9 +175,9 @@ async function testSectionOperations(
       };
     }
 
-    const sectionsResult = await todoistClient.getSections(
-      { project_id: (projectArray[0] as { id: string }).id } as unknown as Parameters<typeof todoistClient.getSections>[0]
-    );
+    const sectionsResult = await todoistClient.getSections({
+      project_id: (projectArray[0] as { id: string }).id,
+    } as unknown as Parameters<typeof todoistClient.getSections>[0]);
     // Handle various API response formats
     const sectionArray = extractArrayFromResponse(sectionsResult);
 
