@@ -7,7 +7,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { TodoistApi } from "@doist/todoist-api-typescript";
-import { ALL_TOOLS } from "./tools.js";
+import { ALL_TOOLS } from "./tools/index.js";
 import {
   isCreateTaskArgs,
   isGetTasksArgs,
