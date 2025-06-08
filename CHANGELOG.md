@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2024-12-07
+
+### Changed
+- **Major Architectural Refactoring**: Significantly improved codebase maintainability and organization
+  - **Modular Tool Organization**: Broke out monolithic `src/tools.ts` (863 lines) into focused domain modules:
+    - `src/tools/task-tools.ts` - Task management tools (9 tools)
+    - `src/tools/subtask-tools.ts` - Subtask management tools (5 tools)
+    - `src/tools/project-tools.ts` - Project and section tools (4 tools)
+    - `src/tools/comment-tools.ts` - Comment management tools (2 tools)
+    - `src/tools/label-tools.ts` - Label management tools (5 tools)
+    - `src/tools/test-tools.ts` - Testing and validation tools (3 tools)
+    - `src/tools/index.ts` - Centralized exports with backward compatibility
+  - **Enhanced Test Modularization**: Broke out `src/handlers/test-handlers-enhanced.ts` (755 lines) into focused test suites:
+    - `src/handlers/test-handlers-enhanced/types.ts` - Common types and test utilities
+    - `src/handlers/test-handlers-enhanced/task-tests.ts` - Task CRUD operation tests
+    - `src/handlers/test-handlers-enhanced/subtask-tests.ts` - Subtask management tests
+    - `src/handlers/test-handlers-enhanced/label-tests.ts` - Label operation tests
+    - `src/handlers/test-handlers-enhanced/bulk-tests.ts` - Bulk operation tests
+    - `src/handlers/test-handlers-enhanced/index.ts` - Test orchestrator and exports
+
+### Improved
+- **Code Organization**: Each module now focuses on a single domain for better maintainability
+- **Developer Experience**: Easier navigation and reduced cognitive load with smaller, focused files
+- **Type Safety**: All TypeScript compilation errors resolved during refactoring
+- **Code Quality**: All ESLint issues resolved with clean, consistent formatting
+- **Backward Compatibility**: All existing imports and functionality preserved
+
+### Technical Benefits
+- **Maintainability**: Reduced largest files from 863 and 755 lines to focused modules under 400 lines each
+- **Testability**: Individual modules can be tested and modified in isolation
+- **Scalability**: Clear separation of concerns enables easier feature additions
+- **Code Discovery**: Developers can quickly locate relevant functionality by domain
+
 ## [0.8.0] - 2024-12-07
 
 ### Added
