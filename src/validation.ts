@@ -322,6 +322,12 @@ export function validateLimit(limit?: number): void {
   }
 }
 
+export function validateTaskIdentifier(taskId?: string, taskName?: string): void {
+  if (!taskId && !taskName) {
+    throw new ValidationError("Either task_id or task_name must be provided");
+  }
+}
+
 export function validateLabelName(name: string): string {
   return validateAndSanitizeContent(name, "name", {
     maxLength: VALIDATION_LIMITS.LABEL_NAME_MAX,
