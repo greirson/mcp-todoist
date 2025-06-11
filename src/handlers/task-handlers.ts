@@ -21,6 +21,7 @@ import {
   validateProjectId,
   validateSectionId,
   validateLimit,
+  validateTaskIdentifier,
 } from "../validation.js";
 import {
   extractArrayFromResponse,
@@ -38,6 +39,54 @@ const taskCache = cacheManager.getOrCreateCache<TodoistTask[]>("tasks", 30000, {
 });
 
 // Using shared utilities from api-helpers.ts
+
+// Helper function to find a task by ID or name
+async function findTaskByIdOrName(
+  todoistClient: TodoistApi,
+  args: { task_id?: string; task_name?: string }
+): Promise<TodoistTask> {
+  if (!args.task_id && !args.task_name) {
+    throw new Error("Either task_id or task_name must be provided");
+  }
+
+  let task: TodoistTask | null = null;
+
+  // Try to find by ID first if provided
+  if (args.task_id) {
+    try {
+      const response = await todoistClient.getTask(args.task_id);
+      task = response as TodoistTask;
+    } catch {
+      // If not found by ID, continue to try by name if provided
+      if (!args.task_name) {
+        ErrorHandler.handleTaskNotFound(`ID: ${args.task_id}`);
+      }
+    }
+  }
+
+  // If not found by ID or ID not provided, try by name
+  if (!task && args.task_name) {
+    const result = await todoistClient.getTasks();
+    const tasks = extractArrayFromResponse<TodoistTask>(result);
+    const matchingTask = tasks.find((t: TodoistTask) =>
+      t.content.toLowerCase().includes(args.task_name!.toLowerCase())
+    );
+
+    if (matchingTask) {
+      task = matchingTask;
+    } else {
+      ErrorHandler.handleTaskNotFound(args.task_name);
+    }
+  }
+
+  if (!task) {
+    ErrorHandler.handleTaskNotFound(
+      args.task_id ? `ID: ${args.task_id}` : args.task_name!
+    );
+  }
+
+  return task!;
+}
 
 export async function handleCreateTask(
   todoistClient: TodoistApi,
@@ -81,7 +130,7 @@ export async function handleCreateTask(
     // Clear cache after creating task
     taskCache.clear();
 
-    return `Task created:\nTitle: ${task.content}${
+    return `Task created:\nID: ${task.id}\nTitle: ${task.content}${
       task.description ? `\nDescription: ${task.description}` : ""
     }${task.due ? `\nDue: ${task.due.string}` : ""}${
       task.priority ? `\nPriority: ${task.priority}` : ""
@@ -103,6 +152,16 @@ export async function handleGetTasks(
   validatePriority(args.priority);
   validateProjectId(args.project_id);
   validateLimit(args.limit);
+
+  // If task_id is provided, fetch specific task
+  if (args.task_id) {
+    try {
+      const task = await todoistClient.getTask(args.task_id);
+      return formatTaskForDisplay(task as TodoistTask);
+    } catch {
+      return `Task with ID "${args.task_id}" not found`;
+    }
+  }
 
   const apiParams: Record<string, string | undefined> = {};
   if (args.project_id) {
@@ -151,18 +210,13 @@ export async function handleUpdateTask(
   todoistClient: TodoistApi,
   args: UpdateTaskArgs
 ): Promise<string> {
+  // Validate that at least one identifier is provided
+  validateTaskIdentifier(args.task_id, args.task_name);
+
   // Clear cache since we're updating
   taskCache.clear();
 
-  const result = await todoistClient.getTasks();
-  const tasks = extractArrayFromResponse<TodoistTask>(result);
-  const matchingTask = tasks.find((task: TodoistTask) =>
-    task.content.toLowerCase().includes(args.task_name.toLowerCase())
-  );
-
-  if (!matchingTask) {
-    ErrorHandler.handleTaskNotFound(args.task_name);
-  }
+  const matchingTask = await findTaskByIdOrName(todoistClient, args);
 
   const updateData: Partial<TodoistTaskData> = {};
   if (args.content) updateData.content = args.content;
@@ -192,20 +246,15 @@ export async function handleDeleteTask(
   todoistClient: TodoistApi,
   args: TaskNameArgs
 ): Promise<string> {
+  // Validate that at least one identifier is provided
+  validateTaskIdentifier(args.task_id, args.task_name);
+
   // Clear cache since we're deleting
   taskCache.clear();
 
-  const result = await todoistClient.getTasks();
-  const tasks = extractArrayFromResponse<TodoistTask>(result);
-  const matchingTask = tasks.find((task: TodoistTask) =>
-    task.content.toLowerCase().includes(args.task_name.toLowerCase())
-  );
+  const matchingTask = await findTaskByIdOrName(todoistClient, args);
 
-  if (!matchingTask) {
-    ErrorHandler.handleTaskNotFound(args.task_name);
-  }
-
-  await todoistClient.deleteTask(matchingTask!.id);
+  await todoistClient.deleteTask(matchingTask.id);
   return `Successfully deleted task: "${matchingTask.content}"`;
 }
 
@@ -213,20 +262,15 @@ export async function handleCompleteTask(
   todoistClient: TodoistApi,
   args: TaskNameArgs
 ): Promise<string> {
+  // Validate that at least one identifier is provided
+  validateTaskIdentifier(args.task_id, args.task_name);
+
   // Clear cache since we're completing
   taskCache.clear();
 
-  const result = await todoistClient.getTasks();
-  const tasks = extractArrayFromResponse<TodoistTask>(result);
-  const matchingTask = tasks.find((task: TodoistTask) =>
-    task.content.toLowerCase().includes(args.task_name.toLowerCase())
-  );
+  const matchingTask = await findTaskByIdOrName(todoistClient, args);
 
-  if (!matchingTask) {
-    ErrorHandler.handleTaskNotFound(args.task_name);
-  }
-
-  await todoistClient.closeTask(matchingTask!.id);
+  await todoistClient.closeTask(matchingTask.id);
   return `Successfully completed task: "${matchingTask.content}"`;
 }
 
@@ -313,7 +357,9 @@ export async function handleBulkCreateTasks(
 
     if (successCount > 0) {
       result += "Created tasks:\n";
-      result += createdTasks.map((task) => `- ${task.content}`).join("\n");
+      result += createdTasks
+        .map((task) => `- ${task.content} (ID: ${task.id})`)
+        .join("\n");
       result += "\n\n";
     }
 
@@ -374,7 +420,9 @@ export async function handleBulkUpdateTasks(
 
     if (successCount > 0) {
       response += "Updated tasks:\n";
-      response += updatedTasks.map((task) => `- ${task.content}`).join("\n");
+      response += updatedTasks
+        .map((task) => `- ${task.content} (ID: ${task.id})`)
+        .join("\n");
       response += "\n\n";
     }
 

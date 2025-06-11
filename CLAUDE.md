@@ -248,7 +248,10 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 
 - **Tool Names**: All MCP tool names use underscores (e.g., `todoist_task_create`) to comply with MCP naming requirements `^[a-zA-Z0-9_-]{1,64}$`
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
-- **Task Search**: Update/delete/complete operations use case-insensitive partial string matching against task content
+- **Task Search**: Update/delete/complete operations support both:
+  - **Task ID**: Direct lookup by ID (more reliable, takes precedence)
+  - **Task Name**: Case-insensitive partial string matching against task content
+- **Task Identification**: When both `task_id` and `task_name` are provided, ID takes precedence
 - **Due Dates vs Deadlines**: 
   - `due_string`/`due_date`: When the task appears in "Today" (start date)
   - `deadline_date`: Actual deadline for task completion (YYYY-MM-DD format)

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.8.2] - 2024-12-07
+
+### Added
+- **Task ID Display**: All operations now include task IDs in their output for improved usability (fixes #13)
+  - `formatTaskForDisplay()` now shows tasks as: `- Task content (ID: 123456)`
+  - Task creation responses include: `Task created:\nID: 123456\nTitle: Task content...`
+  - Bulk operations show IDs in success lists: `- Task content (ID: 123456)`
+  - Task hierarchy displays include IDs: `○ Task content (ID: 123456) [50%]`
+  - Subtask operations show both task and parent IDs in responses
+- **Task ID Support**: All task operations now support querying by task ID in addition to task name
+  - `todoist_task_get` - Added `task_id` parameter to fetch specific task by ID (takes precedence over filtering)
+  - `todoist_task_update` - Added `task_id` parameter (takes precedence over `task_name`)
+  - `todoist_task_delete` - Added `task_id` parameter (takes precedence over `task_name`)
+  - `todoist_task_complete` - Added `task_id` parameter (takes precedence over `task_name`)
+- **Enhanced Filtering**: `todoist_task_get` now supports `priority` and `limit` parameters for better task filtering
+
+### Changed
+- **Output Format**: Standardized task ID display format across all operations
+- **Tool Parameters**: Made `task_name` optional in update/delete/complete operations (either `task_id` or `task_name` required)
+- **Tool Descriptions**: Updated to reflect ID-based querying capabilities
+- **Error Messages**: Updated to show whether search was by ID or name for better debugging
+
+### Fixed
+- **Issue #13**: Task IDs are now visible in all get operations and create/update responses
+
 ## [0.8.1] - 2024-12-07
 
 ### Changed

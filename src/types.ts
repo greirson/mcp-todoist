@@ -11,6 +11,7 @@ export interface CreateTaskArgs {
 }
 
 export interface GetTasksArgs {
+  task_id?: string;
   project_id?: string;
   filter?: string;
   priority?: number;
@@ -18,7 +19,8 @@ export interface GetTasksArgs {
 }
 
 export interface UpdateTaskArgs {
-  task_name: string;
+  task_name?: string;
+  task_id?: string;
   content?: string;
   description?: string;
   due_string?: string;
@@ -28,7 +30,8 @@ export interface UpdateTaskArgs {
 }
 
 export interface TaskNameArgs {
-  task_name: string;
+  task_name?: string;
+  task_id?: string;
 }
 
 export interface GetSectionsArgs {

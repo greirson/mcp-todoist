@@ -99,10 +99,10 @@ The server provides 28 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support
-- **Todoist Task Get**: Retrieve and filter tasks by various criteria
-- **Todoist Task Update**: Update existing tasks (found by name search)
-- **Todoist Task Complete**: Mark tasks as complete
-- **Todoist Task Delete**: Remove tasks
+- **Todoist Task Get**: Retrieve and filter tasks by various criteria, or fetch specific task by ID
+- **Todoist Task Update**: Update existing tasks (found by ID or partial name search)
+- **Todoist Task Complete**: Mark tasks as complete (found by ID or partial name search)
+- **Todoist Task Delete**: Remove tasks (found by ID or partial name search)
 
 ### Subtask Management
 - **Todoist Subtask Create**: Create subtasks under parent tasks with full attribute support
@@ -176,6 +176,12 @@ The server provides 28 tools organized by entity type:
 "Create high priority task with deadline 2024-12-25"
 "Update meeting task to be in section 67890"
 "Mark the PR review task as complete"
+
+# Task identification by ID (more reliable than name search)
+"Get task with ID 1234567890"
+"Update task ID 1234567890 to priority 4"
+"Complete task with ID 1234567890"
+"Delete task ID 1234567890"
 ```
 
 ### Subtask Management

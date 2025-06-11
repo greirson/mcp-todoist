@@ -54,10 +54,16 @@ export const CREATE_TASK_TOOL: Tool = {
 
 export const GET_TASKS_TOOL: Tool = {
   name: "todoist_task_get",
-  description: "Retrieve tasks from Todoist with optional filtering",
+  description:
+    "Retrieve tasks from Todoist with optional filtering or get a specific task by ID",
   inputSchema: {
     type: "object",
     properties: {
+      task_id: {
+        type: "string",
+        description:
+          "Get a specific task by its ID (optional, takes precedence over filtering)",
+      },
       project_id: {
         type: "string",
         description: "Filter tasks by project ID (optional)",
@@ -65,6 +71,16 @@ export const GET_TASKS_TOOL: Tool = {
       label_id: {
         type: "string",
         description: "Filter tasks by label ID (optional)",
+      },
+      priority: {
+        type: "number",
+        description: "Filter tasks by priority level 1-4 (optional)",
+        enum: [1, 2, 3, 4],
+      },
+      limit: {
+        type: "number",
+        description: "Maximum number of tasks to return (optional)",
+        minimum: 1,
       },
       filter: {
         type: "string",
@@ -83,13 +99,19 @@ export const GET_TASKS_TOOL: Tool = {
 export const UPDATE_TASK_TOOL: Tool = {
   name: "todoist_task_update",
   description:
-    "Update an existing task found by partial name search. Supports updating content, description, due date, priority, labels, deadline, project, and section",
+    "Update an existing task found by ID or partial name search. Supports updating content, description, due date, priority, labels, deadline, project, and section",
   inputSchema: {
     type: "object",
     properties: {
+      task_id: {
+        type: "string",
+        description:
+          "Task ID to update (optional, takes precedence over task_name)",
+      },
       task_name: {
         type: "string",
-        description: "Partial task name to search for (case-insensitive)",
+        description:
+          "Partial task name to search for (case-insensitive, used if task_id not provided)",
       },
       content: {
         type: "string",
@@ -129,38 +151,51 @@ export const UPDATE_TASK_TOOL: Tool = {
         description: "Move task to this section ID (optional)",
       },
     },
-    required: ["task_name"],
+    required: [],
   },
 };
 
 export const DELETE_TASK_TOOL: Tool = {
   name: "todoist_task_delete",
-  description: "Delete a task found by partial name search (case-insensitive)",
+  description:
+    "Delete a task found by ID or partial name search (case-insensitive)",
   inputSchema: {
     type: "object",
     properties: {
+      task_id: {
+        type: "string",
+        description:
+          "Task ID to delete (optional, takes precedence over task_name)",
+      },
       task_name: {
         type: "string",
-        description: "Partial task name to search for deletion",
+        description:
+          "Partial task name to search for deletion (used if task_id not provided)",
       },
     },
-    required: ["task_name"],
+    required: [],
   },
 };
 
 export const COMPLETE_TASK_TOOL: Tool = {
   name: "todoist_task_complete",
   description:
-    "Mark a task as complete found by partial name search (case-insensitive)",
+    "Mark a task as complete found by ID or partial name search (case-insensitive)",
   inputSchema: {
     type: "object",
     properties: {
+      task_id: {
+        type: "string",
+        description:
+          "Task ID to complete (optional, takes precedence over task_name)",
+      },
       task_name: {
         type: "string",
-        description: "Partial task name to search for completion",
+        description:
+          "Partial task name to search for completion (used if task_id not provided)",
       },
     },
-    required: ["task_name"],
+    required: [],
   },
 };
 

@@ -104,6 +104,7 @@ export function createCacheKey(
  * @returns Formatted string representation of the task
  */
 export function formatTaskForDisplay(task: {
+  id?: string;
   content: string;
   description?: string;
   due?: { string: string } | null;
@@ -111,7 +112,7 @@ export function formatTaskForDisplay(task: {
   priority?: number;
   labels?: string[];
 }): string {
-  return `- ${task.content}${
+  return `- ${task.content}${task.id ? ` (ID: ${task.id})` : ""}${
     task.description ? `\n  Description: ${task.description}` : ""
   }${task.due ? `\n  Due: ${task.due.string}` : ""}${
     task.deadline ? `\n  Deadline: ${task.deadline.date}` : ""

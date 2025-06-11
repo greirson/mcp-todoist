@@ -82,7 +82,7 @@ function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
   function formatNode(node: TaskNode, indent: string = ""): string {
     const status = node.task.isCompleted ? "✓" : "○";
     const completion = node.children.length > 0 ? ` [${node.completionPercentage}%]` : "";
-    let result = `${indent}${status} ${node.task.content}${completion}\n`;
+    let result = `${indent}${status} ${node.task.content} (ID: ${node.task.id})${completion}\n`;
     
     for (const child of node.children) {
       result += formatNode(child, indent + "  ");
@@ -282,7 +282,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_subtask_create");
         }
         const subtaskResult = await handleCreateSubtask(todoistClient, args);
-        result = `Created subtask "${subtaskResult.subtask.content}" under parent task "${subtaskResult.parent.content}"`;
+        result = `Created subtask "${subtaskResult.subtask.content}" (ID: ${subtaskResult.subtask.id}) under parent task "${subtaskResult.parent.content}" (ID: ${subtaskResult.parent.id})`;
         break;
 
       case "todoist_subtasks_bulk_create":
@@ -290,8 +290,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_subtasks_bulk_create");
         }
         const bulkSubtaskResult = await handleBulkCreateSubtasks(todoistClient, args);
-        result = `Created ${bulkSubtaskResult.created.length} subtasks under parent "${bulkSubtaskResult.parent.content}"\n` +
+        result = `Created ${bulkSubtaskResult.created.length} subtasks under parent "${bulkSubtaskResult.parent.content}" (ID: ${bulkSubtaskResult.parent.id})\n` +
                  `Failed: ${bulkSubtaskResult.failed.length}`;
+        if (bulkSubtaskResult.created.length > 0) {
+          result += "\nCreated subtasks:\n" + 
+                    bulkSubtaskResult.created.map(t => `- ${t.content} (ID: ${t.id})`).join("\n");
+        }
         if (bulkSubtaskResult.failed.length > 0) {
           result += "\nFailed subtasks:\n" + 
                     bulkSubtaskResult.failed.map(f => `- ${f.task.content}: ${f.error}`).join("\n");
@@ -303,7 +307,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_task_convert_to_subtask");
         }
         const convertResult = await handleConvertToSubtask(todoistClient, args);
-        result = `Converted task "${convertResult.task.content}" to subtask of "${convertResult.parent.content}"`;
+        result = `Converted task "${convertResult.task.content}" (ID: ${convertResult.task.id}) to subtask of "${convertResult.parent.content}" (ID: ${convertResult.parent.id})`;
         break;
 
       case "todoist_subtask_promote":
@@ -311,7 +315,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_subtask_promote");
         }
         const promotedTask = await handlePromoteSubtask(todoistClient, args);
-        result = `Promoted subtask "${promotedTask.content}" to main task`;
+        result = `Promoted subtask "${promotedTask.content}" (ID: ${promotedTask.id}) to main task`;
         break;
 
       case "todoist_task_hierarchy_get":
