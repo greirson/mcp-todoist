@@ -2,6 +2,10 @@
 
 An MCP (Model Context Protocol) server that connects Claude with Todoist for complete task and project management through natural language.
 
+<a href="https://glama.ai/mcp/servers/@greirson/mcp-todoist">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@greirson/mcp-todoist/badge" alt="Todoist Server MCP server" />
+</a>
+
 ## Quick Start
 
 1. Install: `npm install -g @greirson/mcp-todoist`
