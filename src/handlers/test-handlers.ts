@@ -68,7 +68,7 @@ async function testTaskOperations(
   const startTime = Date.now();
   try {
     // Test task retrieval
-    const result = await todoistClient.getTasks({ limit: 5 });
+    const result = await todoistClient.getTasks();
     // Handle various API response formats
     const taskArray = extractArrayFromResponse(result);
 
@@ -176,8 +176,8 @@ async function testSectionOperations(
     }
 
     const sectionsResult = await todoistClient.getSections({
-      projectId: (projectArray[0] as { id: string }).id,
-    });
+      project_id: (projectArray[0] as { id: string }).id,
+    } as unknown as Parameters<typeof todoistClient.getSections>[0]);
     // Handle various API response formats
     const sectionArray = extractArrayFromResponse(sectionsResult);
 
@@ -208,7 +208,7 @@ async function testCommentOperations(
   const startTime = Date.now();
   try {
     // Get a task to test comments
-    const result = await todoistClient.getTasks({ limit: 1 });
+    const result = await todoistClient.getTasks();
     // Handle various API response formats
     const taskArray = extractArrayFromResponse(result);
 
@@ -267,8 +267,18 @@ function formatTestResults(
 }
 
 export async function handleTestAllFeatures(
-  todoistClient: TodoistApi
-): Promise<ComprehensiveTestResult> {
+  todoistClient: TodoistApi,
+  args?: { mode?: "basic" | "enhanced" }
+): Promise<ComprehensiveTestResult | unknown> {
+  // Use enhanced testing if requested
+  if (args?.mode === "enhanced") {
+    const { handleTestAllFeaturesEnhanced } = await import(
+      "./test-handlers-enhanced/index.js"
+    );
+    return handleTestAllFeaturesEnhanced(todoistClient);
+  }
+
+  // Default to basic testing
   const results: FeatureTestResult[] = [];
 
   // Test each feature
@@ -302,7 +312,7 @@ export async function handleTestPerformance(
 
     // Test task retrieval
     const taskStart = Date.now();
-    await todoistClient.getTasks({ limit: 10 });
+    await todoistClient.getTasks();
     results.push({ operation: "getTasks", time: Date.now() - taskStart });
   }
 

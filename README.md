@@ -3,6 +3,10 @@
 
 An MCP (Model Context Protocol) server that connects Claude with Todoist for complete task and project management through natural language.
 
+<a href="https://glama.ai/mcp/servers/@greirson/mcp-todoist">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@greirson/mcp-todoist/badge" alt="Todoist Server MCP server" />
+</a>
+
 ## Quick Start
 
 1. Install: `npm install -g @greirson/mcp-todoist`
@@ -27,10 +31,12 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 ## Features
 
 * **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
+* **Hierarchical Subtasks**: Create subtasks, convert tasks to subtasks, promote subtasks, and view task hierarchies with completion tracking
 * **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
 * **Comment System**: Add comments to tasks and retrieve comments with attachment support
+* **Label Management**: Full CRUD operations for labels with usage statistics and analytics
 * **Project & Section Organization**: Create and manage projects and sections
-* **Testing & Validation**: Built-in tools to test connectivity, validate functionality, and benchmark performance
+* **Enhanced Testing**: Basic API validation and comprehensive CRUD testing with automatic cleanup
 * **Smart Discovery**: List projects and sections to find IDs for organization
 * **Rich Task Attributes**: Support for descriptions, due dates, priorities, labels, deadlines, and project assignment
 * **Natural Language Interface**: Use everyday language to manage your Todoist workspace
@@ -102,14 +108,21 @@ You should see a list of your Todoist projects, confirming the integration is wo
 
 ## Tools Overview
 
-The server provides 18 tools organized by entity type:
+The server provides 28 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support
-- **Todoist Task Get**: Retrieve and filter tasks by various criteria
-- **Todoist Task Update**: Update existing tasks (found by name search)
-- **Todoist Task Complete**: Mark tasks as complete
-- **Todoist Task Delete**: Remove tasks
+- **Todoist Task Get**: Retrieve and filter tasks by various criteria, or fetch specific task by ID
+- **Todoist Task Update**: Update existing tasks (found by ID or partial name search)
+- **Todoist Task Complete**: Mark tasks as complete (found by ID or partial name search)
+- **Todoist Task Delete**: Remove tasks (found by ID or partial name search)
+
+### Subtask Management
+- **Todoist Subtask Create**: Create subtasks under parent tasks with full attribute support
+- **Todoist Subtasks Bulk Create**: Create multiple subtasks under a parent task efficiently
+- **Todoist Task Convert to Subtask**: Convert existing tasks to subtasks of another task
+- **Todoist Subtask Promote**: Promote subtasks to main tasks (remove parent relationship)
+- **Todoist Task Hierarchy Get**: View task hierarchies with subtasks and completion tracking
 
 ### Bulk Task Operations
 - **Todoist Tasks Bulk Create**: Create multiple tasks at once for improved efficiency
@@ -121,6 +134,13 @@ The server provides 18 tools organized by entity type:
 - **Todoist Comment Create**: Add comments to tasks with optional file attachments
 - **Todoist Comment Get**: Retrieve comments for tasks or projects
 
+### Label Management
+- **Todoist Label Get**: List all labels with their IDs and colors
+- **Todoist Label Create**: Create new labels with optional color and ordering
+- **Todoist Label Update**: Update existing labels (name, color, order, favorite status)
+- **Todoist Label Delete**: Remove labels from your workspace
+- **Todoist Label Stats**: Get detailed usage statistics for all labels
+
 ### Project Management
 - **Todoist Project Create**: Create new projects with optional color and favorite status
 - **Todoist Project Get**: List all projects with their IDs and names
@@ -131,7 +151,7 @@ The server provides 18 tools organized by entity type:
 
 ### Testing & Validation
 - **Todoist Test Connection**: Validate API token and test connectivity
-- **Todoist Test All Features**: Comprehensive testing of all MCP tools and operations
+- **Todoist Test All Features**: Two modes - basic (read-only API tests) and enhanced (full CRUD testing with cleanup)
 - **Todoist Test Performance**: Benchmark API response times with configurable iterations
 
 ## Troubleshooting
@@ -169,6 +189,21 @@ The server provides 18 tools organized by entity type:
 "Create high priority task with deadline 2024-12-25"
 "Update meeting task to be in section 67890"
 "Mark the PR review task as complete"
+
+# Task identification by ID (more reliable than name search)
+"Get task with ID 1234567890"
+"Update task ID 1234567890 to priority 4"
+"Complete task with ID 1234567890"
+"Delete task ID 1234567890"
+```
+
+### Subtask Management
+```
+"Create subtask 'Prepare agenda' under task 'Team Meeting'"
+"Create multiple subtasks for 'Launch Project': 'Design UI', 'Write tests', 'Deploy'"
+"Convert task 'Code Review' to a subtask of 'Release v2.0'"
+"Promote subtask 'Bug Fix' to a main task"
+"Show me the task hierarchy for 'Launch Project' with completion tracking"
 ```
 
 ### Bulk Operations
@@ -187,6 +222,15 @@ The server provides 18 tools organized by entity type:
 "Get comments for project 12345"
 ```
 
+### Label Management
+```
+"Show me all my labels"
+"Create a new label called 'Urgent' with red color"
+"Update the 'Work' label to be blue and mark as favorite"
+"Delete the unused 'Old Project' label"
+"Get usage statistics for all my labels"
+```
+
 ### Task Discovery
 ```
 "Show all my tasks"
@@ -197,7 +241,8 @@ The server provides 18 tools organized by entity type:
 ### Testing & Validation
 ```
 "Test my Todoist connection"
-"Run comprehensive tests on all Todoist features"
+"Run basic tests on all Todoist features" // Default: read-only API tests
+"Run enhanced tests on all Todoist features" // Full CRUD testing with cleanup
 "Benchmark Todoist API performance with 10 iterations"
 "Validate that all MCP tools are working correctly"
 ```
@@ -286,27 +331,44 @@ npm run format:check
 
 ### Architecture
 
-The codebase is organized into focused modules:
+The codebase follows a clean, modular architecture designed for maintainability and scalability:
 
+#### Core Structure
 - **`src/index.ts`**: Main server entry point with request routing
-- **`src/handlers/`**: Business logic separated by domain (tasks, projects, comments)
-- **`src/types.ts`**: TypeScript type definitions
-- **`src/type-guards.ts`**: Runtime type validation
+- **`src/types.ts`**: TypeScript type definitions and interfaces
+- **`src/type-guards.ts`**: Runtime type validation functions
 - **`src/validation.ts`**: Input validation and sanitization
 - **`src/errors.ts`**: Custom error types with structured handling
 - **`src/cache.ts`**: In-memory caching for performance optimization
-- **`src/tools.ts`**: MCP tool definitions and schemas
+
+#### Modular Tool Organization
+- **`src/tools/`**: Domain-specific MCP tool definitions organized by functionality:
+  - `task-tools.ts` - Task management (9 tools)
+  - `subtask-tools.ts` - Subtask operations (5 tools)
+  - `project-tools.ts` - Project/section management (4 tools)
+  - `comment-tools.ts` - Comment operations (2 tools)
+  - `label-tools.ts` - Label management (5 tools)
+  - `test-tools.ts` - Testing and validation (3 tools)
+  - `index.ts` - Centralized exports
+
+#### Business Logic Handlers
+- **`src/handlers/`**: Domain-separated business logic modules:
+  - `task-handlers.ts` - Task CRUD and bulk operations
+  - `subtask-handlers.ts` - Hierarchical task management
+  - `project-handlers.ts` - Project and section operations
+  - `comment-handlers.ts` - Comment creation and retrieval
+  - `label-handlers.ts` - Label CRUD and statistics
+  - `test-handlers.ts` - API testing infrastructure
+  - `test-handlers-enhanced/` - Comprehensive CRUD testing framework
+
+#### Utility Modules
+- **`src/utils/`**: Shared utility functions:
+  - `api-helpers.ts` - API response handling utilities
+  - `error-handling.ts` - Centralized error management
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for a detailed history of all changes, including:
-
-- **v0.6.0** (Latest): Testing infrastructure, API response handling improvements, and development documentation
-- **v0.5.x**: Bulk operations, comment system, and deadline parameter fixes  
-- **v0.4.0**: Modular architecture, performance optimization, and enhanced error handling
-- **v0.3.0**: Complete project management and enhanced organization
-- **v0.2.0**: Labels and deadline support with improved API compliance
-- **v0.1.0**: Initial release with basic task management functionality
+See [CHANGELOG.md](CHANGELOG.md) for a detailed history of all changes.
 
 For migration guides and breaking changes, see the full changelog.
 

@@ -7,9 +7,11 @@ export interface CreateTaskArgs {
   deadline_date?: string;
   project_id?: string;
   section_id?: string;
+  parent_id?: string;
 }
 
 export interface GetTasksArgs {
+  task_id?: string;
   project_id?: string;
   filter?: string;
   priority?: number;
@@ -17,7 +19,8 @@ export interface GetTasksArgs {
 }
 
 export interface UpdateTaskArgs {
-  task_name: string;
+  task_name?: string;
+  task_id?: string;
   content?: string;
   description?: string;
   due_string?: string;
@@ -27,7 +30,8 @@ export interface UpdateTaskArgs {
 }
 
 export interface TaskNameArgs {
-  task_name: string;
+  task_name?: string;
+  task_id?: string;
 }
 
 export interface GetSectionsArgs {
@@ -78,6 +82,8 @@ export interface TodoistTask {
   labels?: string[];
   projectId?: string;
   sectionId?: string | null;
+  parentId?: string | null;
+  isCompleted?: boolean;
 }
 
 export interface TodoistProject {
@@ -169,8 +175,176 @@ export interface TodoistComment {
   };
 }
 
-// Union types to handle any API response format
-export type TasksResponse = unknown;
-export type ProjectsResponse = unknown;
-export type SectionsResponse = unknown;
-export type CommentsResponse = unknown;
+// Label operation interfaces
+export interface TodoistLabel {
+  id: string;
+  name: string;
+  color?: string;
+  order?: number;
+  is_favorite?: boolean;
+}
+
+export interface CreateLabelArgs {
+  name: string;
+  color?: string;
+  is_favorite?: boolean;
+  order?: number;
+}
+
+export interface UpdateLabelArgs {
+  label_id?: string;
+  label_name?: string;
+  name?: string;
+  color?: string;
+  order?: number;
+  is_favorite?: boolean;
+}
+
+export interface LabelNameArgs {
+  label_id?: string;
+  label_name?: string;
+}
+
+export interface LabelStatistics {
+  label: string;
+  totalTasks: number;
+  completedTasks: number;
+  completionRate: number;
+  color?: string;
+  mostRecentUse: string | null;
+}
+
+// Proper API response interfaces to replace unknown types
+
+/**
+ * Generic interface for Todoist API responses that may return data in different formats
+ */
+export interface TodoistAPIResponse<T> {
+  results?: T[];
+  data?: T[];
+}
+
+/**
+ * Specific API response types for each entity
+ */
+export type TasksResponse = TodoistTask[] | TodoistAPIResponse<TodoistTask>;
+export type ProjectsResponse = TodoistProject[] | TodoistAPIResponse<TodoistProject>;
+export type SectionsResponse = TodoistSection[] | TodoistAPIResponse<TodoistSection>;
+export type CommentsResponse = TodoistComment[] | TodoistAPIResponse<TodoistComment>;
+export type LabelsResponse = TodoistLabel[] | TodoistAPIResponse<TodoistLabel>;
+
+/**
+ * Enhanced comment response interface for API compatibility
+ */
+export interface CommentResponse {
+  content: string;
+  attachment?: {
+    fileName: string;
+    fileType: string;
+  };
+  postedAt?: string;
+  taskId?: string;
+  projectId?: string;
+}
+
+/**
+ * Enhanced comment creation data interface
+ */
+export interface CommentCreationData {
+  content: string;
+  taskId: string;
+  attachment?: {
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+  };
+}
+
+/**
+ * API error response interface for structured error handling
+ */
+export interface TodoistAPIErrorResponse {
+  error?: string;
+  error_description?: string;
+  error_code?: number;
+  message?: string;
+}
+
+/**
+ * Cache entry interface for typed cache storage
+ */
+export interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  ttl: number;
+}
+
+/**
+ * Cache statistics interface for monitoring
+ */
+export interface CacheStats {
+  totalKeys: number;
+  hitCount: number;
+  missCount: number;
+  hitRate: number;
+  totalMemoryUsage: number;
+}
+
+// Subtask operation interfaces
+export interface CreateSubtaskArgs {
+  parent_task_id?: string;
+  parent_task_name?: string;
+  content: string;
+  description?: string;
+  due_string?: string;
+  priority?: number;
+  labels?: string[];
+  deadline_date?: string;
+}
+
+export interface BulkCreateSubtasksArgs {
+  parent_task_id?: string;
+  parent_task_name?: string;
+  subtasks: {
+    content: string;
+    description?: string;
+    due_string?: string;
+    priority?: number;
+    labels?: string[];
+    deadline_date?: string;
+  }[];
+}
+
+export interface ConvertToSubtaskArgs {
+  task_id?: string;
+  task_name?: string;
+  parent_task_id?: string;
+  parent_task_name?: string;
+}
+
+export interface PromoteSubtaskArgs {
+  subtask_id?: string;
+  subtask_name?: string;
+  project_id?: string;
+  section_id?: string;
+}
+
+export interface GetTaskHierarchyArgs {
+  task_id?: string;
+  task_name?: string;
+  include_completed?: boolean;
+}
+
+export interface TaskNode {
+  task: TodoistTask;
+  children: TaskNode[];
+  depth: number;
+  completionPercentage: number;
+}
+
+export interface TaskHierarchy {
+  root: TaskNode;
+  totalTasks: number;
+  completedTasks: number;
+  overallCompletion: number;
+}

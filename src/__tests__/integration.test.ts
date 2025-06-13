@@ -50,7 +50,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
 
   describe("Feature Tests", () => {
     test("should run all feature tests successfully", async () => {
-      const result = await handleTestAllFeatures(todoistClient);
+      const result = (await handleTestAllFeatures(todoistClient)) as any;
 
       expect(result.overallStatus).toMatch(/success|partial/);
       expect(result.totalTests).toBeGreaterThan(0);
@@ -60,7 +60,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
       expect(result.totalResponseTime).toBeGreaterThan(0);
 
       // Check specific features
-      const featureNames = result.features.map((f) => f.feature);
+      const featureNames = result.features.map((f: any) => f.feature);
       expect(featureNames).toContain("Task Operations");
       expect(featureNames).toContain("Project Operations");
       expect(featureNames).toContain("Label Operations");
@@ -101,9 +101,9 @@ describeIfToken("Todoist MCP Integration Tests", () => {
 
   describe("Feature-specific Tests", () => {
     test("Task operations should handle empty results gracefully", async () => {
-      const result = await handleTestAllFeatures(todoistClient);
+      const result = (await handleTestAllFeatures(todoistClient)) as any;
       const taskOps = result.features.find(
-        (f) => f.feature === "Task Operations"
+        (f: any) => f.feature === "Task Operations"
       );
 
       expect(taskOps).toBeDefined();
@@ -114,9 +114,9 @@ describeIfToken("Todoist MCP Integration Tests", () => {
     });
 
     test("Project operations should always succeed", async () => {
-      const result = await handleTestAllFeatures(todoistClient);
+      const result = (await handleTestAllFeatures(todoistClient)) as any;
       const projectOps = result.features.find(
-        (f) => f.feature === "Project Operations"
+        (f: any) => f.feature === "Project Operations"
       );
 
       expect(projectOps).toBeDefined();

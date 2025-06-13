@@ -7,6 +7,7 @@ import {
   TodoistProject,
   TodoistSection,
 } from "../types.js";
+import { extractArrayFromResponse } from "../utils/api-helpers.js";
 
 export async function handleGetProjects(
   todoistClient: TodoistApi
@@ -14,9 +15,7 @@ export async function handleGetProjects(
   const result = await todoistClient.getProjects();
 
   // Handle the new API response format with 'results' property
-  const projects = Array.isArray(result)
-    ? result
-    : (result as any)?.results || (result as any)?.data || [];
+  const projects = extractArrayFromResponse<TodoistProject>(result);
 
   const projectList = projects
     .map((project: TodoistProject) => `- ${project.name} (ID: ${project.id})`)
@@ -32,12 +31,12 @@ export async function handleGetSections(
   args: GetSectionsArgs
 ): Promise<string> {
   // Use getSections with proper type handling
-  const result = await todoistClient.getSections(args as any);
+  const result = await todoistClient.getSections(
+    args as Parameters<typeof todoistClient.getSections>[0]
+  );
 
   // Handle the new API response format with 'results' property
-  const sections = Array.isArray(result)
-    ? result
-    : (result as any)?.results || (result as any)?.data || [];
+  const sections = extractArrayFromResponse<TodoistSection>(result);
 
   const sectionList = sections
     .map(

@@ -11,6 +11,14 @@ import {
   BulkTaskFilterArgs,
   CreateCommentArgs,
   GetCommentsArgs,
+  CreateLabelArgs,
+  UpdateLabelArgs,
+  LabelNameArgs,
+  CreateSubtaskArgs,
+  BulkCreateSubtasksArgs,
+  ConvertToSubtaskArgs,
+  PromoteSubtaskArgs,
+  GetTaskHierarchyArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -146,5 +154,126 @@ export function isGetCommentsArgs(args: unknown): args is GetCommentsArgs {
     (obj.task_id === undefined || typeof obj.task_id === "string") &&
     (obj.task_name === undefined || typeof obj.task_name === "string") &&
     (obj.project_id === undefined || typeof obj.project_id === "string")
+  );
+}
+
+export function isCreateLabelArgs(args: unknown): args is CreateLabelArgs {
+  return (
+    typeof args === "object" &&
+    args !== null &&
+    "name" in args &&
+    typeof (args as { name: string }).name === "string"
+  );
+}
+
+export function isUpdateLabelArgs(args: unknown): args is UpdateLabelArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.label_id === undefined || typeof obj.label_id === "string") &&
+    (obj.label_name === undefined || typeof obj.label_name === "string") &&
+    (obj.label_id !== undefined || obj.label_name !== undefined)
+  );
+}
+
+export function isLabelNameArgs(args: unknown): args is LabelNameArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.label_id === undefined || typeof obj.label_id === "string") &&
+    (obj.label_name === undefined || typeof obj.label_name === "string") &&
+    (obj.label_id !== undefined || obj.label_name !== undefined)
+  );
+}
+
+export function isGetLabelsArgs(
+  args: unknown
+): args is Record<string, never> {
+  return typeof args === "object" && args !== null;
+}
+
+export function isGetLabelStatsArgs(
+  args: unknown
+): args is Record<string, never> {
+  return typeof args === "object" && args !== null;
+}
+
+export function isCreateSubtaskArgs(args: unknown): args is CreateSubtaskArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "content" in obj &&
+    typeof obj.content === "string" &&
+    (obj.parent_task_id === undefined || typeof obj.parent_task_id === "string") &&
+    (obj.parent_task_name === undefined || typeof obj.parent_task_name === "string") &&
+    (obj.parent_task_id !== undefined || obj.parent_task_name !== undefined)
+  );
+}
+
+export function isBulkCreateSubtasksArgs(
+  args: unknown
+): args is BulkCreateSubtasksArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "subtasks" in obj &&
+    Array.isArray(obj.subtasks) &&
+    obj.subtasks.length > 0 &&
+    obj.subtasks.every((subtask) => 
+      typeof subtask === "object" &&
+      subtask !== null &&
+      "content" in subtask &&
+      typeof (subtask as { content: string }).content === "string"
+    ) &&
+    (obj.parent_task_id === undefined || typeof obj.parent_task_id === "string") &&
+    (obj.parent_task_name === undefined || typeof obj.parent_task_name === "string") &&
+    (obj.parent_task_id !== undefined || obj.parent_task_name !== undefined)
+  );
+}
+
+export function isConvertToSubtaskArgs(
+  args: unknown
+): args is ConvertToSubtaskArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.task_id === undefined || typeof obj.task_id === "string") &&
+    (obj.task_name === undefined || typeof obj.task_name === "string") &&
+    (obj.task_id !== undefined || obj.task_name !== undefined) &&
+    (obj.parent_task_id === undefined || typeof obj.parent_task_id === "string") &&
+    (obj.parent_task_name === undefined || typeof obj.parent_task_name === "string") &&
+    (obj.parent_task_id !== undefined || obj.parent_task_name !== undefined)
+  );
+}
+
+export function isPromoteSubtaskArgs(args: unknown): args is PromoteSubtaskArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.subtask_id === undefined || typeof obj.subtask_id === "string") &&
+    (obj.subtask_name === undefined || typeof obj.subtask_name === "string") &&
+    (obj.subtask_id !== undefined || obj.subtask_name !== undefined) &&
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.section_id === undefined || typeof obj.section_id === "string")
+  );
+}
+
+export function isGetTaskHierarchyArgs(
+  args: unknown
+): args is GetTaskHierarchyArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.task_id === undefined || typeof obj.task_id === "string") &&
+    (obj.task_name === undefined || typeof obj.task_name === "string") &&
+    (obj.task_id !== undefined || obj.task_name !== undefined) &&
+    (obj.include_completed === undefined || typeof obj.include_completed === "boolean")
   );
 }

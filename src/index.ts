@@ -7,7 +7,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { TodoistApi } from "@doist/todoist-api-typescript";
-import { ALL_TOOLS } from "./tools.js";
+import { ALL_TOOLS } from "./tools/index.js";
 import {
   isCreateTaskArgs,
   isGetTasksArgs,
@@ -23,6 +23,16 @@ import {
   isBulkTaskFilterArgs,
   isCreateCommentArgs,
   isGetCommentsArgs,
+  isGetLabelsArgs,
+  isCreateLabelArgs,
+  isUpdateLabelArgs,
+  isLabelNameArgs,
+  isGetLabelStatsArgs,
+  isCreateSubtaskArgs,
+  isBulkCreateSubtasksArgs,
+  isConvertToSubtaskArgs,
+  isPromoteSubtaskArgs,
+  isGetTaskHierarchyArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -50,13 +60,49 @@ import {
   handleTestAllFeatures,
   handleTestPerformance,
 } from "./handlers/test-handlers.js";
+import {
+  handleGetLabels,
+  handleCreateLabel,
+  handleUpdateLabel,
+  handleDeleteLabel,
+  handleGetLabelStats,
+} from "./handlers/label-handlers.js";
+import {
+  handleCreateSubtask,
+  handleBulkCreateSubtasks,
+  handleConvertToSubtask,
+  handlePromoteSubtask,
+  handleGetTaskHierarchy,
+} from "./handlers/subtask-handlers.js";
 import { handleError } from "./errors.js";
+import type { TaskHierarchy, TaskNode } from "./types.js";
+
+// Helper function to format task hierarchy
+function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
+  function formatNode(node: TaskNode, indent: string = ""): string {
+    const status = node.task.isCompleted ? "✓" : "○";
+    const completion = node.children.length > 0 ? ` [${node.completionPercentage}%]` : "";
+    let result = `${indent}${status} ${node.task.content} (ID: ${node.task.id})${completion}\n`;
+    
+    for (const child of node.children) {
+      result += formatNode(child, indent + "  ");
+    }
+    
+    return result;
+  }
+  
+  let result = formatNode(hierarchy.root);
+  result += `\nTotal tasks: ${hierarchy.totalTasks}\n`;
+  result += `Completed: ${hierarchy.completedTasks} (${hierarchy.overallCompletion}%)`;
+  
+  return result;
+}
 
 // Server implementation
 const server = new Server(
   {
     name: "todoist-mcp-server",
-    version: "0.1.0",
+    version: "0.8.1",
   },
   {
     capabilities: {
@@ -196,13 +242,97 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         result = await handleGetComments(todoistClient, args);
         break;
 
+      case "todoist_label_get":
+        if (!isGetLabelsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_label_get");
+        }
+        result = await handleGetLabels(todoistClient);
+        break;
+
+      case "todoist_label_create":
+        if (!isCreateLabelArgs(args)) {
+          throw new Error("Invalid arguments for todoist_label_create");
+        }
+        result = await handleCreateLabel(todoistClient, args);
+        break;
+
+      case "todoist_label_update":
+        if (!isUpdateLabelArgs(args)) {
+          throw new Error("Invalid arguments for todoist_label_update");
+        }
+        result = await handleUpdateLabel(todoistClient, args);
+        break;
+
+      case "todoist_label_delete":
+        if (!isLabelNameArgs(args)) {
+          throw new Error("Invalid arguments for todoist_label_delete");
+        }
+        result = await handleDeleteLabel(todoistClient, args);
+        break;
+
+      case "todoist_label_stats":
+        if (!isGetLabelStatsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_label_stats");
+        }
+        result = await handleGetLabelStats(todoistClient);
+        break;
+
+      case "todoist_subtask_create":
+        if (!isCreateSubtaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_subtask_create");
+        }
+        const subtaskResult = await handleCreateSubtask(todoistClient, args);
+        result = `Created subtask "${subtaskResult.subtask.content}" (ID: ${subtaskResult.subtask.id}) under parent task "${subtaskResult.parent.content}" (ID: ${subtaskResult.parent.id})`;
+        break;
+
+      case "todoist_subtasks_bulk_create":
+        if (!isBulkCreateSubtasksArgs(args)) {
+          throw new Error("Invalid arguments for todoist_subtasks_bulk_create");
+        }
+        const bulkSubtaskResult = await handleBulkCreateSubtasks(todoistClient, args);
+        result = `Created ${bulkSubtaskResult.created.length} subtasks under parent "${bulkSubtaskResult.parent.content}" (ID: ${bulkSubtaskResult.parent.id})\n` +
+                 `Failed: ${bulkSubtaskResult.failed.length}`;
+        if (bulkSubtaskResult.created.length > 0) {
+          result += "\nCreated subtasks:\n" + 
+                    bulkSubtaskResult.created.map(t => `- ${t.content} (ID: ${t.id})`).join("\n");
+        }
+        if (bulkSubtaskResult.failed.length > 0) {
+          result += "\nFailed subtasks:\n" + 
+                    bulkSubtaskResult.failed.map(f => `- ${f.task.content}: ${f.error}`).join("\n");
+        }
+        break;
+
+      case "todoist_task_convert_to_subtask":
+        if (!isConvertToSubtaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_convert_to_subtask");
+        }
+        const convertResult = await handleConvertToSubtask(todoistClient, args);
+        result = `Converted task "${convertResult.task.content}" (ID: ${convertResult.task.id}) to subtask of "${convertResult.parent.content}" (ID: ${convertResult.parent.id})`;
+        break;
+
+      case "todoist_subtask_promote":
+        if (!isPromoteSubtaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_subtask_promote");
+        }
+        const promotedTask = await handlePromoteSubtask(todoistClient, args);
+        result = `Promoted subtask "${promotedTask.content}" (ID: ${promotedTask.id}) to main task`;
+        break;
+
+      case "todoist_task_hierarchy_get":
+        if (!isGetTaskHierarchyArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_hierarchy_get");
+        }
+        const hierarchy = await handleGetTaskHierarchy(todoistClient, args);
+        result = formatTaskHierarchy(hierarchy);
+        break;
+
       case "todoist_test_connection":
         const connectionResult = await handleTestConnection(todoistClient);
         result = JSON.stringify(connectionResult, null, 2);
         break;
 
       case "todoist_test_all_features":
-        const featuresResult = await handleTestAllFeatures(todoistClient);
+        const featuresResult = await handleTestAllFeatures(todoistClient, args as { mode?: "basic" | "enhanced" });
         result = JSON.stringify(featuresResult, null, 2);
         break;
 
@@ -237,6 +367,15 @@ async function runServer(): Promise<void> {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Todoist MCP Server running on stdio");
+  
+  // Optional: Set up cache monitoring (uncomment to enable)
+  // const cacheManager = CacheManager.getInstance();
+  // setInterval(() => {
+  //   const health = cacheManager.getHealthInfo();
+  //   if (!health.healthy) {
+  //     console.error("Cache health issues:", health.issues);
+  //   }
+  // }, 60000); // Check every minute
 }
 
 runServer().catch((error) => {
