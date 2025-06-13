@@ -158,6 +158,7 @@ The server provides 28 tools organized by entity type:
 - Confirm the package is installed globally: `npm list -g @greirson/mcp-todoist`
 - Restart Claude Desktop completely
 - Check the configuration file path is correct for your operating system
+- Try the full path to the `mcp-todoist` binary: `/Users/USERNAME/.npm-global/bin/mcp-todoist`
 
 **Permission errors:**
 - On macOS/Linux, you may need to create the config directory: `mkdir -p ~/.config`
