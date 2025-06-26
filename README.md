@@ -9,9 +9,22 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 
 ## Quick Start
 
-1. Install: `npm install -g @greirson/mcp-todoist`
-2. Get your [Todoist API token](https://todoist.com/app/settings/integrations)
-3. Add to Claude Desktop config with your token
+1. Get your [Todoist API token](https://todoist.com/app/settings/integrations)
+2. Add to Claude Desktop config:
+   ```json
+   {
+     "mcpServers": {
+       "todoist": {
+         "command": "npx",
+         "args": ["@greirson/mcp-todoist"],
+         "env": {
+           "TODOIST_API_TOKEN": "your_api_token_here"
+         }
+       }
+     }
+   }
+   ```
+3. Restart Claude Desktop
 4. Ask Claude: *"Show me my Todoist projects"*
 
 **That's it!** You can now manage your Todoist tasks directly through Claude.
@@ -55,18 +68,17 @@ To install mcp-todoist for Claude Desktop automatically via [Smithery](https://s
 npx -y @smithery/cli install @greirson/mcp-todoist --client claude
 ```
 
-### Step 1: Install the Package
-```bash
-npm install -g @greirson/mcp-todoist
-```
+### Option 1: Using npx (Recommended - No Installation Required)
 
-### Step 2: Get Your Todoist API Token
+This is the easiest method as it doesn't require installing anything globally.
+
+#### Step 1: Get Your Todoist API Token
 1. Log in to your [Todoist account](https://todoist.com)
 2. Go to **Settings** → **Integrations**
 3. Scroll down to the **Developer** section
 4. Copy your **API token** (keep this secure!)
 
-### Step 3: Configure Claude Desktop
+#### Step 2: Configure Claude Desktop
 
 Add the server to your Claude Desktop configuration file:
 
@@ -82,7 +94,8 @@ Add this configuration:
 {
   "mcpServers": {
     "todoist": {
-      "command": "mcp-todoist",
+      "command": "npx",
+      "args": ["@greirson/mcp-todoist"],
       "env": {
         "TODOIST_API_TOKEN": "your_api_token_here"
       }
@@ -91,7 +104,36 @@ Add this configuration:
 }
 ```
 
-**⚠️ Important:** Replace `your_api_token_here` with your actual Todoist API token from Step 2.
+**⚠️ Important:** Replace `your_api_token_here` with your actual Todoist API token from Step 1.
+
+### Option 2: Global npm Installation
+
+If you prefer to install the package globally:
+
+#### Step 1: Install the Package
+```bash
+npm install -g @greirson/mcp-todoist
+```
+
+#### Step 2: Get Your Todoist API Token
+(Same as Option 1, Step 1)
+
+#### Step 3: Configure Claude Desktop
+
+Use this configuration for global installation:
+
+```json
+{
+  "mcpServers": {
+    "todoist": {
+      "command": "mcp-todoist",
+      "env": {
+        "TODOIST_API_TOKEN": "your_api_token_here"
+      }
+    }
+  }
+}
+```
 
 ### Step 4: Restart Claude Desktop
 
