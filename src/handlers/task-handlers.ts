@@ -12,6 +12,7 @@ import {
 } from "../types.js";
 import { CacheManager } from "../cache.js";
 // Removed unused imports - now using ErrorHandler utility
+import { resolveProjectIdentifier } from "../utils/api-helpers.js";
 import {
   validateTaskContent,
   validateDescription,
@@ -399,7 +400,19 @@ export async function handleBulkUpdateTasks(
       updateData.description = args.updates.description;
     if (args.updates.due_string) updateData.dueString = args.updates.due_string;
     if (args.updates.priority) updateData.priority = args.updates.priority;
-    if (args.updates.project_id) updateData.projectId = args.updates.project_id;
+
+    // Resolve project identifier (ID or name) to project ID
+    if (args.updates.project_id) {
+      try {
+        updateData.projectId = await resolveProjectIdentifier(
+          todoistClient,
+          args.updates.project_id
+        );
+      } catch (error) {
+        return `Failed to resolve project: ${(error as Error).message}`;
+      }
+    }
+
     if (args.updates.section_id) updateData.sectionId = args.updates.section_id;
 
     for (const task of matchingTasks) {

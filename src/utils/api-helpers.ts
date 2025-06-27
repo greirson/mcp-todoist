@@ -157,3 +157,46 @@ export function safeNumberExtract(value: unknown, defaultValue = 0): number {
   }
   return defaultValue;
 }
+
+/**
+ * Resolves a project identifier to a project ID.
+ * If the input is already a valid project ID, returns it as-is.
+ * If the input is a project name, searches for the project and returns its ID.
+ *
+ * @param todoistClient - The Todoist API client
+ * @param projectIdentifier - Either a project ID or project name
+ * @returns The resolved project ID
+ * @throws Error if project name is not found
+ */
+export async function resolveProjectIdentifier(
+  todoistClient: { getProjects: () => Promise<unknown> },
+  projectIdentifier: string
+): Promise<string> {
+  if (!projectIdentifier || projectIdentifier.trim().length === 0) {
+    throw new Error("Project identifier cannot be empty");
+  }
+
+  // First, try to get all projects
+  const result = await todoistClient.getProjects();
+  const projects = extractArrayFromResponse<{ id: string; name: string }>(
+    result
+  );
+
+  // Check if the identifier matches a project ID exactly
+  const projectById = projects.find((p) => p.id === projectIdentifier);
+  if (projectById) {
+    return projectById.id;
+  }
+
+  // Try to find by name (case-insensitive)
+  const projectByName = projects.find(
+    (p) => p.name.toLowerCase() === projectIdentifier.toLowerCase()
+  );
+
+  if (projectByName) {
+    return projectByName.id;
+  }
+
+  // If not found, throw an error
+  throw new Error(`Project not found: "${projectIdentifier}"`);
+}
