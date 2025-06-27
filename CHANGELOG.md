@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Project Name Support in Bulk Updates**: The `todoist_tasks_bulk_update` tool now supports project names in addition to project IDs
+  - Added `resolveProjectIdentifier()` helper function to resolve project names to IDs
+  - Users can now move tasks to projects using either the project ID or project name (e.g., "Backlog")
+  - The tool description has been updated to indicate that `project_id` accepts "project ID or name"
+
+### Fixed
+- Fixed error when bulk updating tasks with project names instead of IDs
+
 ## [0.8.2] - 2024-12-07
 
 ### Added

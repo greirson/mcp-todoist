@@ -273,7 +273,8 @@ export const BULK_UPDATE_TASKS_TOOL: Tool = {
         properties: {
           project_id: {
             type: "string",
-            description: "Filter tasks by project ID (optional)",
+            description:
+              "Filter tasks by project ID (optional, does not support names)",
           },
           priority: {
             type: "number",
@@ -328,7 +329,8 @@ export const BULK_UPDATE_TASKS_TOOL: Tool = {
           },
           project_id: {
             type: "string",
-            description: "Move matching tasks to this project (optional)",
+            description:
+              "Move matching tasks to this project ID or name (optional)",
           },
           section_id: {
             type: "string",

@@ -257,6 +257,7 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
   - `deadline_date`: Actual deadline for task completion (YYYY-MM-DD format)
 - **Bulk Operations**: Use bulk tools (e.g., `todoist_tasks_bulk_create`) when working with multiple tasks to improve efficiency and reduce API calls
 - **Bulk Search Criteria**: Bulk operations support flexible filtering by project, priority, due dates, and content matching
+- **Project Name Resolution**: The `todoist_tasks_bulk_update` tool supports both project IDs and project names in the `project_id` field. Project names are automatically resolved to IDs
 - **Testing**: Use `todoist_test_all_features` after making changes to ensure functionality works correctly
 - **Linting**: Always run `npm run lint -- --fix` after making changes to auto-fix formatting issues
 - **Type Safety**: When TypeScript compilation fails due to API changes, use defensive type assertions with proper interfaces rather than disabling strict checking
@@ -271,6 +272,7 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
 - ✅ **Phase 2**: Label Management System (v0.7.0) - Full CRUD operations for labels with usage statistics and analytics
 - ✅ **Code Quality Improvement Phase (v0.7.0)**: Major architectural enhancements and security improvements
   - ✅ **Shared API Utilities**: Created `src/utils/api-helpers.ts` with unified helper functions eliminating code duplication
+    - Added `resolveProjectIdentifier()` function to resolve project names to IDs
   - ✅ **Standardized Error Handling**: Built `src/utils/error-handling.ts` with ErrorHandler class and context-aware error management
   - ✅ **Enhanced Type Safety**: Replaced all `unknown` types with proper `TodoistAPIResponse<T>` interfaces
   - ✅ **Input Validation & Sanitization**: Comprehensive security protection with XSS prevention and injection attack blocking
