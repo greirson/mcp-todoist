@@ -342,21 +342,34 @@ export async function handleBulkCreateTasks(
         const task = await todoistClient.addTask(taskData);
         createdTasks.push(task);
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
         // Provide more specific error messages based on the error
-        if (errorMessage.includes('400') || errorMessage.includes('Bad Request')) {
+        if (
+          errorMessage.includes("400") ||
+          errorMessage.includes("Bad Request")
+        ) {
           errors.push(
             `Failed to create task "${taskArgs.content}": Invalid request format. Check that all parameters are correct.`
           );
-        } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+        } else if (
+          errorMessage.includes("401") ||
+          errorMessage.includes("Unauthorized")
+        ) {
           errors.push(
             `Failed to create task "${taskArgs.content}": Authentication failed. Check your API token.`
           );
-        } else if (errorMessage.includes('403') || errorMessage.includes('Forbidden')) {
+        } else if (
+          errorMessage.includes("403") ||
+          errorMessage.includes("Forbidden")
+        ) {
           errors.push(
             `Failed to create task "${taskArgs.content}": Access denied. You may not have permission to add tasks to this project.`
           );
-        } else if (errorMessage.includes('404') || errorMessage.includes('Not Found')) {
+        } else if (
+          errorMessage.includes("404") ||
+          errorMessage.includes("Not Found")
+        ) {
           errors.push(
             `Failed to create task "${taskArgs.content}": Project or section not found. Verify the IDs are correct.`
           );

@@ -148,6 +148,28 @@ export function isBulkTaskFilterArgs(
   if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
+  
+  // The tool expects parameters at the top level, not in search_criteria
+  // We need to wrap them into search_criteria for the handler
+  if (
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.priority === undefined || typeof obj.priority === "number") &&
+    (obj.due_before === undefined || typeof obj.due_before === "string") &&
+    (obj.due_after === undefined || typeof obj.due_after === "string") &&
+    (obj.content_contains === undefined || typeof obj.content_contains === "string")
+  ) {
+    // Transform the flat structure to match BulkTaskFilterArgs
+    (args as any).search_criteria = {
+      project_id: obj.project_id,
+      priority: obj.priority,
+      due_before: obj.due_before,
+      due_after: obj.due_after,
+      content_contains: obj.content_contains,
+    };
+    return true;
+  }
+  
+  // Also support the old format with search_criteria
   return (
     "search_criteria" in obj &&
     typeof obj.search_criteria === "object" &&
