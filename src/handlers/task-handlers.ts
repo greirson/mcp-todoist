@@ -342,9 +342,29 @@ export async function handleBulkCreateTasks(
         const task = await todoistClient.addTask(taskData);
         createdTasks.push(task);
       } catch (error) {
-        errors.push(
-          `Failed to create task "${taskArgs.content}": ${(error as Error).message}`
-        );
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        // Provide more specific error messages based on the error
+        if (errorMessage.includes('400') || errorMessage.includes('Bad Request')) {
+          errors.push(
+            `Failed to create task "${taskArgs.content}": Invalid request format. Check that all parameters are correct.`
+          );
+        } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+          errors.push(
+            `Failed to create task "${taskArgs.content}": Authentication failed. Check your API token.`
+          );
+        } else if (errorMessage.includes('403') || errorMessage.includes('Forbidden')) {
+          errors.push(
+            `Failed to create task "${taskArgs.content}": Access denied. You may not have permission to add tasks to this project.`
+          );
+        } else if (errorMessage.includes('404') || errorMessage.includes('Not Found')) {
+          errors.push(
+            `Failed to create task "${taskArgs.content}": Project or section not found. Verify the IDs are correct.`
+          );
+        } else {
+          errors.push(
+            `Failed to create task "${taskArgs.content}": ${errorMessage}`
+          );
+        }
       }
     }
 
@@ -388,7 +408,26 @@ export async function handleBulkUpdateTasks(
     const matchingTasks = filterTasksByCriteria(allTasks, args.search_criteria);
 
     if (matchingTasks.length === 0) {
-      return "No tasks found matching the search criteria.";
+      // Provide more helpful information about why no tasks were found
+      let debugInfo = "No tasks found matching the search criteria.\n";
+      debugInfo += "Search criteria used:\n";
+      if (args.search_criteria.project_id) {
+        debugInfo += `  - Project ID: ${args.search_criteria.project_id}\n`;
+      }
+      if (args.search_criteria.content_contains) {
+        debugInfo += `  - Content contains: "${args.search_criteria.content_contains}"\n`;
+      }
+      if (args.search_criteria.priority) {
+        debugInfo += `  - Priority: ${args.search_criteria.priority}\n`;
+      }
+      if (args.search_criteria.due_before) {
+        debugInfo += `  - Due before: ${args.search_criteria.due_before}\n`;
+      }
+      if (args.search_criteria.due_after) {
+        debugInfo += `  - Due after: ${args.search_criteria.due_after}\n`;
+      }
+      debugInfo += `\nTotal tasks searched: ${allTasks.length}`;
+      return debugInfo;
     }
 
     const updatedTasks: TodoistTask[] = [];
