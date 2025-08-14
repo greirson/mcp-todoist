@@ -49,9 +49,12 @@ export function isUpdateTaskArgs(args: unknown): args is UpdateTaskArgs {
   
   const obj = args as Record<string, unknown>;
   
-  // Must have either task_id or task_name
-  const hasTaskId = "task_id" in obj && typeof obj.task_id === "string";
-  const hasTaskName = "task_name" in obj && typeof obj.task_name === "string";
+  // Must have either task_id/taskId or task_name/taskName
+  // Check both snake_case and camelCase since MCP might transform them
+  const hasTaskId = ("task_id" in obj && typeof obj.task_id === "string") || 
+                    ("taskId" in obj && typeof obj.taskId === "string");
+  const hasTaskName = ("task_name" in obj && typeof obj.task_name === "string") ||
+                      ("taskName" in obj && typeof obj.taskName === "string");
   
   if (!hasTaskId && !hasTaskName) {
     return false;
@@ -75,9 +78,12 @@ export function isTaskNameArgs(args: unknown): args is TaskNameArgs {
   
   const obj = args as Record<string, unknown>;
   
-  // Must have either task_id or task_name
-  const hasTaskId = "task_id" in obj && typeof obj.task_id === "string";
-  const hasTaskName = "task_name" in obj && typeof obj.task_name === "string";
+  // Must have either task_id/taskId or task_name/taskName
+  // Check both snake_case and camelCase since MCP might transform them
+  const hasTaskId = ("task_id" in obj && typeof obj.task_id === "string") || 
+                    ("taskId" in obj && typeof obj.taskId === "string");
+  const hasTaskName = ("task_name" in obj && typeof obj.task_name === "string") ||
+                      ("taskName" in obj && typeof obj.taskName === "string");
   
   return hasTaskId || hasTaskName;
 }

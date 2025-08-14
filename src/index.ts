@@ -152,14 +152,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         break;
 
       case "todoist_task_update":
+        console.error("[DEBUG] todoist_task_update received args:", JSON.stringify(args, null, 2));
+        console.error("[DEBUG] args type:", typeof args);
+        console.error("[DEBUG] args keys:", args ? Object.keys(args) : 'null');
         if (!isUpdateTaskArgs(args)) {
+          console.error("[DEBUG] Type guard failed for update");
           throw new Error("Invalid arguments for todoist_task_update");
         }
         result = await handleUpdateTask(todoistClient, args);
         break;
 
       case "todoist_task_delete":
+        console.error("[DEBUG] todoist_task_delete received args:", JSON.stringify(args, null, 2));
+        console.error("[DEBUG] args type:", typeof args);
+        console.error("[DEBUG] args keys:", args ? Object.keys(args) : 'null');
         if (!isDeleteTaskArgs(args)) {
+          console.error("[DEBUG] Type guard failed for delete");
           throw new Error("Invalid arguments for todoist_task_delete");
         }
         result = await handleDeleteTask(todoistClient, args);
@@ -215,7 +223,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         break;
 
       case "todoist_tasks_bulk_delete":
+        console.error("[DEBUG] todoist_tasks_bulk_delete received args:", JSON.stringify(args, null, 2));
+        console.error("[DEBUG] args type:", typeof args);
+        console.error("[DEBUG] args keys:", args ? Object.keys(args) : 'null');
         if (!isBulkTaskFilterArgs(args)) {
+          console.error("[DEBUG] Type guard failed for bulk delete");
           throw new Error("Invalid arguments for todoist_tasks_bulk_delete");
         }
         result = await handleBulkDeleteTasks(todoistClient, args);
