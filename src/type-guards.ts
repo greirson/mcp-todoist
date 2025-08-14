@@ -43,21 +43,43 @@ export function isGetTasksArgs(args: unknown): args is GetTasksArgs {
 }
 
 export function isUpdateTaskArgs(args: unknown): args is UpdateTaskArgs {
+  if (typeof args !== "object" || args === null) {
+    return false;
+  }
+  
+  const obj = args as Record<string, unknown>;
+  
+  // Must have either task_id or task_name
+  const hasTaskId = "task_id" in obj && typeof obj.task_id === "string";
+  const hasTaskName = "task_name" in obj && typeof obj.task_name === "string";
+  
+  if (!hasTaskId && !hasTaskName) {
+    return false;
+  }
+  
+  // Check optional fields
   return (
-    typeof args === "object" &&
-    args !== null &&
-    "task_name" in args &&
-    typeof (args as { task_name: string }).task_name === "string"
+    (obj.content === undefined || typeof obj.content === "string") &&
+    (obj.description === undefined || typeof obj.description === "string") &&
+    (obj.due_string === undefined || typeof obj.due_string === "string") &&
+    (obj.priority === undefined || typeof obj.priority === "number") &&
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.section_id === undefined || typeof obj.section_id === "string")
   );
 }
 
 export function isTaskNameArgs(args: unknown): args is TaskNameArgs {
-  return (
-    typeof args === "object" &&
-    args !== null &&
-    "task_name" in args &&
-    typeof (args as { task_name: string }).task_name === "string"
-  );
+  if (typeof args !== "object" || args === null) {
+    return false;
+  }
+  
+  const obj = args as Record<string, unknown>;
+  
+  // Must have either task_id or task_name
+  const hasTaskId = "task_id" in obj && typeof obj.task_id === "string";
+  const hasTaskName = "task_name" in obj && typeof obj.task_name === "string";
+  
+  return hasTaskId || hasTaskName;
 }
 
 export function isGetProjectsArgs(
