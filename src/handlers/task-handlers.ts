@@ -41,48 +41,52 @@ const taskCache = cacheManager.getOrCreateCache<TodoistTask[]>("tasks", 30000, {
 
 // Using shared utilities from api-helpers.ts
 
-// Helper function to find a task by ID or name
+// Helper function to find a task by ID or name (handles both snake_case and camelCase)
 async function findTaskByIdOrName(
   todoistClient: TodoistApi,
-  args: { task_id?: string; task_name?: string }
+  args: any
 ): Promise<TodoistTask> {
-  if (!args.task_id && !args.task_name) {
-    throw new Error("Either task_id or task_name must be provided");
+  // Handle both snake_case and camelCase from MCP framework
+  const taskId = args.task_id || args.taskId;
+  const taskName = args.task_name || args.taskName;
+  
+  if (!taskId && !taskName) {
+    throw new Error("Either task_id/taskId or task_name/taskName must be provided");
   }
 
   let task: TodoistTask | null = null;
 
   // Try to find by ID first if provided
-  if (args.task_id) {
+  if (taskId) {
     try {
-      const response = await todoistClient.getTask(args.task_id);
+      const response = await todoistClient.getTask(taskId);
       task = response as TodoistTask;
     } catch {
       // If not found by ID, continue to try by name if provided
-      if (!args.task_name) {
-        ErrorHandler.handleTaskNotFound(`ID: ${args.task_id}`);
+      if (!taskName) {
+        ErrorHandler.handleTaskNotFound(`ID: ${taskId}`);
       }
     }
   }
 
   // If not found by ID or ID not provided, try by name
-  if (!task && args.task_name) {
+  if (!task && taskName) {
     const result = await todoistClient.getTasks();
     const tasks = extractArrayFromResponse<TodoistTask>(result);
     const matchingTask = tasks.find((t: TodoistTask) =>
-      t.content.toLowerCase().includes(args.task_name!.toLowerCase())
+      t.content.toLowerCase().includes(taskName.toLowerCase())
     );
 
     if (matchingTask) {
       task = matchingTask;
     } else {
-      ErrorHandler.handleTaskNotFound(args.task_name);
+      ErrorHandler.handleTaskNotFound(taskName);
     }
   }
 
   if (!task) {
     ErrorHandler.handleTaskNotFound(
-      args.task_id ? `ID: ${args.task_id}` : args.task_name!
+      taskId ? `ID: ${taskId}` : taskName!
     );
   }
 
@@ -209,10 +213,14 @@ export async function handleGetTasks(
 
 export async function handleUpdateTask(
   todoistClient: TodoistApi,
-  args: UpdateTaskArgs
+  args: any
 ): Promise<string> {
+  // Handle both snake_case and camelCase
+  const taskId = args.task_id || args.taskId;
+  const taskName = args.task_name || args.taskName;
+  
   // Validate that at least one identifier is provided
-  validateTaskIdentifier(args.task_id, args.task_name);
+  validateTaskIdentifier(taskId, taskName);
 
   // Clear cache since we're updating
   taskCache.clear();
@@ -255,10 +263,14 @@ export async function handleUpdateTask(
 
 export async function handleDeleteTask(
   todoistClient: TodoistApi,
-  args: TaskNameArgs
+  args: any
 ): Promise<string> {
+  // Handle both snake_case and camelCase
+  const taskId = args.task_id || args.taskId;
+  const taskName = args.task_name || args.taskName;
+  
   // Validate that at least one identifier is provided
-  validateTaskIdentifier(args.task_id, args.task_name);
+  validateTaskIdentifier(taskId, taskName);
 
   // Clear cache since we're deleting
   taskCache.clear();
@@ -271,10 +283,14 @@ export async function handleDeleteTask(
 
 export async function handleCompleteTask(
   todoistClient: TodoistApi,
-  args: TaskNameArgs
+  args: any
 ): Promise<string> {
+  // Handle both snake_case and camelCase
+  const taskId = args.task_id || args.taskId;
+  const taskName = args.task_name || args.taskName;
+  
   // Validate that at least one identifier is provided
-  validateTaskIdentifier(args.task_id, args.task_name);
+  validateTaskIdentifier(taskId, taskName);
 
   // Clear cache since we're completing
   taskCache.clear();
