@@ -221,11 +221,21 @@ export async function handleUpdateTask(
 
   const updateData: Partial<TodoistTaskData> = {};
   if (args.content) updateData.content = args.content;
-  if (args.description) updateData.description = args.description;
+  if (args.description !== undefined) updateData.description = args.description;
   if (args.due_string) updateData.dueString = args.due_string;
   if (args.priority) updateData.priority = args.priority;
   if (args.project_id) updateData.projectId = args.project_id;
   if (args.section_id) updateData.sectionId = args.section_id;
+
+  // Workaround: If only project/section is being changed, include current content
+  // to avoid API error
+  if (
+    (args.project_id || args.section_id) &&
+    !args.content &&
+    Object.keys(updateData).length <= 2
+  ) {
+    updateData.content = matchingTask.content;
+  }
 
   const updatedTask = await todoistClient.updateTask(
     matchingTask.id,
