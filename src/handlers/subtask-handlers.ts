@@ -35,14 +35,14 @@ interface ExtendedTaskNode extends TaskNode {
 // Task creation data interface
 interface TaskCreationData {
   content: string;
-  parent_id?: string;
-  project_id?: string;
+  parentId?: string;
+  projectId?: string;
   description?: string;
-  due_string?: string;
+  dueString?: string;
   priority?: number;
   labels?: string[];
   deadline?: { date: string };
-  section_id?: string;
+  sectionId?: string;
 }
 
 /**
@@ -118,15 +118,15 @@ export async function handleCreateSubtask(
       validateDateString(args.deadline_date, "deadline");
     }
 
-    // Create subtask with parent_id
+    // Create subtask with parentId
     const subtaskData: TaskCreationData = {
       content: args.content,
-      parent_id: parent.id,
-      project_id: parent.projectId,
+      parentId: parent.id,
+      projectId: parent.projectId,
     };
 
     if (args.description) subtaskData.description = args.description;
-    if (args.due_string) subtaskData.due_string = args.due_string;
+    if (args.due_string) subtaskData.dueString = args.due_string;
     if (args.priority) subtaskData.priority = args.priority;
     if (args.labels) subtaskData.labels = args.labels;
     if (args.deadline_date) subtaskData.deadline = { date: args.deadline_date };
@@ -168,18 +168,18 @@ export async function handleConvertToSubtask(
     }
 
     // Delete the original task and recreate it as a subtask
-    // This is a workaround since updateTask may not support parent_id
+    // This is a workaround since updateTask may not support parentId
     await todoistClient.deleteTask(task.id);
 
     const subtaskData: TaskCreationData = {
       content: task.content,
-      parent_id: parent.id,
-      project_id: parent.projectId || task.projectId,
+      parentId: parent.id,
+      projectId: parent.projectId || task.projectId,
     };
 
     // Preserve other task properties
     if (task.description) subtaskData.description = task.description;
-    if (task.due?.string) subtaskData.due_string = task.due.string;
+    if (task.due?.string) subtaskData.dueString = task.due.string;
     if (task.priority) subtaskData.priority = task.priority;
     if (task.labels) subtaskData.labels = task.labels;
     if (task.deadline?.date)
@@ -218,22 +218,22 @@ export async function handlePromoteSubtask(
     }
 
     // Delete the subtask and recreate it as a main task
-    // This is a workaround since updateTask may not support parent_id changes
+    // This is a workaround since updateTask may not support parentId changes
     await todoistClient.deleteTask(subtask.id);
 
     const taskData: TaskCreationData = {
       content: subtask.content,
-      project_id: args.project_id || subtask.projectId,
+      projectId: args.project_id || subtask.projectId,
     };
 
     // Preserve other task properties
     if (subtask.description) taskData.description = subtask.description;
-    if (subtask.due?.string) taskData.due_string = subtask.due.string;
+    if (subtask.due?.string) taskData.dueString = subtask.due.string;
     if (subtask.priority) taskData.priority = subtask.priority;
     if (subtask.labels) taskData.labels = subtask.labels;
     if (subtask.deadline?.date)
       taskData.deadline = { date: subtask.deadline.date };
-    if (args.section_id) taskData.section_id = args.section_id;
+    if (args.section_id) taskData.sectionId = args.section_id;
 
     const promotedTask = (await todoistClient.addTask(taskData)) as TodoistTask;
 
@@ -369,14 +369,13 @@ export async function handleBulkCreateSubtasks(
         // Create subtask
         const taskData: TaskCreationData = {
           content: subtaskData.content,
-          parent_id: parent.id,
-          project_id: parent.projectId,
+          parentId: parent.id,
+          projectId: parent.projectId,
         };
 
         if (subtaskData.description)
           taskData.description = subtaskData.description;
-        if (subtaskData.due_string)
-          taskData.due_string = subtaskData.due_string;
+        if (subtaskData.due_string) taskData.dueString = subtaskData.due_string;
         if (subtaskData.priority) taskData.priority = subtaskData.priority;
         if (subtaskData.labels) taskData.labels = subtaskData.labels;
         if (subtaskData.deadline_date) {
