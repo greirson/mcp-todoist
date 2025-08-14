@@ -408,6 +408,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
 - **`src/utils/`**: Shared utility functions:
   - `api-helpers.ts` - API response handling utilities
   - `error-handling.ts` - Centralized error management
+  - `parameter-transformer.ts` - MCP to Todoist SDK parameter format conversion
 
 ## Changelog
 

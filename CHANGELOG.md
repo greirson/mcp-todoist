@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.4] - 2025-08-14
+
+### Fixed
+- **Parameter Format Compatibility**: Resolved systematic mismatch between MCP protocol (snake_case) and Todoist SDK (camelCase)
+  - Added `parameter-transformer.ts` utility for automatic parameter format conversion
+  - Fixed subtask handlers to use proper camelCase field names (parentId, projectId, dueString, sectionId)
+  - Updated task handlers to use parameter extraction helpers for both snake_case and camelCase support
+  - Removed debug logging from production code
+  - Ensures compatibility with both parameter formats for backward compatibility
+
 ## [0.8.3] - 2024-12-27
 
 ### Changed
