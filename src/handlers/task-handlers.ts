@@ -2,8 +2,6 @@ import { TodoistApi } from "@doist/todoist-api-typescript";
 import {
   CreateTaskArgs,
   GetTasksArgs,
-  UpdateTaskArgs,
-  TaskNameArgs,
   TodoistTaskData,
   TodoistTask,
   BulkCreateTasksArgs,
@@ -13,6 +11,7 @@ import {
 import { CacheManager } from "../cache.js";
 // Removed unused imports - now using ErrorHandler utility
 import { resolveProjectIdentifier } from "../utils/api-helpers.js";
+import { extractTaskIdentifiers } from "../utils/parameter-transformer.js";
 import {
   validateTaskContent,
   validateDescription,
@@ -47,11 +46,12 @@ async function findTaskByIdOrName(
   args: any
 ): Promise<TodoistTask> {
   // Handle both snake_case and camelCase from MCP framework
-  const taskId = args.task_id || args.taskId;
-  const taskName = args.task_name || args.taskName;
-  
+  const { taskId, taskName } = extractTaskIdentifiers(args);
+
   if (!taskId && !taskName) {
-    throw new Error("Either task_id/taskId or task_name/taskName must be provided");
+    throw new Error(
+      "Either task_id/taskId or task_name/taskName must be provided"
+    );
   }
 
   let task: TodoistTask | null = null;
@@ -85,9 +85,7 @@ async function findTaskByIdOrName(
   }
 
   if (!task) {
-    ErrorHandler.handleTaskNotFound(
-      taskId ? `ID: ${taskId}` : taskName!
-    );
+    ErrorHandler.handleTaskNotFound(taskId ? `ID: ${taskId}` : taskName!);
   }
 
   return task!;
@@ -216,9 +214,8 @@ export async function handleUpdateTask(
   args: any
 ): Promise<string> {
   // Handle both snake_case and camelCase
-  const taskId = args.task_id || args.taskId;
-  const taskName = args.task_name || args.taskName;
-  
+  const { taskId, taskName } = extractTaskIdentifiers(args);
+
   // Validate that at least one identifier is provided
   validateTaskIdentifier(taskId, taskName);
 
@@ -266,9 +263,8 @@ export async function handleDeleteTask(
   args: any
 ): Promise<string> {
   // Handle both snake_case and camelCase
-  const taskId = args.task_id || args.taskId;
-  const taskName = args.task_name || args.taskName;
-  
+  const { taskId, taskName } = extractTaskIdentifiers(args);
+
   // Validate that at least one identifier is provided
   validateTaskIdentifier(taskId, taskName);
 
@@ -286,9 +282,8 @@ export async function handleCompleteTask(
   args: any
 ): Promise<string> {
   // Handle both snake_case and camelCase
-  const taskId = args.task_id || args.taskId;
-  const taskName = args.task_name || args.taskName;
-  
+  const { taskId, taskName } = extractTaskIdentifiers(args);
+
   // Validate that at least one identifier is provided
   validateTaskIdentifier(taskId, taskName);
 
