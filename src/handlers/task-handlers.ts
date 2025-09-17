@@ -28,6 +28,7 @@ import {
   createCacheKey,
   formatTaskForDisplay,
 } from "../utils/api-helpers.js";
+import { toApiPriority, fromApiPriority } from "../utils/priority-mapper.js";
 import { ErrorHandler } from "../utils/error-handling.js";
 
 // Get centralized cache manager and register task cache
@@ -109,8 +110,12 @@ export async function handleCreateTask(
       content: sanitizedContent,
       description: sanitizedDescription,
       dueString: args.due_string,
-      priority: args.priority,
     };
+
+    const apiPriority = toApiPriority(args.priority);
+    if (apiPriority !== undefined) {
+      taskData.priority = apiPriority;
+    }
 
     if (args.labels && args.labels.length > 0) {
       taskData.labels = args.labels;
@@ -133,10 +138,12 @@ export async function handleCreateTask(
     // Clear cache after creating task
     taskCache.clear();
 
+    const displayPriority = fromApiPriority(task.priority);
+
     return `Task created:\nID: ${task.id}\nTitle: ${task.content}${
       task.description ? `\nDescription: ${task.description}` : ""
     }${task.due ? `\nDue: ${task.due.string}` : ""}${
-      task.priority ? `\nPriority: ${task.priority}` : ""
+      displayPriority ? `\nPriority: ${displayPriority}` : ""
     }${
       task.labels && task.labels.length > 0
         ? `\nLabels: ${task.labels.join(", ")}`
@@ -190,9 +197,10 @@ export async function handleGetTasks(
   }
 
   let filteredTasks = tasks || [];
-  if (args.priority) {
+  const apiPriorityFilter = toApiPriority(args.priority);
+  if (apiPriorityFilter !== undefined) {
     filteredTasks = filteredTasks.filter(
-      (task) => task.priority === args.priority
+      (task) => task.priority === apiPriorityFilter
     );
   }
 
@@ -228,7 +236,8 @@ export async function handleUpdateTask(
   if (args.content) updateData.content = args.content;
   if (args.description !== undefined) updateData.description = args.description;
   if (args.due_string) updateData.dueString = args.due_string;
-  if (args.priority) updateData.priority = args.priority;
+  const apiPriorityUpdate = toApiPriority(args.priority);
+  if (apiPriorityUpdate !== undefined) updateData.priority = apiPriorityUpdate;
   if (args.project_id) updateData.projectId = args.project_id;
   if (args.section_id) updateData.sectionId = args.section_id;
 
@@ -247,6 +256,8 @@ export async function handleUpdateTask(
     updateData
   );
 
+  const displayUpdatedPriority = fromApiPriority(updatedTask.priority);
+
   return `Task "${matchingTask.content}" updated:\nNew Title: ${
     updatedTask.content
   }${
@@ -255,7 +266,9 @@ export async function handleUpdateTask(
       : ""
   }${
     updatedTask.due ? `\nNew Due Date: ${updatedTask.due.string}` : ""
-  }${updatedTask.priority ? `\nNew Priority: ${updatedTask.priority}` : ""}`;
+  }${
+    displayUpdatedPriority ? `\nNew Priority: ${displayUpdatedPriority}` : ""
+  }`;
 }
 
 export async function handleDeleteTask(
@@ -365,7 +378,9 @@ function filterTasksByCriteria(
   return tasks.filter((task) => {
     if (criteria.project_id && task.projectId !== criteria.project_id)
       return false;
-    if (criteria.priority && task.priority !== criteria.priority) return false;
+    const apiPriorityFilter = toApiPriority(criteria.priority);
+    if (apiPriorityFilter !== undefined && task.priority !== apiPriorityFilter)
+      return false;
     if (
       criteria.content_contains &&
       !task.content
@@ -412,8 +427,12 @@ export async function handleBulkCreateTasks(
           content: taskArgs.content,
           description: taskArgs.description,
           dueString: taskArgs.due_string,
-          priority: taskArgs.priority,
         };
+
+        const apiPriority = toApiPriority(taskArgs.priority);
+        if (apiPriority !== undefined) {
+          taskData.priority = apiPriority;
+        }
 
         if (taskArgs.labels && taskArgs.labels.length > 0) {
           taskData.labels = taskArgs.labels;
@@ -535,7 +554,8 @@ export async function handleBulkUpdateTasks(
     if (args.updates.description)
       updateData.description = args.updates.description;
     if (args.updates.due_string) updateData.dueString = args.updates.due_string;
-    if (args.updates.priority) updateData.priority = args.updates.priority;
+    const apiPriority = toApiPriority(args.updates.priority);
+    if (apiPriority !== undefined) updateData.priority = apiPriority;
 
     // Resolve project identifier (ID or name) to project ID
     if (args.updates.project_id) {

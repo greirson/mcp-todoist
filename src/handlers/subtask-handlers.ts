@@ -22,6 +22,7 @@ import {
 import { extractArrayFromResponse } from "../utils/api-helpers.js";
 import { ErrorHandler } from "../utils/error-handling.js";
 import { SimpleCache } from "../cache.js";
+import { toApiPriority } from "../utils/priority-mapper.js";
 
 // Cache for task data (30 second TTL)
 const taskCache = new SimpleCache<TodoistTask[]>(30000);
@@ -127,7 +128,8 @@ export async function handleCreateSubtask(
 
     if (args.description) subtaskData.description = args.description;
     if (args.due_string) subtaskData.dueString = args.due_string;
-    if (args.priority) subtaskData.priority = args.priority;
+    const apiPriority = toApiPriority(args.priority);
+    if (apiPriority !== undefined) subtaskData.priority = apiPriority;
     if (args.labels) subtaskData.labels = args.labels;
     if (args.deadline_date) subtaskData.deadline = { date: args.deadline_date };
 
@@ -376,7 +378,8 @@ export async function handleBulkCreateSubtasks(
         if (subtaskData.description)
           taskData.description = subtaskData.description;
         if (subtaskData.due_string) taskData.dueString = subtaskData.due_string;
-        if (subtaskData.priority) taskData.priority = subtaskData.priority;
+        const apiPriority = toApiPriority(subtaskData.priority);
+        if (apiPriority !== undefined) taskData.priority = apiPriority;
         if (subtaskData.labels) taskData.labels = subtaskData.labels;
         if (subtaskData.deadline_date) {
           taskData.deadline = { date: subtaskData.deadline_date };
