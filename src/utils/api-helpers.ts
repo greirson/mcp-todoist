@@ -2,6 +2,8 @@
  * Shared API utilities for handling Todoist API responses and common operations
  */
 
+import { fromApiPriority } from "./priority-mapper.js";
+
 /**
  * Generic interface for Todoist API responses that may return data in different formats
  */
@@ -112,11 +114,12 @@ export function formatTaskForDisplay(task: {
   priority?: number;
   labels?: string[];
 }): string {
+  const displayPriority = fromApiPriority(task.priority);
   return `- ${task.content}${task.id ? ` (ID: ${task.id})` : ""}${
     task.description ? `\n  Description: ${task.description}` : ""
   }${task.due ? `\n  Due: ${task.due.string}` : ""}${
     task.deadline ? `\n  Deadline: ${task.deadline.date}` : ""
-  }${task.priority ? `\n  Priority: ${task.priority}` : ""}${
+  }${displayPriority ? `\n  Priority: ${displayPriority}` : ""}${
     task.labels && task.labels.length > 0
       ? `\n  Labels: ${task.labels.join(", ")}`
       : ""

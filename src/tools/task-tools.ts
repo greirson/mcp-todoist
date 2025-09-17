@@ -23,7 +23,7 @@ export const CREATE_TASK_TOOL: Tool = {
       },
       priority: {
         type: "number",
-        description: "Task priority from 1 (normal) to 4 (urgent) (optional)",
+        description: "Task priority from 1 (highest) to 4 (lowest) (optional)",
         enum: [1, 2, 3, 4],
       },
       labels: {
@@ -74,7 +74,7 @@ export const GET_TASKS_TOOL: Tool = {
       },
       priority: {
         type: "number",
-        description: "Filter tasks by priority level 1-4 (optional)",
+        description: "Filter tasks by priority level 1 (highest) to 4 (lowest) (optional)",
         enum: [1, 2, 3, 4],
       },
       limit: {
@@ -224,12 +224,12 @@ export const BULK_CREATE_TASKS_TOOL: Tool = {
               description:
                 "Natural language due date like 'tomorrow', 'next Monday' (optional)",
             },
-            priority: {
-              type: "number",
-              description:
-                "Task priority from 1 (normal) to 4 (urgent) (optional)",
-              enum: [1, 2, 3, 4],
-            },
+          priority: {
+            type: "number",
+            description:
+              "Task priority from 1 (highest) to 4 (lowest) (optional)",
+            enum: [1, 2, 3, 4],
+          },
             labels: {
               type: "array",
               items: {
@@ -278,7 +278,8 @@ export const BULK_UPDATE_TASKS_TOOL: Tool = {
           },
           priority: {
             type: "number",
-            description: "Filter tasks by priority level 1-4 (optional)",
+            description:
+              "Filter tasks by priority level 1 (highest) to 4 (lowest) (optional)",
             enum: [1, 2, 3, 4],
           },
           due_before: {
@@ -314,12 +315,12 @@ export const BULK_UPDATE_TASKS_TOOL: Tool = {
             type: "string",
             description: "New due date in natural language (optional)",
           },
-          priority: {
-            type: "number",
-            description:
-              "New priority from 1 (normal) to 4 (urgent) (optional)",
-            enum: [1, 2, 3, 4],
-          },
+      priority: {
+        type: "number",
+        description:
+          "New priority from 1 (highest) to 4 (lowest) (optional)",
+        enum: [1, 2, 3, 4],
+      },
           labels: {
             type: "array",
             items: {
@@ -357,7 +358,8 @@ export const BULK_DELETE_TASKS_TOOL: Tool = {
       },
       priority: {
         type: "number",
-        description: "Delete tasks with this priority level 1-4 (optional)",
+        description:
+          "Delete tasks with this priority level 1 (highest) to 4 (lowest) (optional)",
         enum: [1, 2, 3, 4],
       },
       due_before: {
@@ -391,7 +393,8 @@ export const BULK_COMPLETE_TASKS_TOOL: Tool = {
       },
       priority: {
         type: "number",
-        description: "Complete tasks with this priority level 1-4 (optional)",
+        description:
+          "Complete tasks with this priority level 1 (highest) to 4 (lowest) (optional)",
         enum: [1, 2, 3, 4],
       },
       due_before: {

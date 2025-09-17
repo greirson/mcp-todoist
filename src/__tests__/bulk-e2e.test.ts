@@ -6,6 +6,7 @@ import {
 } from "../handlers/task-handlers";
 import type { TodoistTask } from "../types";
 import { extractArrayFromResponse } from "../utils/api-helpers";
+import { fromApiPriority } from "../utils/priority-mapper";
 
 const token = process.env.TODOIST_API_TOKEN;
 const describeIfToken = token ? describe : describe.skip;
@@ -127,5 +128,10 @@ async function fetchTestTasks(
 ): Promise<TodoistTask[]> {
   const result = await todoistClient.getTasks();
   const tasks = extractArrayFromResponse<TodoistTask>(result);
-  return tasks.filter((task) => task.content.startsWith(contentPrefix));
+  return tasks
+    .filter((task) => task.content.startsWith(contentPrefix))
+    .map((task) => ({
+      ...task,
+      priority: fromApiPriority(task.priority) ?? task.priority,
+    }));
 }
