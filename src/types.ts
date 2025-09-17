@@ -72,11 +72,20 @@ export interface TodoistSectionData {
 }
 
 // API response interfaces for backward compatibility
+export interface TodoistTaskDueData {
+  string: string;
+  date?: string | null;
+  datetime?: string | null;
+  timezone?: string | null;
+  lang?: string | null;
+  isRecurring?: boolean;
+}
+
 export interface TodoistTask {
   id: string;
   content: string;
   description?: string;
-  due?: { string: string } | null;
+  due?: TodoistTaskDueData | null;
   deadline?: { date: string } | null;
   priority?: number;
   labels?: string[];

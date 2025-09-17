@@ -281,7 +281,9 @@ export class CacheManager {
     this.caches.set(name, cache);
 
     // Set up automatic cleanup if requested
-    if (options.autoCleanup !== false) {
+    const isTestEnvironment =
+      typeof process !== "undefined" && process.env?.NODE_ENV === "test";
+    if (options.autoCleanup !== false && !isTestEnvironment) {
       const interval = options.cleanupInterval || 300000; // 5 minutes default
       const intervalId = setInterval(() => {
         cache.cleanup();
