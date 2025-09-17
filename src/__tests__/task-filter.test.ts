@@ -5,14 +5,18 @@ import type { TodoistTask } from "../types.js";
 
 type MockUpdateInput = Partial<TodoistTask>;
 
-function createMockTodoistClient(tasks: TodoistTask[]): {
+const createMockTodoistClient = (
+  tasks: TodoistTask[]
+): {
   mockClient: TodoistApi;
-  getTasks: jest.Mock<Promise<TodoistTask[]>, []>;
-  updateTask: jest.Mock<Promise<TodoistTask>, [string, MockUpdateInput]>;
-} {
-  const getTasks = jest.fn<Promise<TodoistTask[]>, []>(async () => tasks);
-  const updateTask = jest.fn<Promise<TodoistTask>, [string, MockUpdateInput]>(
-    async (taskId, updateData) => {
+  updateTask: jest.MockedFunction<any>;
+} => {
+  const getTasks = jest.fn(async (): Promise<TodoistTask[]> => tasks);
+  const updateTask = jest.fn(
+    async (
+      taskId: string,
+      updateData: MockUpdateInput
+    ): Promise<TodoistTask> => {
       const original = tasks.find((task) => task.id === taskId);
       if (!original) {
         throw new Error(`Task ${taskId} not found`);
@@ -32,16 +36,16 @@ function createMockTodoistClient(tasks: TodoistTask[]): {
         labels: original.labels,
       } satisfies TodoistTask;
     }
-  );
+  ) as jest.MockedFunction<any>;
 
   const mockClient = {
     getTasks,
     updateTask,
-    getProjects: jest.fn<Promise<unknown>, []>(async () => []),
+    getProjects: jest.fn(async (): Promise<unknown[]> => []),
   } as unknown as TodoistApi;
 
-  return { mockClient, getTasks, updateTask };
-}
+  return { mockClient, updateTask };
+};
 
 describe("filterTasksByCriteria", () => {
   test("updates only tasks strictly before due_before date", async () => {
@@ -94,7 +98,9 @@ describe("filterTasksByCriteria", () => {
       },
     });
 
-    const updatedTaskIds = updateTask.mock.calls.map(([taskId]) => taskId);
+    const updatedTaskIds = updateTask.mock.calls.map(
+      ([taskId]: [string, MockUpdateInput]) => taskId
+    );
     expect(updatedTaskIds).toEqual(["before-cutoff"]);
   });
 
@@ -149,7 +155,9 @@ describe("filterTasksByCriteria", () => {
       },
     });
 
-    const updatedTaskIds = updateTask.mock.calls.map(([taskId]) => taskId);
+    const updatedTaskIds = updateTask.mock.calls.map(
+      ([taskId]: [string, MockUpdateInput]) => taskId
+    );
     expect(updatedTaskIds).toEqual([
       "after-window-date",
       "after-window-datetime",
@@ -199,7 +207,9 @@ describe("filterTasksByCriteria", () => {
       },
     });
 
-    const updatedTaskIds = updateTask.mock.calls.map(([taskId]) => taskId);
+    const updatedTaskIds = updateTask.mock.calls.map(
+      ([taskId]: [string, MockUpdateInput]) => taskId
+    );
     expect(updatedTaskIds).toEqual(["inside-window"]);
   });
 });
