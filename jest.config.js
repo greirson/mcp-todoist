@@ -3,17 +3,16 @@ export default {
   extensionsToTreatAsEsm: [".ts"],
   testEnvironment: "node",
   testMatch: ["**/__tests__/**/*.test.ts"],
-  collectCoverageFrom: [
-    "src/**/*.ts",
-    "!src/**/*.d.ts",
-    "!src/index.ts"
-  ],
+  collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts", "!src/index.ts"],
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
   transform: {
-    "^.+\\.ts$": ["ts-jest", {
-      useESM: true
-    }]
-  }
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        useESM: true,
+      },
+    ],
+  },
 };

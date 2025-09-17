@@ -55,11 +55,7 @@ export class SectionNotFoundError extends TodoistMCPError {
 
 export class TodoistAPIError extends TodoistMCPError {
   constructor(message: string, originalError?: Error) {
-    super(
-      `Todoist API error: ${message}`,
-      "TODOIST_API_ERROR",
-      500
-    );
+    super(`Todoist API error: ${message}`, "TODOIST_API_ERROR", 500);
     this.name = "TodoistAPIError";
     if (originalError) {
       this.stack = originalError.stack;
@@ -69,33 +65,21 @@ export class TodoistAPIError extends TodoistMCPError {
 
 export class AuthenticationError extends TodoistMCPError {
   constructor() {
-    super(
-      "Invalid or missing Todoist API token",
-      "AUTHENTICATION_ERROR",
-      401
-    );
+    super("Invalid or missing Todoist API token", "AUTHENTICATION_ERROR", 401);
     this.name = "AuthenticationError";
   }
 }
 
 export class LabelNotFoundError extends TodoistMCPError {
   constructor(labelIdentifier: string) {
-    super(
-      `Could not find label "${labelIdentifier}"`,
-      "LABEL_NOT_FOUND",
-      404
-    );
+    super(`Could not find label "${labelIdentifier}"`, "LABEL_NOT_FOUND", 404);
     this.name = "LabelNotFoundError";
   }
 }
 
 export class SubtaskError extends TodoistMCPError {
   constructor(message: string) {
-    super(
-      `Subtask operation error: ${message}`,
-      "SUBTASK_ERROR",
-      400
-    );
+    super(`Subtask operation error: ${message}`, "SUBTASK_ERROR", 400);
     this.name = "SubtaskError";
   }
 }
