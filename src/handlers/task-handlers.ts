@@ -264,9 +264,7 @@ export async function handleUpdateTask(
     updatedTask.description
       ? `\nNew Description: ${updatedTask.description}`
       : ""
-  }${
-    updatedTask.due ? `\nNew Due Date: ${updatedTask.due.string}` : ""
-  }${
+  }${updatedTask.due ? `\nNew Due Date: ${updatedTask.due.string}` : ""}${
     displayUpdatedPriority ? `\nNew Priority: ${displayUpdatedPriority}` : ""
   }`;
 }
@@ -394,10 +392,7 @@ function filterTasksByCriteria(
       if (!taskDate) return false;
 
       if (dueBeforeThreshold && taskDate >= dueBeforeThreshold) return false;
-      if (
-        dueAfterThresholdExclusive &&
-        taskDate < dueAfterThresholdExclusive
-      )
+      if (dueAfterThresholdExclusive && taskDate < dueAfterThresholdExclusive)
         return false;
     }
 

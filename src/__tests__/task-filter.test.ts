@@ -3,13 +3,16 @@ import { handleBulkUpdateTasks } from "../handlers/task-handlers";
 import type { TodoistApi } from "@doist/todoist-api-typescript";
 import type { TodoistTask } from "../types.js";
 
-function createMockTodoistClient(tasks: TodoistTask[]) {
-  const getTasks = jest
-    .fn<() => Promise<TodoistTask[]>>()
-    .mockImplementation(async () => tasks);
-  const updateTask = jest
-    .fn<(taskId: string, updateData: any) => Promise<TodoistTask>>()
-    .mockImplementation(async (taskId: string, updateData: any) => {
+type MockUpdateInput = Partial<TodoistTask>;
+
+function createMockTodoistClient(tasks: TodoistTask[]): {
+  mockClient: TodoistApi;
+  getTasks: jest.Mock<Promise<TodoistTask[]>, []>;
+  updateTask: jest.Mock<Promise<TodoistTask>, [string, MockUpdateInput]>;
+} {
+  const getTasks = jest.fn<Promise<TodoistTask[]>, []>(async () => tasks);
+  const updateTask = jest.fn<Promise<TodoistTask>, [string, MockUpdateInput]>(
+    async (taskId, updateData) => {
       const original = tasks.find((task) => task.id === taskId);
       if (!original) {
         throw new Error(`Task ${taskId} not found`);
@@ -28,14 +31,13 @@ function createMockTodoistClient(tasks: TodoistTask[]) {
             : original.priority,
         labels: original.labels,
       } satisfies TodoistTask;
-    });
+    }
+  );
 
   const mockClient = {
     getTasks,
     updateTask,
-    getProjects: jest
-      .fn<() => Promise<unknown>>()
-      .mockImplementation(async () => []),
+    getProjects: jest.fn<Promise<unknown>, []>(async () => []),
   } as unknown as TodoistApi;
 
   return { mockClient, getTasks, updateTask };
