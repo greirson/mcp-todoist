@@ -66,7 +66,7 @@ export class SimpleCache<T> {
 
   get(key: string): T | null {
     const entry = this.cache.get(key);
-    
+
     if (!entry) {
       if (this.config.enableStats) {
         this.missCount++;
@@ -76,7 +76,7 @@ export class SimpleCache<T> {
 
     const now = Date.now();
     const isExpired = now - entry.timestamp > entry.ttl;
-    
+
     if (isExpired) {
       this.cache.delete(key);
       if (this.config.enableStats) {
@@ -126,18 +126,26 @@ export class SimpleCache<T> {
   getStats(): CacheStats {
     const entries = Array.from(this.cache.values());
     const totalRequests = this.hitCount + this.missCount;
-    
+
     return {
       totalKeys: this.cache.size,
       hitCount: this.hitCount,
       missCount: this.missCount,
       hitRate: totalRequests > 0 ? this.hitCount / totalRequests : 0,
       totalMemoryUsage: this.estimateMemoryUsage(),
-      oldestEntry: entries.length > 0 ? Math.min(...entries.map(e => e.timestamp)) : undefined,
-      newestEntry: entries.length > 0 ? Math.max(...entries.map(e => e.timestamp)) : undefined,
-      averageAccessCount: entries.length > 0 
-        ? entries.reduce((sum, e) => sum + (e.accessCount || 0), 0) / entries.length 
-        : 0,
+      oldestEntry:
+        entries.length > 0
+          ? Math.min(...entries.map((e) => e.timestamp))
+          : undefined,
+      newestEntry:
+        entries.length > 0
+          ? Math.max(...entries.map((e) => e.timestamp))
+          : undefined,
+      averageAccessCount:
+        entries.length > 0
+          ? entries.reduce((sum, e) => sum + (e.accessCount || 0), 0) /
+            entries.length
+          : 0,
     };
   }
 
@@ -155,13 +163,13 @@ export class SimpleCache<T> {
   has(key: string): boolean {
     const entry = this.cache.get(key);
     if (!entry) return false;
-    
+
     const isExpired = Date.now() - entry.timestamp > entry.ttl;
     if (isExpired) {
       this.cache.delete(key);
       return false;
     }
-    
+
     return true;
   }
 
@@ -200,7 +208,7 @@ export class SimpleCache<T> {
    */
   private estimateMemoryUsage(): number {
     let totalSize = 0;
-    
+
     for (const [key, entry] of this.cache.entries()) {
       // Rough estimation: key size + JSON size of data + metadata
       totalSize += key.length * 2; // UTF-16 characters
@@ -211,7 +219,7 @@ export class SimpleCache<T> {
       }
       totalSize += 64; // Estimated metadata overhead
     }
-    
+
     return totalSize;
   }
 
@@ -270,7 +278,7 @@ export class CacheManager {
    * Register a cache instance with the manager
    */
   registerCache<T>(
-    name: string, 
+    name: string,
     cache: SimpleCache<T>,
     options: {
       autoCleanup?: boolean;
@@ -288,7 +296,7 @@ export class CacheManager {
       const intervalId = setInterval(() => {
         cache.cleanup();
       }, interval);
-      
+
       this.cleanupIntervals.set(name, intervalId);
     }
 
@@ -309,17 +317,17 @@ export class CacheManager {
    * Get or create a cache with the specified configuration
    */
   getOrCreateCache<T>(
-    name: string, 
-    defaultTtl = 30000, 
+    name: string,
+    defaultTtl = 30000,
     config: Partial<CacheConfig> = {}
   ): SimpleCache<T> {
     let cache = this.caches.get(name);
-    
+
     if (!cache) {
       cache = new SimpleCache<T>(defaultTtl, config);
       this.registerCache(name, cache);
     }
-    
+
     return cache;
   }
 
@@ -362,7 +370,7 @@ export class CacheManager {
     for (const [name, cache] of this.caches.entries()) {
       const stats = cache.getStats();
       cacheStats[name] = stats;
-      
+
       totalKeys += stats.totalKeys;
       totalHits += stats.hitCount;
       totalMisses += stats.missCount;
@@ -387,11 +395,11 @@ export class CacheManager {
    */
   async warmCaches(cacheNames?: string[]): Promise<void> {
     const namesToWarm = cacheNames || Array.from(this.warmers.keys());
-    
+
     const warmPromises = namesToWarm.map(async (name) => {
       const warmer = this.warmers.get(name);
       const cache = this.caches.get(name);
-      
+
       if (warmer && cache) {
         try {
           const data = await warmer();
@@ -430,10 +438,10 @@ export class CacheManager {
 
     // Remove warmer
     this.warmers.delete(name);
-    
+
     // Remove cache
     this.caches.delete(name);
-    
+
     return true;
   }
 
@@ -442,7 +450,7 @@ export class CacheManager {
    */
   invalidateByPattern(pattern: RegExp): number {
     let invalidatedCount = 0;
-    
+
     for (const cache of this.caches.values()) {
       const keys = cache.keys();
       for (const key of keys) {
@@ -452,7 +460,7 @@ export class CacheManager {
         }
       }
     }
-    
+
     return invalidatedCount;
   }
 
@@ -470,21 +478,29 @@ export class CacheManager {
 
     // Check hit rates
     if (stats.globalHitRate < 0.5) {
-      issues.push(`Low global hit rate: ${(stats.globalHitRate * 100).toFixed(1)}%`);
-      recommendations.push("Consider increasing TTL values or improving cache warming");
+      issues.push(
+        `Low global hit rate: ${(stats.globalHitRate * 100).toFixed(1)}%`
+      );
+      recommendations.push(
+        "Consider increasing TTL values or improving cache warming"
+      );
     }
 
     // Check memory usage (warn if > 50MB)
     const memoryMB = stats.totalMemoryUsage / (1024 * 1024);
     if (memoryMB > 50) {
       issues.push(`High memory usage: ${memoryMB.toFixed(1)}MB`);
-      recommendations.push("Consider reducing cache size or implementing more aggressive cleanup");
+      recommendations.push(
+        "Consider reducing cache size or implementing more aggressive cleanup"
+      );
     }
 
     // Check individual cache performance
     for (const [name, cacheStats] of Object.entries(stats.cacheStats)) {
       if (cacheStats.hitRate < 0.3) {
-        issues.push(`Cache '${name}' has very low hit rate: ${(cacheStats.hitRate * 100).toFixed(1)}%`);
+        issues.push(
+          `Cache '${name}' has very low hit rate: ${(cacheStats.hitRate * 100).toFixed(1)}%`
+        );
         recommendations.push(`Review caching strategy for '${name}' cache`);
       }
     }
@@ -504,7 +520,7 @@ export class CacheManager {
     for (const intervalId of this.cleanupIntervals.values()) {
       clearInterval(intervalId);
     }
-    
+
     // Clear all data
     this.cleanupIntervals.clear();
     this.warmers.clear();

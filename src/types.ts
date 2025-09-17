@@ -237,9 +237,15 @@ export interface TodoistAPIResponse<T> {
  * Specific API response types for each entity
  */
 export type TasksResponse = TodoistTask[] | TodoistAPIResponse<TodoistTask>;
-export type ProjectsResponse = TodoistProject[] | TodoistAPIResponse<TodoistProject>;
-export type SectionsResponse = TodoistSection[] | TodoistAPIResponse<TodoistSection>;
-export type CommentsResponse = TodoistComment[] | TodoistAPIResponse<TodoistComment>;
+export type ProjectsResponse =
+  | TodoistProject[]
+  | TodoistAPIResponse<TodoistProject>;
+export type SectionsResponse =
+  | TodoistSection[]
+  | TodoistAPIResponse<TodoistSection>;
+export type CommentsResponse =
+  | TodoistComment[]
+  | TodoistAPIResponse<TodoistComment>;
 export type LabelsResponse = TodoistLabel[] | TodoistAPIResponse<TodoistLabel>;
 
 /**

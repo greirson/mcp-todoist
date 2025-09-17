@@ -81,20 +81,21 @@ import type { TaskHierarchy, TaskNode } from "./types.js";
 function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
   function formatNode(node: TaskNode, indent: string = ""): string {
     const status = node.task.isCompleted ? "✓" : "○";
-    const completion = node.children.length > 0 ? ` [${node.completionPercentage}%]` : "";
+    const completion =
+      node.children.length > 0 ? ` [${node.completionPercentage}%]` : "";
     let result = `${indent}${status} ${node.task.content} (ID: ${node.task.id})${completion}\n`;
-    
+
     for (const child of node.children) {
       result += formatNode(child, indent + "  ");
     }
-    
+
     return result;
   }
-  
+
   let result = formatNode(hierarchy.root);
   result += `\nTotal tasks: ${hierarchy.totalTasks}\n`;
   result += `Completed: ${hierarchy.completedTasks} (${hierarchy.overallCompletion}%)`;
-  
+
   return result;
 }
 
@@ -289,22 +290,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (!isBulkCreateSubtasksArgs(args)) {
           throw new Error("Invalid arguments for todoist_subtasks_bulk_create");
         }
-        const bulkSubtaskResult = await handleBulkCreateSubtasks(todoistClient, args);
-        result = `Created ${bulkSubtaskResult.created.length} subtasks under parent "${bulkSubtaskResult.parent.content}" (ID: ${bulkSubtaskResult.parent.id})\n` +
-                 `Failed: ${bulkSubtaskResult.failed.length}`;
+        const bulkSubtaskResult = await handleBulkCreateSubtasks(
+          todoistClient,
+          args
+        );
+        result =
+          `Created ${bulkSubtaskResult.created.length} subtasks under parent "${bulkSubtaskResult.parent.content}" (ID: ${bulkSubtaskResult.parent.id})\n` +
+          `Failed: ${bulkSubtaskResult.failed.length}`;
         if (bulkSubtaskResult.created.length > 0) {
-          result += "\nCreated subtasks:\n" + 
-                    bulkSubtaskResult.created.map(t => `- ${t.content} (ID: ${t.id})`).join("\n");
+          result +=
+            "\nCreated subtasks:\n" +
+            bulkSubtaskResult.created
+              .map((t) => `- ${t.content} (ID: ${t.id})`)
+              .join("\n");
         }
         if (bulkSubtaskResult.failed.length > 0) {
-          result += "\nFailed subtasks:\n" + 
-                    bulkSubtaskResult.failed.map(f => `- ${f.task.content}: ${f.error}`).join("\n");
+          result +=
+            "\nFailed subtasks:\n" +
+            bulkSubtaskResult.failed
+              .map((f) => `- ${f.task.content}: ${f.error}`)
+              .join("\n");
         }
         break;
 
       case "todoist_task_convert_to_subtask":
         if (!isConvertToSubtaskArgs(args)) {
-          throw new Error("Invalid arguments for todoist_task_convert_to_subtask");
+          throw new Error(
+            "Invalid arguments for todoist_task_convert_to_subtask"
+          );
         }
         const convertResult = await handleConvertToSubtask(todoistClient, args);
         result = `Converted task "${convertResult.task.content}" (ID: ${convertResult.task.id}) to subtask of "${convertResult.parent.content}" (ID: ${convertResult.parent.id})`;
@@ -332,12 +345,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         break;
 
       case "todoist_test_all_features":
-        const featuresResult = await handleTestAllFeatures(todoistClient, args as { mode?: "basic" | "enhanced" });
+        const featuresResult = await handleTestAllFeatures(
+          todoistClient,
+          args as { mode?: "basic" | "enhanced" }
+        );
         result = JSON.stringify(featuresResult, null, 2);
         break;
 
       case "todoist_test_performance":
-        const performanceResult = await handleTestPerformance(todoistClient, args as { iterations?: number });
+        const performanceResult = await handleTestPerformance(
+          todoistClient,
+          args as { iterations?: number }
+        );
         result = JSON.stringify(performanceResult, null, 2);
         break;
 
@@ -367,7 +386,7 @@ async function runServer(): Promise<void> {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Todoist MCP Server running on stdio");
-  
+
   // Optional: Set up cache monitoring (uncomment to enable)
   // const cacheManager = CacheManager.getInstance();
   // setInterval(() => {
