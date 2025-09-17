@@ -45,7 +45,7 @@ const MALICIOUS_PATTERNS = [
 
 /**
  * Sanitizes user input by removing potentially dangerous content
- * 
+ *
  * @param input - The string to sanitize
  * @param options - Sanitization options
  * @returns Sanitized string
@@ -98,7 +98,7 @@ export function sanitizeInput(
 
 /**
  * Validates and sanitizes URL inputs
- * 
+ *
  * @param url - URL to validate
  * @param fieldName - Field name for error reporting
  * @returns Sanitized URL
@@ -108,12 +108,15 @@ export function validateAndSanitizeURL(url: string, fieldName = "url"): string {
     throw new ValidationError(`${fieldName} must be a string`, fieldName);
   }
 
-  const sanitized = sanitizeInput(url, { allowHtml: false, maxLength: VALIDATION_LIMITS.URL_MAX });
+  const sanitized = sanitizeInput(url, {
+    allowHtml: false,
+    maxLength: VALIDATION_LIMITS.URL_MAX,
+  });
 
   // Check URL format
   try {
     const urlObj = new URL(sanitized);
-    
+
     // Only allow safe protocols
     const allowedProtocols = ["http:", "https:"];
     if (!allowedProtocols.includes(urlObj.protocol)) {
@@ -131,25 +134,25 @@ export function validateAndSanitizeURL(url: string, fieldName = "url"): string {
 
 /**
  * Detects suspicious patterns that might indicate malicious intent
- * 
+ *
  * @param input - Input to check
  * @returns Array of detected suspicious patterns
  */
 export function detectSuspiciousPatterns(input: string): string[] {
   const detected: string[] = [];
-  
+
   for (const pattern of MALICIOUS_PATTERNS) {
     if (pattern.test(input)) {
       detected.push(pattern.toString());
     }
   }
-  
+
   return detected;
 }
 
 /**
  * Enhanced content validation with sanitization
- * 
+ *
  * @param content - Content to validate
  * @param fieldName - Field name for error reporting
  * @param options - Validation options
@@ -164,21 +167,28 @@ export function validateAndSanitizeContent(
     required?: boolean;
   } = {}
 ): string {
-  const { 
-    maxLength = VALIDATION_LIMITS.TASK_CONTENT_MAX, 
-    allowHtml = false, 
-    required = true 
+  const {
+    maxLength = VALIDATION_LIMITS.TASK_CONTENT_MAX,
+    allowHtml = false,
+    required = true,
   } = options;
 
   if (!content || typeof content !== "string") {
     if (required) {
-      throw new ValidationError(`${fieldName} is required and must be a string`, fieldName);
+      throw new ValidationError(
+        `${fieldName} is required and must be a string`,
+        fieldName
+      );
     }
     return "";
   }
 
   // Sanitize the input
-  const sanitized = sanitizeInput(content, { allowHtml, maxLength, trimWhitespace: true });
+  const sanitized = sanitizeInput(content, {
+    allowHtml,
+    maxLength,
+    trimWhitespace: true,
+  });
 
   if (required && sanitized.length === 0) {
     throw new ValidationError(`${fieldName} cannot be empty`, fieldName);
@@ -214,24 +224,33 @@ export function validateTaskContent(content: string): string {
 export function validatePriority(priority?: number): void {
   if (priority !== undefined) {
     if (!Number.isInteger(priority) || priority < 1 || priority > 4) {
-      throw new ValidationError("Priority must be an integer between 1 and 4", "priority");
+      throw new ValidationError(
+        "Priority must be an integer between 1 and 4",
+        "priority"
+      );
     }
   }
 }
 
-export function validateDateString(dateString?: string, fieldName = "date"): void {
+export function validateDateString(
+  dateString?: string,
+  fieldName = "date"
+): void {
   if (dateString !== undefined) {
     if (typeof dateString !== "string") {
       throw new ValidationError(`${fieldName} must be a string`, fieldName);
     }
-    
+
     // Basic validation for YYYY-MM-DD format
     if (fieldName === "deadline" && dateString) {
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
       if (!dateRegex.test(dateString)) {
-        throw new ValidationError("Deadline must be in YYYY-MM-DD format", fieldName);
+        throw new ValidationError(
+          "Deadline must be in YYYY-MM-DD format",
+          fieldName
+        );
       }
-      
+
       const date = new Date(dateString);
       if (isNaN(date.getTime())) {
         throw new ValidationError("Invalid date format", fieldName);
@@ -245,21 +264,24 @@ export function validateLabels(labels?: string[]): void {
     if (!Array.isArray(labels)) {
       throw new ValidationError("Labels must be an array", "labels");
     }
-    
+
     for (const label of labels) {
       if (typeof label !== "string") {
         throw new ValidationError("All labels must be strings", "labels");
       }
-      
+
       if (label.trim().length === 0) {
         throw new ValidationError("Labels cannot be empty", "labels");
       }
-      
+
       if (label.length > 100) {
-        throw new ValidationError("Each label must be 100 characters or less", "labels");
+        throw new ValidationError(
+          "Each label must be 100 characters or less",
+          "labels"
+        );
       }
     }
-    
+
     if (labels.length > 10) {
       throw new ValidationError("Maximum 10 labels allowed", "labels");
     }
@@ -271,7 +293,7 @@ export function validateProjectId(projectId?: string): void {
     if (typeof projectId !== "string") {
       throw new ValidationError("Project ID must be a string", "project_id");
     }
-    
+
     if (projectId.trim().length === 0) {
       throw new ValidationError("Project ID cannot be empty", "project_id");
     }
@@ -283,7 +305,7 @@ export function validateSectionId(sectionId?: string): void {
     if (typeof sectionId !== "string") {
       throw new ValidationError("Section ID must be a string", "section_id");
     }
-    
+
     if (sectionId.trim().length === 0) {
       throw new ValidationError("Section ID cannot be empty", "section_id");
     }
@@ -317,12 +339,18 @@ export function validateSectionName(name: string): string {
 export function validateLimit(limit?: number): void {
   if (limit !== undefined) {
     if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
-      throw new ValidationError("Limit must be an integer between 1 and 100", "limit");
+      throw new ValidationError(
+        "Limit must be an integer between 1 and 100",
+        "limit"
+      );
     }
   }
 }
 
-export function validateTaskIdentifier(taskId?: string, taskName?: string): void {
+export function validateTaskIdentifier(
+  taskId?: string,
+  taskName?: string
+): void {
   if (!taskId && !taskName) {
     throw new ValidationError("Either task_id or task_name must be provided");
   }
@@ -341,15 +369,31 @@ export function validateLabelColor(color?: string): void {
     if (typeof color !== "string") {
       throw new ValidationError("Label color must be a string", "color");
     }
-    
+
     // Todoist supports specific color names or hex codes
     const validColors = [
-      "berry_red", "red", "orange", "yellow", "olive_green",
-      "lime_green", "green", "mint_green", "teal", "sky_blue",
-      "light_blue", "blue", "grape", "violet", "lavender",
-      "magenta", "salmon", "charcoal", "grey", "taupe"
+      "berry_red",
+      "red",
+      "orange",
+      "yellow",
+      "olive_green",
+      "lime_green",
+      "green",
+      "mint_green",
+      "teal",
+      "sky_blue",
+      "light_blue",
+      "blue",
+      "grape",
+      "violet",
+      "lavender",
+      "magenta",
+      "salmon",
+      "charcoal",
+      "grey",
+      "taupe",
     ];
-    
+
     if (!validColors.includes(color) && !color.match(/^#[0-9A-Fa-f]{6}$/)) {
       throw new ValidationError(
         "Label color must be a valid Todoist color name or hex code",
@@ -362,7 +406,10 @@ export function validateLabelColor(color?: string): void {
 export function validateLabelOrder(order?: number): void {
   if (order !== undefined) {
     if (!Number.isInteger(order) || order < 0) {
-      throw new ValidationError("Label order must be a non-negative integer", "order");
+      throw new ValidationError(
+        "Label order must be a non-negative integer",
+        "order"
+      );
     }
   }
 }
@@ -374,7 +421,7 @@ export function validateDescription(description?: string): string | undefined {
   if (description === undefined || description === null) {
     return undefined;
   }
-  
+
   return validateAndSanitizeContent(description, "description", {
     maxLength: VALIDATION_LIMITS.DESCRIPTION_MAX,
     allowHtml: false,
@@ -406,42 +453,57 @@ export function validateFileAttachment(attachment: {
   file_type: string;
 } {
   // Validate and sanitize file name
-  const fileName = validateAndSanitizeContent(attachment.file_name, "file_name", {
-    maxLength: 255,
-    allowHtml: false,
-    required: true,
-  });
-  
+  const fileName = validateAndSanitizeContent(
+    attachment.file_name,
+    "file_name",
+    {
+      maxLength: 255,
+      allowHtml: false,
+      required: true,
+    }
+  );
+
   // Validate file URL
   const fileUrl = validateAndSanitizeURL(attachment.file_url, "file_url");
-  
+
   // Validate file type
-  const fileType = validateAndSanitizeContent(attachment.file_type, "file_type", {
-    maxLength: 100,
-    allowHtml: false,
-    required: true,
-  });
-  
+  const fileType = validateAndSanitizeContent(
+    attachment.file_type,
+    "file_type",
+    {
+      maxLength: 100,
+      allowHtml: false,
+      required: true,
+    }
+  );
+
   // Check for allowed file types (security measure)
   const allowedTypes = [
     // Images
-    "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
-    // Documents  
-    "application/pdf", "text/plain", "application/msword",
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml",
+    // Documents
+    "application/pdf",
+    "text/plain",
+    "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-excel", 
+    "application/vnd.ms-excel",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     // Archives
-    "application/zip", "application/x-rar-compressed",
+    "application/zip",
+    "application/x-rar-compressed",
   ];
-  
+
   if (!allowedTypes.includes(fileType.toLowerCase())) {
     throw new ValidationError(
       `File type '${fileType}' is not allowed. Allowed types: ${allowedTypes.join(", ")}`,
       "file_type"
     );
   }
-  
+
   return {
     file_name: fileName,
     file_url: fileUrl,
@@ -462,19 +524,19 @@ export function validateBulkSearchCriteria(criteria: {
   if (criteria.project_id !== undefined) {
     validateProjectId(criteria.project_id);
   }
-  
+
   if (criteria.priority !== undefined) {
     validatePriority(criteria.priority);
   }
-  
+
   if (criteria.due_before !== undefined) {
     validateDateString(criteria.due_before, "due_before");
   }
-  
+
   if (criteria.due_after !== undefined) {
     validateDateString(criteria.due_after, "due_after");
   }
-  
+
   if (criteria.content_contains !== undefined) {
     validateAndSanitizeContent(criteria.content_contains, "content_contains", {
       maxLength: 200,
@@ -495,12 +557,15 @@ export function validateOperationFrequency(
   // In a real implementation, you'd track operations in memory or a cache
   // const now = Date.now();
   // const windowStart = now - 60000; // 1 minute window
-  
+
   // For now, just validate the parameters
   if (!operationKey || typeof operationKey !== "string") {
-    throw new ValidationError("Operation key is required for rate limiting", "operation");
+    throw new ValidationError(
+      "Operation key is required for rate limiting",
+      "operation"
+    );
   }
-  
+
   if (maxOperationsPerMinute < 1 || maxOperationsPerMinute > 1000) {
     throw new ValidationError("Invalid rate limit configuration", "rate_limit");
   }
@@ -512,7 +577,7 @@ export function validateLabelData(data: CreateLabelArgs): CreateLabelArgs {
   const sanitizedName = validateLabelName(data.name);
   validateLabelColor(data.color);
   validateLabelOrder(data.order);
-  
+
   return {
     name: sanitizedName,
     color: data.color,
@@ -523,24 +588,24 @@ export function validateLabelData(data: CreateLabelArgs): CreateLabelArgs {
 
 export function validateLabelUpdate(data: UpdateLabelArgs): UpdateLabelArgs {
   const updates: UpdateLabelArgs = {};
-  
+
   if (data.name !== undefined) {
     updates.name = validateLabelName(data.name);
   }
-  
+
   if (data.color !== undefined) {
     validateLabelColor(data.color);
     updates.color = data.color;
   }
-  
+
   if (data.order !== undefined) {
     validateLabelOrder(data.order);
     updates.order = data.order;
   }
-  
+
   if (data.is_favorite !== undefined) {
     updates.is_favorite = data.is_favorite;
   }
-  
+
   return updates;
 }

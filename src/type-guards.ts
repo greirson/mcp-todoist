@@ -43,21 +43,53 @@ export function isGetTasksArgs(args: unknown): args is GetTasksArgs {
 }
 
 export function isUpdateTaskArgs(args: unknown): args is UpdateTaskArgs {
+  if (typeof args !== "object" || args === null) {
+    return false;
+  }
+
+  const obj = args as Record<string, unknown>;
+
+  // Must have either task_id/taskId or task_name/taskName
+  // Check both snake_case and camelCase since MCP might transform them
+  const hasTaskId =
+    ("task_id" in obj && typeof obj.task_id === "string") ||
+    ("taskId" in obj && typeof obj.taskId === "string");
+  const hasTaskName =
+    ("task_name" in obj && typeof obj.task_name === "string") ||
+    ("taskName" in obj && typeof obj.taskName === "string");
+
+  if (!hasTaskId && !hasTaskName) {
+    return false;
+  }
+
+  // Check optional fields
   return (
-    typeof args === "object" &&
-    args !== null &&
-    "task_name" in args &&
-    typeof (args as { task_name: string }).task_name === "string"
+    (obj.content === undefined || typeof obj.content === "string") &&
+    (obj.description === undefined || typeof obj.description === "string") &&
+    (obj.due_string === undefined || typeof obj.due_string === "string") &&
+    (obj.priority === undefined || typeof obj.priority === "number") &&
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.section_id === undefined || typeof obj.section_id === "string")
   );
 }
 
 export function isTaskNameArgs(args: unknown): args is TaskNameArgs {
-  return (
-    typeof args === "object" &&
-    args !== null &&
-    "task_name" in args &&
-    typeof (args as { task_name: string }).task_name === "string"
-  );
+  if (typeof args !== "object" || args === null) {
+    return false;
+  }
+
+  const obj = args as Record<string, unknown>;
+
+  // Must have either task_id/taskId or task_name/taskName
+  // Check both snake_case and camelCase since MCP might transform them
+  const hasTaskId =
+    ("task_id" in obj && typeof obj.task_id === "string") ||
+    ("taskId" in obj && typeof obj.taskId === "string");
+  const hasTaskName =
+    ("task_name" in obj && typeof obj.task_name === "string") ||
+    ("taskName" in obj && typeof obj.taskName === "string");
+
+  return hasTaskId || hasTaskName;
 }
 
 export function isGetProjectsArgs(
@@ -126,6 +158,29 @@ export function isBulkTaskFilterArgs(
   if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
+
+  // The tool expects parameters at the top level, not in search_criteria
+  // We need to wrap them into search_criteria for the handler
+  if (
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.priority === undefined || typeof obj.priority === "number") &&
+    (obj.due_before === undefined || typeof obj.due_before === "string") &&
+    (obj.due_after === undefined || typeof obj.due_after === "string") &&
+    (obj.content_contains === undefined ||
+      typeof obj.content_contains === "string")
+  ) {
+    // Transform the flat structure to match BulkTaskFilterArgs
+    (args as any).search_criteria = {
+      project_id: obj.project_id,
+      priority: obj.priority,
+      due_before: obj.due_before,
+      due_after: obj.due_after,
+      content_contains: obj.content_contains,
+    };
+    return true;
+  }
+
+  // Also support the old format with search_criteria
   return (
     "search_criteria" in obj &&
     typeof obj.search_criteria === "object" &&
@@ -188,9 +243,7 @@ export function isLabelNameArgs(args: unknown): args is LabelNameArgs {
   );
 }
 
-export function isGetLabelsArgs(
-  args: unknown
-): args is Record<string, never> {
+export function isGetLabelsArgs(args: unknown): args is Record<string, never> {
   return typeof args === "object" && args !== null;
 }
 
@@ -207,8 +260,10 @@ export function isCreateSubtaskArgs(args: unknown): args is CreateSubtaskArgs {
   return (
     "content" in obj &&
     typeof obj.content === "string" &&
-    (obj.parent_task_id === undefined || typeof obj.parent_task_id === "string") &&
-    (obj.parent_task_name === undefined || typeof obj.parent_task_name === "string") &&
+    (obj.parent_task_id === undefined ||
+      typeof obj.parent_task_id === "string") &&
+    (obj.parent_task_name === undefined ||
+      typeof obj.parent_task_name === "string") &&
     (obj.parent_task_id !== undefined || obj.parent_task_name !== undefined)
   );
 }
@@ -223,14 +278,17 @@ export function isBulkCreateSubtasksArgs(
     "subtasks" in obj &&
     Array.isArray(obj.subtasks) &&
     obj.subtasks.length > 0 &&
-    obj.subtasks.every((subtask) => 
-      typeof subtask === "object" &&
-      subtask !== null &&
-      "content" in subtask &&
-      typeof (subtask as { content: string }).content === "string"
+    obj.subtasks.every(
+      (subtask) =>
+        typeof subtask === "object" &&
+        subtask !== null &&
+        "content" in subtask &&
+        typeof (subtask as { content: string }).content === "string"
     ) &&
-    (obj.parent_task_id === undefined || typeof obj.parent_task_id === "string") &&
-    (obj.parent_task_name === undefined || typeof obj.parent_task_name === "string") &&
+    (obj.parent_task_id === undefined ||
+      typeof obj.parent_task_id === "string") &&
+    (obj.parent_task_name === undefined ||
+      typeof obj.parent_task_name === "string") &&
     (obj.parent_task_id !== undefined || obj.parent_task_name !== undefined)
   );
 }
@@ -245,13 +303,17 @@ export function isConvertToSubtaskArgs(
     (obj.task_id === undefined || typeof obj.task_id === "string") &&
     (obj.task_name === undefined || typeof obj.task_name === "string") &&
     (obj.task_id !== undefined || obj.task_name !== undefined) &&
-    (obj.parent_task_id === undefined || typeof obj.parent_task_id === "string") &&
-    (obj.parent_task_name === undefined || typeof obj.parent_task_name === "string") &&
+    (obj.parent_task_id === undefined ||
+      typeof obj.parent_task_id === "string") &&
+    (obj.parent_task_name === undefined ||
+      typeof obj.parent_task_name === "string") &&
     (obj.parent_task_id !== undefined || obj.parent_task_name !== undefined)
   );
 }
 
-export function isPromoteSubtaskArgs(args: unknown): args is PromoteSubtaskArgs {
+export function isPromoteSubtaskArgs(
+  args: unknown
+): args is PromoteSubtaskArgs {
   if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
@@ -274,6 +336,7 @@ export function isGetTaskHierarchyArgs(
     (obj.task_id === undefined || typeof obj.task_id === "string") &&
     (obj.task_name === undefined || typeof obj.task_name === "string") &&
     (obj.task_id !== undefined || obj.task_name !== undefined) &&
-    (obj.include_completed === undefined || typeof obj.include_completed === "boolean")
+    (obj.include_completed === undefined ||
+      typeof obj.include_completed === "boolean")
   );
 }

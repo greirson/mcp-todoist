@@ -2,8 +2,6 @@ import { TodoistApi } from "@doist/todoist-api-typescript";
 import {
   CreateTaskArgs,
   GetTasksArgs,
-  UpdateTaskArgs,
-  TaskNameArgs,
   TodoistTaskData,
   TodoistTask,
   BulkCreateTasksArgs,
@@ -13,6 +11,7 @@ import {
 import { CacheManager } from "../cache.js";
 // Removed unused imports - now using ErrorHandler utility
 import { resolveProjectIdentifier } from "../utils/api-helpers.js";
+import { extractTaskIdentifiers } from "../utils/parameter-transformer.js";
 import {
   validateTaskContent,
   validateDescription,
@@ -29,6 +28,7 @@ import {
   createCacheKey,
   formatTaskForDisplay,
 } from "../utils/api-helpers.js";
+import { toApiPriority, fromApiPriority } from "../utils/priority-mapper.js";
 import { ErrorHandler } from "../utils/error-handling.js";
 
 // Get centralized cache manager and register task cache
@@ -41,49 +41,52 @@ const taskCache = cacheManager.getOrCreateCache<TodoistTask[]>("tasks", 30000, {
 
 // Using shared utilities from api-helpers.ts
 
-// Helper function to find a task by ID or name
+// Helper function to find a task by ID or name (handles both snake_case and camelCase)
 async function findTaskByIdOrName(
   todoistClient: TodoistApi,
-  args: { task_id?: string; task_name?: string }
+  args: any
 ): Promise<TodoistTask> {
-  if (!args.task_id && !args.task_name) {
-    throw new Error("Either task_id or task_name must be provided");
+  // Handle both snake_case and camelCase from MCP framework
+  const { taskId, taskName } = extractTaskIdentifiers(args);
+
+  if (!taskId && !taskName) {
+    throw new Error(
+      "Either task_id/taskId or task_name/taskName must be provided"
+    );
   }
 
   let task: TodoistTask | null = null;
 
   // Try to find by ID first if provided
-  if (args.task_id) {
+  if (taskId) {
     try {
-      const response = await todoistClient.getTask(args.task_id);
+      const response = await todoistClient.getTask(taskId);
       task = response as TodoistTask;
     } catch {
       // If not found by ID, continue to try by name if provided
-      if (!args.task_name) {
-        ErrorHandler.handleTaskNotFound(`ID: ${args.task_id}`);
+      if (!taskName) {
+        ErrorHandler.handleTaskNotFound(`ID: ${taskId}`);
       }
     }
   }
 
   // If not found by ID or ID not provided, try by name
-  if (!task && args.task_name) {
+  if (!task && taskName) {
     const result = await todoistClient.getTasks();
     const tasks = extractArrayFromResponse<TodoistTask>(result);
     const matchingTask = tasks.find((t: TodoistTask) =>
-      t.content.toLowerCase().includes(args.task_name!.toLowerCase())
+      t.content.toLowerCase().includes(taskName.toLowerCase())
     );
 
     if (matchingTask) {
       task = matchingTask;
     } else {
-      ErrorHandler.handleTaskNotFound(args.task_name);
+      ErrorHandler.handleTaskNotFound(taskName);
     }
   }
 
   if (!task) {
-    ErrorHandler.handleTaskNotFound(
-      args.task_id ? `ID: ${args.task_id}` : args.task_name!
-    );
+    ErrorHandler.handleTaskNotFound(taskId ? `ID: ${taskId}` : taskName!);
   }
 
   return task!;
@@ -107,8 +110,12 @@ export async function handleCreateTask(
       content: sanitizedContent,
       description: sanitizedDescription,
       dueString: args.due_string,
-      priority: args.priority,
     };
+
+    const apiPriority = toApiPriority(args.priority);
+    if (apiPriority !== undefined) {
+      taskData.priority = apiPriority;
+    }
 
     if (args.labels && args.labels.length > 0) {
       taskData.labels = args.labels;
@@ -131,10 +138,12 @@ export async function handleCreateTask(
     // Clear cache after creating task
     taskCache.clear();
 
+    const displayPriority = fromApiPriority(task.priority);
+
     return `Task created:\nID: ${task.id}\nTitle: ${task.content}${
       task.description ? `\nDescription: ${task.description}` : ""
     }${task.due ? `\nDue: ${task.due.string}` : ""}${
-      task.priority ? `\nPriority: ${task.priority}` : ""
+      displayPriority ? `\nPriority: ${displayPriority}` : ""
     }${
       task.labels && task.labels.length > 0
         ? `\nLabels: ${task.labels.join(", ")}`
@@ -188,9 +197,10 @@ export async function handleGetTasks(
   }
 
   let filteredTasks = tasks || [];
-  if (args.priority) {
+  const apiPriorityFilter = toApiPriority(args.priority);
+  if (apiPriorityFilter !== undefined) {
     filteredTasks = filteredTasks.filter(
-      (task) => task.priority === args.priority
+      (task) => task.priority === apiPriorityFilter
     );
   }
 
@@ -209,10 +219,13 @@ export async function handleGetTasks(
 
 export async function handleUpdateTask(
   todoistClient: TodoistApi,
-  args: UpdateTaskArgs
+  args: any
 ): Promise<string> {
+  // Handle both snake_case and camelCase
+  const { taskId, taskName } = extractTaskIdentifiers(args);
+
   // Validate that at least one identifier is provided
-  validateTaskIdentifier(args.task_id, args.task_name);
+  validateTaskIdentifier(taskId, taskName);
 
   // Clear cache since we're updating
   taskCache.clear();
@@ -221,16 +234,29 @@ export async function handleUpdateTask(
 
   const updateData: Partial<TodoistTaskData> = {};
   if (args.content) updateData.content = args.content;
-  if (args.description) updateData.description = args.description;
+  if (args.description !== undefined) updateData.description = args.description;
   if (args.due_string) updateData.dueString = args.due_string;
-  if (args.priority) updateData.priority = args.priority;
+  const apiPriorityUpdate = toApiPriority(args.priority);
+  if (apiPriorityUpdate !== undefined) updateData.priority = apiPriorityUpdate;
   if (args.project_id) updateData.projectId = args.project_id;
   if (args.section_id) updateData.sectionId = args.section_id;
+
+  // Workaround: If only project/section is being changed, include current content
+  // to avoid API error
+  if (
+    (args.project_id || args.section_id) &&
+    !args.content &&
+    Object.keys(updateData).length <= 2
+  ) {
+    updateData.content = matchingTask.content;
+  }
 
   const updatedTask = await todoistClient.updateTask(
     matchingTask.id,
     updateData
   );
+
+  const displayUpdatedPriority = fromApiPriority(updatedTask.priority);
 
   return `Task "${matchingTask.content}" updated:\nNew Title: ${
     updatedTask.content
@@ -238,17 +264,20 @@ export async function handleUpdateTask(
     updatedTask.description
       ? `\nNew Description: ${updatedTask.description}`
       : ""
-  }${
-    updatedTask.due ? `\nNew Due Date: ${updatedTask.due.string}` : ""
-  }${updatedTask.priority ? `\nNew Priority: ${updatedTask.priority}` : ""}`;
+  }${updatedTask.due ? `\nNew Due Date: ${updatedTask.due.string}` : ""}${
+    displayUpdatedPriority ? `\nNew Priority: ${displayUpdatedPriority}` : ""
+  }`;
 }
 
 export async function handleDeleteTask(
   todoistClient: TodoistApi,
-  args: TaskNameArgs
+  args: any
 ): Promise<string> {
+  // Handle both snake_case and camelCase
+  const { taskId, taskName } = extractTaskIdentifiers(args);
+
   // Validate that at least one identifier is provided
-  validateTaskIdentifier(args.task_id, args.task_name);
+  validateTaskIdentifier(taskId, taskName);
 
   // Clear cache since we're deleting
   taskCache.clear();
@@ -261,10 +290,13 @@ export async function handleDeleteTask(
 
 export async function handleCompleteTask(
   todoistClient: TodoistApi,
-  args: TaskNameArgs
+  args: any
 ): Promise<string> {
+  // Handle both snake_case and camelCase
+  const { taskId, taskName } = extractTaskIdentifiers(args);
+
   // Validate that at least one identifier is provided
-  validateTaskIdentifier(args.task_id, args.task_name);
+  validateTaskIdentifier(taskId, taskName);
 
   // Clear cache since we're completing
   taskCache.clear();
@@ -276,14 +308,77 @@ export async function handleCompleteTask(
 }
 
 // Helper function to filter tasks based on search criteria
+function startOfDayUtc(dateString: string): Date | null {
+  const [year, month, day] = dateString.split("-").map(Number);
+  if (
+    Number.isNaN(year) ||
+    Number.isNaN(month) ||
+    Number.isNaN(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return null;
+  }
+
+  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+}
+
+function addDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setUTCDate(result.getUTCDate() + days);
+  return result;
+}
+
+function getTaskDueDate(task: TodoistTask): Date | null {
+  const due = task.due;
+  if (!due) return null;
+
+  if (due.datetime) {
+    const datetime = new Date(due.datetime);
+    if (!Number.isNaN(datetime.getTime())) {
+      return datetime;
+    }
+  }
+
+  if (due.date) {
+    const dateOnly = startOfDayUtc(due.date);
+    if (dateOnly) {
+      return dateOnly;
+    }
+  }
+
+  if (due.string) {
+    const parsed = new Date(due.string);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+
+  return null;
+}
+
 function filterTasksByCriteria(
   tasks: TodoistTask[],
   criteria: BulkTaskFilterArgs["search_criteria"]
 ): TodoistTask[] {
+  const dueBeforeThreshold = criteria.due_before
+    ? startOfDayUtc(criteria.due_before)
+    : null;
+  const dueAfterStart = criteria.due_after
+    ? startOfDayUtc(criteria.due_after)
+    : null;
+  const dueAfterThresholdExclusive = dueAfterStart
+    ? addDays(dueAfterStart, 1)
+    : null;
+
   return tasks.filter((task) => {
     if (criteria.project_id && task.projectId !== criteria.project_id)
       return false;
-    if (criteria.priority && task.priority !== criteria.priority) return false;
+    const apiPriorityFilter = toApiPriority(criteria.priority);
+    if (apiPriorityFilter !== undefined && task.priority !== apiPriorityFilter)
+      return false;
     if (
       criteria.content_contains &&
       !task.content
@@ -292,13 +387,12 @@ function filterTasksByCriteria(
     )
       return false;
 
-    if (criteria.due_before || criteria.due_after) {
-      if (!task.due?.string) return false;
+    if (dueBeforeThreshold || dueAfterThresholdExclusive) {
+      const taskDate = getTaskDueDate(task);
+      if (!taskDate) return false;
 
-      const taskDate = new Date(task.due.string);
-      if (criteria.due_before && taskDate >= new Date(criteria.due_before))
-        return false;
-      if (criteria.due_after && taskDate <= new Date(criteria.due_after))
+      if (dueBeforeThreshold && taskDate >= dueBeforeThreshold) return false;
+      if (dueAfterThresholdExclusive && taskDate < dueAfterThresholdExclusive)
         return false;
     }
 
@@ -328,8 +422,12 @@ export async function handleBulkCreateTasks(
           content: taskArgs.content,
           description: taskArgs.description,
           dueString: taskArgs.due_string,
-          priority: taskArgs.priority,
         };
+
+        const apiPriority = toApiPriority(taskArgs.priority);
+        if (apiPriority !== undefined) {
+          taskData.priority = apiPriority;
+        }
 
         if (taskArgs.labels && taskArgs.labels.length > 0) {
           taskData.labels = taskArgs.labels;
@@ -342,9 +440,42 @@ export async function handleBulkCreateTasks(
         const task = await todoistClient.addTask(taskData);
         createdTasks.push(task);
       } catch (error) {
-        errors.push(
-          `Failed to create task "${taskArgs.content}": ${(error as Error).message}`
-        );
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        // Provide more specific error messages based on the error
+        if (
+          errorMessage.includes("400") ||
+          errorMessage.includes("Bad Request")
+        ) {
+          errors.push(
+            `Failed to create task "${taskArgs.content}": Invalid request format. Check that all parameters are correct.`
+          );
+        } else if (
+          errorMessage.includes("401") ||
+          errorMessage.includes("Unauthorized")
+        ) {
+          errors.push(
+            `Failed to create task "${taskArgs.content}": Authentication failed. Check your API token.`
+          );
+        } else if (
+          errorMessage.includes("403") ||
+          errorMessage.includes("Forbidden")
+        ) {
+          errors.push(
+            `Failed to create task "${taskArgs.content}": Access denied. You may not have permission to add tasks to this project.`
+          );
+        } else if (
+          errorMessage.includes("404") ||
+          errorMessage.includes("Not Found")
+        ) {
+          errors.push(
+            `Failed to create task "${taskArgs.content}": Project or section not found. Verify the IDs are correct.`
+          );
+        } else {
+          errors.push(
+            `Failed to create task "${taskArgs.content}": ${errorMessage}`
+          );
+        }
       }
     }
 
@@ -388,7 +519,26 @@ export async function handleBulkUpdateTasks(
     const matchingTasks = filterTasksByCriteria(allTasks, args.search_criteria);
 
     if (matchingTasks.length === 0) {
-      return "No tasks found matching the search criteria.";
+      // Provide more helpful information about why no tasks were found
+      let debugInfo = "No tasks found matching the search criteria.\n";
+      debugInfo += "Search criteria used:\n";
+      if (args.search_criteria.project_id) {
+        debugInfo += `  - Project ID: ${args.search_criteria.project_id}\n`;
+      }
+      if (args.search_criteria.content_contains) {
+        debugInfo += `  - Content contains: "${args.search_criteria.content_contains}"\n`;
+      }
+      if (args.search_criteria.priority) {
+        debugInfo += `  - Priority: ${args.search_criteria.priority}\n`;
+      }
+      if (args.search_criteria.due_before) {
+        debugInfo += `  - Due before: ${args.search_criteria.due_before}\n`;
+      }
+      if (args.search_criteria.due_after) {
+        debugInfo += `  - Due after: ${args.search_criteria.due_after}\n`;
+      }
+      debugInfo += `\nTotal tasks searched: ${allTasks.length}`;
+      return debugInfo;
     }
 
     const updatedTasks: TodoistTask[] = [];
@@ -399,7 +549,8 @@ export async function handleBulkUpdateTasks(
     if (args.updates.description)
       updateData.description = args.updates.description;
     if (args.updates.due_string) updateData.dueString = args.updates.due_string;
-    if (args.updates.priority) updateData.priority = args.updates.priority;
+    const apiPriority = toApiPriority(args.updates.priority);
+    if (apiPriority !== undefined) updateData.priority = apiPriority;
 
     // Resolve project identifier (ID or name) to project ID
     if (args.updates.project_id) {

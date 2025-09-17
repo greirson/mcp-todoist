@@ -145,7 +145,7 @@ Bulk operations provide significant efficiency improvements by allowing multiple
 - **Bulk Create**: Accepts an array of task objects and creates them sequentially, providing detailed feedback on successes and failures
 - **Bulk Update/Delete/Complete**: Uses flexible search criteria to identify target tasks:
   - `project_id`: Filter by specific project
-  - `priority`: Filter by priority level (1-4)
+  - `priority`: Filter by priority level (1 highest, 4 lowest)
   - `due_before`/`due_after`: Filter by due date ranges (YYYY-MM-DD format)
   - `content_contains`: Filter by text within task content
 - **Error Handling**: Each bulk operation reports individual successes and failures for better debugging
