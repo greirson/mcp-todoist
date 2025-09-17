@@ -297,10 +297,71 @@ export async function handleCompleteTask(
 }
 
 // Helper function to filter tasks based on search criteria
+function startOfDayUtc(dateString: string): Date | null {
+  const [year, month, day] = dateString.split("-").map(Number);
+  if (
+    Number.isNaN(year) ||
+    Number.isNaN(month) ||
+    Number.isNaN(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return null;
+  }
+
+  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+}
+
+function addDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setUTCDate(result.getUTCDate() + days);
+  return result;
+}
+
+function getTaskDueDate(task: TodoistTask): Date | null {
+  const due = task.due;
+  if (!due) return null;
+
+  if (due.datetime) {
+    const datetime = new Date(due.datetime);
+    if (!Number.isNaN(datetime.getTime())) {
+      return datetime;
+    }
+  }
+
+  if (due.date) {
+    const dateOnly = startOfDayUtc(due.date);
+    if (dateOnly) {
+      return dateOnly;
+    }
+  }
+
+  if (due.string) {
+    const parsed = new Date(due.string);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+
+  return null;
+}
+
 function filterTasksByCriteria(
   tasks: TodoistTask[],
   criteria: BulkTaskFilterArgs["search_criteria"]
 ): TodoistTask[] {
+  const dueBeforeThreshold = criteria.due_before
+    ? startOfDayUtc(criteria.due_before)
+    : null;
+  const dueAfterStart = criteria.due_after
+    ? startOfDayUtc(criteria.due_after)
+    : null;
+  const dueAfterThresholdExclusive = dueAfterStart
+    ? addDays(dueAfterStart, 1)
+    : null;
+
   return tasks.filter((task) => {
     if (criteria.project_id && task.projectId !== criteria.project_id)
       return false;
@@ -313,13 +374,15 @@ function filterTasksByCriteria(
     )
       return false;
 
-    if (criteria.due_before || criteria.due_after) {
-      if (!task.due?.string) return false;
+    if (dueBeforeThreshold || dueAfterThresholdExclusive) {
+      const taskDate = getTaskDueDate(task);
+      if (!taskDate) return false;
 
-      const taskDate = new Date(task.due.string);
-      if (criteria.due_before && taskDate >= new Date(criteria.due_before))
-        return false;
-      if (criteria.due_after && taskDate <= new Date(criteria.due_after))
+      if (dueBeforeThreshold && taskDate >= dueBeforeThreshold) return false;
+      if (
+        dueAfterThresholdExclusive &&
+        taskDate < dueAfterThresholdExclusive
+      )
         return false;
     }
 
