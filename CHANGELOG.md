@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.5] - 2025-09-17
+
+### Added
+- **Enhanced Task Filtering**: Comprehensive due date filtering capabilities for bulk operations
+  - Added `due_before` and `due_after` parameters to bulk update operations for precise date range filtering
+  - Supports ISO date format (YYYY-MM-DD) filtering with strict date boundary validation
+  - Enhanced `filterTasksByCriteria()` function with robust date parsing and comparison logic
+- **Priority Mapping System**: Intelligent priority conversion between user-facing and API formats
+  - Added `priority-mapper.ts` utility with `toApiPriority()` and `fromApiPriority()` functions
+  - Converts user-friendly priority scale (1 = highest, 4 = lowest) to Todoist API scale (4 = highest, 1 = lowest)
+  - Integrated priority mapping across all task creation, update, and retrieval operations
+  - Ensures consistent priority handling throughout the entire system
+- **Comprehensive Testing Infrastructure**: Extensive test coverage for new filtering and priority features
+  - Added `task-filter.test.ts` with 203+ lines of comprehensive due date filtering tests
+  - Added `priority-mapper.test.ts` with complete priority conversion validation
+  - Added `bulk-e2e.test.ts` end-to-end testing for bulk operations with real API integration
+  - Enhanced Jest configuration for improved test execution and coverage
+
+### Enhanced
+- **Task Handlers**: Updated task creation, update, and bulk operations to use priority mapping
+- **Subtask Handlers**: Integrated priority mapping for consistent subtask priority handling
+- **Tool Definitions**: Updated task and subtask tool descriptions to reflect priority mapping
+- **API Helpers**: Enhanced response formatting to include priority mapping for display
+- **Cache Integration**: Improved cache invalidation and management for filtered operations
+
+### Technical Implementation
+- **Date Filtering**: Robust date boundary checking with `due_before` (strict less-than) and `due_after` (strict greater-than) logic
+- **Priority Consistency**: Automatic bi-directional priority conversion ensuring user-facing and API consistency
+- **Type Safety**: Enhanced TypeScript interfaces for new filtering parameters and priority handling
+- **Test Coverage**: Added 25+ new tests covering edge cases, boundary conditions, and error scenarios
+- **Performance**: Optimized filtering operations with improved date parsing and validation
+
+### Fixed
+- **Priority Display**: Tasks now consistently show priorities on user-friendly scale (1-4) regardless of API source
+- **Date Range Filtering**: Bulk operations now properly handle inclusive/exclusive date boundaries
+- **Type Validation**: Enhanced input validation for date formats and priority ranges
+
 ## [0.8.4] - 2025-08-14
 
 ### Fixed
