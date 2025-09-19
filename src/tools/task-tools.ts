@@ -83,6 +83,16 @@ export const GET_TASKS_TOOL: Tool = {
         description: "Maximum number of tasks to return (optional)",
         minimum: 1,
       },
+      due_before: {
+        type: "string",
+        description:
+          "Return only tasks due strictly before this date (YYYY-MM-DD, optional)",
+      },
+      due_after: {
+        type: "string",
+        description:
+          "Return only tasks due strictly after this date (YYYY-MM-DD, optional)",
+      },
       filter: {
         type: "string",
         description:
