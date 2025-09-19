@@ -290,6 +290,7 @@ export async function handleUpdateTask(
 
   // Validate that at least one identifier is provided
   validateTaskIdentifier(taskId, taskName);
+  validateLabels(args.labels);
 
   // Clear cache since we're updating
   taskCache.clear();
@@ -307,6 +308,10 @@ export async function handleUpdateTask(
   if (args.due_string) updateData.dueString = args.due_string;
   const apiPriorityUpdate = toApiPriority(args.priority);
   if (apiPriorityUpdate !== undefined) updateData.priority = apiPriorityUpdate;
+  const labelsProvided = Object.prototype.hasOwnProperty.call(args, "labels");
+  if (labelsProvided) {
+    updateData.labels = Array.isArray(args.labels) ? args.labels : [];
+  }
 
   let latestTask = matchingTask;
 
@@ -342,13 +347,21 @@ export async function handleUpdateTask(
     ? `\nNew Section ID: ${latestTask.sectionId ?? "None"}`
     : "";
 
+  const labelsLine = labelsProvided
+    ? `\nNew Labels: ${
+        latestTask.labels && latestTask.labels.length > 0
+          ? latestTask.labels.join(", ")
+          : "None"
+      }`
+    : "";
+
   return `Task "${matchingTask.content}" updated:\nNew Title: ${
     latestTask.content
   }${
     latestTask.description ? `\nNew Description: ${latestTask.description}` : ""
   }${updatedDueDetails ? `\nNew Due Date: ${updatedDueDetails}` : ""}${
     displayUpdatedPriority ? `\nNew Priority: ${displayUpdatedPriority}` : ""
-  }${projectLine}${sectionLine}`;
+  }${projectLine}${sectionLine}${labelsLine}`;
 }
 
 export async function handleDeleteTask(
@@ -573,6 +586,8 @@ export async function handleBulkUpdateTasks(
     const updatedTasks: TodoistTask[] = [];
     const errors: string[] = [];
 
+    validateLabels(args.updates.labels);
+
     const updateData: Partial<TodoistTaskData> = {};
     if (args.updates.content) updateData.content = args.updates.content;
     if (args.updates.description)
@@ -580,6 +595,15 @@ export async function handleBulkUpdateTasks(
     if (args.updates.due_string) updateData.dueString = args.updates.due_string;
     const apiPriority = toApiPriority(args.updates.priority);
     if (apiPriority !== undefined) updateData.priority = apiPriority;
+    const bulkLabelsProvided = Object.prototype.hasOwnProperty.call(
+      args.updates,
+      "labels"
+    );
+    if (bulkLabelsProvided) {
+      updateData.labels = Array.isArray(args.updates.labels)
+        ? args.updates.labels
+        : [];
+    }
 
     let moveProjectId: string | undefined;
     if (args.updates.project_id) {

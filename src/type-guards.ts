@@ -73,7 +73,10 @@ export function isUpdateTaskArgs(args: unknown): args is UpdateTaskArgs {
     (obj.due_string === undefined || typeof obj.due_string === "string") &&
     (obj.priority === undefined || typeof obj.priority === "number") &&
     (obj.project_id === undefined || typeof obj.project_id === "string") &&
-    (obj.section_id === undefined || typeof obj.section_id === "string")
+    (obj.section_id === undefined || typeof obj.section_id === "string") &&
+    (obj.labels === undefined ||
+      (Array.isArray(obj.labels) &&
+        obj.labels.every((label) => typeof label === "string")))
   );
 }
 

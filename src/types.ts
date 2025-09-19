@@ -31,6 +31,7 @@ export interface UpdateTaskArgs {
   priority?: number;
   project_id?: string;
   section_id?: string;
+  labels?: string[];
 }
 
 export interface TaskNameArgs {
@@ -132,6 +133,7 @@ export interface BulkUpdateTasksArgs {
     priority?: number;
     project_id?: string;
     section_id?: string;
+    labels?: string[];
   };
 }
 
