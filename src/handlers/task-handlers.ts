@@ -296,42 +296,59 @@ export async function handleUpdateTask(
 
   const matchingTask = await findTaskByIdOrName(todoistClient, args);
 
+  const requestedProjectId =
+    typeof args.project_id === "string" ? args.project_id : undefined;
+  const requestedSectionId =
+    typeof args.section_id === "string" ? args.section_id : undefined;
+
   const updateData: Partial<TodoistTaskData> = {};
   if (args.content) updateData.content = args.content;
   if (args.description !== undefined) updateData.description = args.description;
   if (args.due_string) updateData.dueString = args.due_string;
   const apiPriorityUpdate = toApiPriority(args.priority);
   if (apiPriorityUpdate !== undefined) updateData.priority = apiPriorityUpdate;
-  if (args.project_id) updateData.projectId = args.project_id;
-  if (args.section_id) updateData.sectionId = args.section_id;
 
-  // Workaround: If only project/section is being changed, include current content
-  // to avoid API error
-  if (
-    (args.project_id || args.section_id) &&
-    !args.content &&
-    Object.keys(updateData).length <= 2
-  ) {
-    updateData.content = matchingTask.content;
+  let latestTask = matchingTask;
+
+  if (Object.keys(updateData).length > 0) {
+    latestTask = await todoistClient.updateTask(matchingTask.id, updateData);
   }
 
-  const updatedTask = await todoistClient.updateTask(
-    matchingTask.id,
-    updateData
-  );
+  if (requestedProjectId && requestedProjectId !== latestTask.projectId) {
+    const movedTasks = await todoistClient.moveTasks([matchingTask.id], {
+      projectId: requestedProjectId,
+    });
+    if (movedTasks.length > 0) {
+      latestTask = movedTasks[0];
+    }
+  }
 
-  const displayUpdatedPriority = fromApiPriority(updatedTask.priority);
-  const updatedDueDetails = formatDueDetails(updatedTask.due);
+  if (requestedSectionId && requestedSectionId !== latestTask.sectionId) {
+    const movedTasks = await todoistClient.moveTasks([matchingTask.id], {
+      sectionId: requestedSectionId,
+    });
+    if (movedTasks.length > 0) {
+      latestTask = movedTasks[0];
+    }
+  }
+
+  const displayUpdatedPriority = fromApiPriority(latestTask.priority);
+  const updatedDueDetails = formatDueDetails(latestTask.due);
+  const projectLine =
+    requestedProjectId && latestTask.projectId
+      ? `\nNew Project ID: ${latestTask.projectId}`
+      : "";
+  const sectionLine = requestedSectionId
+    ? `\nNew Section ID: ${latestTask.sectionId ?? "None"}`
+    : "";
 
   return `Task "${matchingTask.content}" updated:\nNew Title: ${
-    updatedTask.content
+    latestTask.content
   }${
-    updatedTask.description
-      ? `\nNew Description: ${updatedTask.description}`
-      : ""
+    latestTask.description ? `\nNew Description: ${latestTask.description}` : ""
   }${updatedDueDetails ? `\nNew Due Date: ${updatedDueDetails}` : ""}${
     displayUpdatedPriority ? `\nNew Priority: ${displayUpdatedPriority}` : ""
-  }`;
+  }${projectLine}${sectionLine}`;
 }
 
 export async function handleDeleteTask(
@@ -564,10 +581,10 @@ export async function handleBulkUpdateTasks(
     const apiPriority = toApiPriority(args.updates.priority);
     if (apiPriority !== undefined) updateData.priority = apiPriority;
 
-    // Resolve project identifier (ID or name) to project ID
+    let moveProjectId: string | undefined;
     if (args.updates.project_id) {
       try {
-        updateData.projectId = await resolveProjectIdentifier(
+        moveProjectId = await resolveProjectIdentifier(
           todoistClient,
           args.updates.project_id
         );
@@ -576,12 +593,37 @@ export async function handleBulkUpdateTasks(
       }
     }
 
-    if (args.updates.section_id) updateData.sectionId = args.updates.section_id;
+    const moveSectionId = args.updates.section_id;
+
+    const hasUpdateFields = Object.keys(updateData).length > 0;
 
     for (const task of matchingTasks) {
       try {
-        const updatedTask = await todoistClient.updateTask(task.id, updateData);
-        updatedTasks.push(updatedTask);
+        let latestTask = task;
+
+        if (hasUpdateFields) {
+          latestTask = await todoistClient.updateTask(task.id, updateData);
+        }
+
+        if (moveProjectId && moveProjectId !== latestTask.projectId) {
+          const movedTasks = await todoistClient.moveTasks([task.id], {
+            projectId: moveProjectId,
+          });
+          if (movedTasks.length > 0) {
+            latestTask = movedTasks[0];
+          }
+        }
+
+        if (moveSectionId && moveSectionId !== latestTask.sectionId) {
+          const movedTasks = await todoistClient.moveTasks([task.id], {
+            sectionId: moveSectionId,
+          });
+          if (movedTasks.length > 0) {
+            latestTask = movedTasks[0];
+          }
+        }
+
+        updatedTasks.push(latestTask);
       } catch (error) {
         errors.push(
           `Failed to update task "${task.content}": ${(error as Error).message}`

@@ -10,6 +10,7 @@ const createMockTodoistClient = (
 ): {
   mockClient: TodoistApi;
   updateTask: jest.MockedFunction<any>;
+  moveTasks: jest.MockedFunction<any>;
 } => {
   const getTasks = jest.fn(async (): Promise<TodoistTask[]> => tasks);
   const updateTask = jest.fn(
@@ -38,13 +39,34 @@ const createMockTodoistClient = (
     }
   ) as jest.MockedFunction<any>;
 
+  const moveTasks = jest.fn(
+    async (
+      ids: string[],
+      args: { projectId?: string; sectionId?: string }
+    ): Promise<TodoistTask[]> => {
+      return ids.map((taskId) => {
+        const original = tasks.find((task) => task.id === taskId);
+        if (!original) {
+          throw new Error(`Task ${taskId} not found`);
+        }
+
+        return {
+          ...original,
+          projectId: args.projectId ?? original.projectId,
+          sectionId: args.sectionId ?? original.sectionId ?? null,
+        } satisfies TodoistTask;
+      });
+    }
+  ) as jest.MockedFunction<any>;
+
   const mockClient = {
     getTasks,
     updateTask,
+    moveTasks,
     getProjects: jest.fn(async (): Promise<unknown[]> => []),
   } as unknown as TodoistApi;
 
-  return { mockClient, updateTask };
+  return { mockClient, updateTask, moveTasks };
 };
 
 describe("filterTasksByCriteria", () => {
