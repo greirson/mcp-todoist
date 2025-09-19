@@ -212,4 +212,71 @@ describe("filterTasksByCriteria", () => {
     );
     expect(updatedTaskIds).toEqual(["inside-window"]);
   });
+
+  test("respects task timezones when filtering by due date", async () => {
+    const tasks: TodoistTask[] = [
+      {
+        id: "nyc",
+        content: "New York",
+        due: {
+          date: "2025-09-18",
+          string: "Sep 18",
+          timezone: "America/New_York",
+        },
+        priority: 1,
+      },
+      {
+        id: "tokyo",
+        content: "Tokyo",
+        due: {
+          date: "2025-09-18",
+          string: "Sep 18",
+          timezone: "Asia/Tokyo",
+        },
+        priority: 1,
+      },
+      {
+        id: "future",
+        content: "Future",
+        due: {
+          date: "2025-09-19",
+          string: "Sep 19",
+          timezone: "America/New_York",
+        },
+        priority: 1,
+      },
+    ];
+
+    let clientSetup = createMockTodoistClient(tasks);
+
+    await handleBulkUpdateTasks(clientSetup.mockClient, {
+      search_criteria: {
+        due_before: "2025-09-19",
+      },
+      updates: {
+        priority: 2,
+      },
+    });
+
+    const firstCallIds = clientSetup.updateTask.mock.calls.map(
+      ([taskId]: [string, MockUpdateInput]) => taskId
+    );
+    expect(firstCallIds).toEqual(["nyc", "tokyo"]);
+
+    clientSetup = createMockTodoistClient(tasks);
+
+    await handleBulkUpdateTasks(clientSetup.mockClient, {
+      search_criteria: {
+        due_after: "2025-09-18",
+      },
+      updates: {
+        priority: 3,
+      },
+    });
+
+    const secondCallIds = clientSetup.updateTask.mock.calls.map(
+      ([taskId]: [string, MockUpdateInput]) => taskId
+    );
+    expect(secondCallIds).toEqual(["future"]);
+  });
 });

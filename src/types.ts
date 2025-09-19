@@ -14,8 +14,12 @@ export interface GetTasksArgs {
   task_id?: string;
   project_id?: string;
   filter?: string;
+  label_id?: string;
   priority?: number;
   limit?: number;
+  due_before?: string;
+  due_after?: string;
+  lang?: string;
 }
 
 export interface UpdateTaskArgs {
