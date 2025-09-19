@@ -1,6 +1,6 @@
 {
   "name": "@greirson/mcp-todoist",
-  "version": "0.8.3",
+  "version": "0.8.5",
   "description": "MCP server for Todoist API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -43,8 +43,8 @@
   },
   "homepage": "https://github.com/greirson/mcp-todoist#readme",
   "dependencies": {
-    "@doist/todoist-api-typescript": "^4.0.4",
-    "@modelcontextprotocol/sdk": "1.12.1"
+    "@modelcontextprotocol/sdk": "1.17.1",
+    "@doist/todoist-api-typescript": "^5.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",

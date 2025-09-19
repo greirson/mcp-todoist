@@ -14,8 +14,12 @@ export interface GetTasksArgs {
   task_id?: string;
   project_id?: string;
   filter?: string;
+  label_id?: string;
   priority?: number;
   limit?: number;
+  due_before?: string;
+  due_after?: string;
+  lang?: string;
 }
 
 export interface UpdateTaskArgs {
@@ -27,6 +31,7 @@ export interface UpdateTaskArgs {
   priority?: number;
   project_id?: string;
   section_id?: string;
+  labels?: string[];
 }
 
 export interface TaskNameArgs {
@@ -72,11 +77,20 @@ export interface TodoistSectionData {
 }
 
 // API response interfaces for backward compatibility
+export interface TodoistTaskDueData {
+  string: string;
+  date?: string | null;
+  datetime?: string | null;
+  timezone?: string | null;
+  lang?: string | null;
+  isRecurring?: boolean;
+}
+
 export interface TodoistTask {
   id: string;
   content: string;
   description?: string;
-  due?: { string: string } | null;
+  due?: TodoistTaskDueData | null;
   deadline?: { date: string } | null;
   priority?: number;
   labels?: string[];
@@ -119,6 +133,7 @@ export interface BulkUpdateTasksArgs {
     priority?: number;
     project_id?: string;
     section_id?: string;
+    labels?: string[];
   };
 }
 
@@ -228,9 +243,15 @@ export interface TodoistAPIResponse<T> {
  * Specific API response types for each entity
  */
 export type TasksResponse = TodoistTask[] | TodoistAPIResponse<TodoistTask>;
-export type ProjectsResponse = TodoistProject[] | TodoistAPIResponse<TodoistProject>;
-export type SectionsResponse = TodoistSection[] | TodoistAPIResponse<TodoistSection>;
-export type CommentsResponse = TodoistComment[] | TodoistAPIResponse<TodoistComment>;
+export type ProjectsResponse =
+  | TodoistProject[]
+  | TodoistAPIResponse<TodoistProject>;
+export type SectionsResponse =
+  | TodoistSection[]
+  | TodoistAPIResponse<TodoistSection>;
+export type CommentsResponse =
+  | TodoistComment[]
+  | TodoistAPIResponse<TodoistComment>;
 export type LabelsResponse = TodoistLabel[] | TodoistAPIResponse<TodoistLabel>;
 
 /**
