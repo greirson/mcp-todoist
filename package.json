@@ -9,7 +9,8 @@
     "mcp-todoist": "dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "smithery.yaml"
   ],
   "scripts": {
     "build": "tsc && shx chmod +x dist/*.js",
