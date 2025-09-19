@@ -4,6 +4,9 @@ import { handleGetTasks } from "../handlers/task-handlers";
 import { CacheManager } from "../cache.js";
 import type { TodoistTask } from "../types.js";
 
+type ApiTasksResponse = Awaited<ReturnType<TodoistApi["getTasks"]>>;
+type ApiFilterResponse = Awaited<ReturnType<TodoistApi["getTasksByFilter"]>>;
+
 describe("handleGetTasks", () => {
   beforeEach(() => {
     const cache = CacheManager.getInstance().getCache<TodoistTask[]>("tasks");
@@ -24,8 +27,12 @@ describe("handleGetTasks", () => {
       },
     ];
 
-    const getTasksByFilter = jest.fn(async () => ({ results: tasks }));
-    const getTasks = jest.fn();
+    const getTasksByFilter = jest
+      .fn<TodoistApi["getTasksByFilter"]>()
+      .mockResolvedValue({ results: tasks } as unknown as ApiFilterResponse);
+    const getTasks = jest
+      .fn<TodoistApi["getTasks"]>()
+      .mockResolvedValue([] as unknown as ApiTasksResponse);
 
     const client = {
       getTasksByFilter,
@@ -84,7 +91,9 @@ describe("handleGetTasks", () => {
       },
     ];
 
-    const getTasks = jest.fn(async () => tasks);
+    const getTasks = jest
+      .fn<TodoistApi["getTasks"]>()
+      .mockResolvedValue(tasks as unknown as ApiTasksResponse);
 
     const client = {
       getTasks,
@@ -138,7 +147,9 @@ describe("handleGetTasks", () => {
       },
     ];
 
-    const getTasks = jest.fn(async () => tasks);
+    const getTasks = jest
+      .fn<TodoistApi["getTasks"]>()
+      .mockResolvedValue(tasks as unknown as ApiTasksResponse);
 
     const client = {
       getTasks,
