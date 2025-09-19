@@ -37,8 +37,12 @@ export function isGetTasksArgs(args: unknown): args is GetTasksArgs {
   return (
     (obj.project_id === undefined || typeof obj.project_id === "string") &&
     (obj.filter === undefined || typeof obj.filter === "string") &&
+    (obj.label_id === undefined || typeof obj.label_id === "string") &&
     (obj.priority === undefined || typeof obj.priority === "number") &&
-    (obj.limit === undefined || typeof obj.limit === "number")
+    (obj.limit === undefined || typeof obj.limit === "number") &&
+    (obj.due_before === undefined || typeof obj.due_before === "string") &&
+    (obj.due_after === undefined || typeof obj.due_after === "string") &&
+    (obj.lang === undefined || typeof obj.lang === "string")
   );
 }
 
@@ -69,7 +73,10 @@ export function isUpdateTaskArgs(args: unknown): args is UpdateTaskArgs {
     (obj.due_string === undefined || typeof obj.due_string === "string") &&
     (obj.priority === undefined || typeof obj.priority === "number") &&
     (obj.project_id === undefined || typeof obj.project_id === "string") &&
-    (obj.section_id === undefined || typeof obj.section_id === "string")
+    (obj.section_id === undefined || typeof obj.section_id === "string") &&
+    (obj.labels === undefined ||
+      (Array.isArray(obj.labels) &&
+        obj.labels.every((label) => typeof label === "string")))
   );
 }
 

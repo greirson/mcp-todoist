@@ -10,6 +10,7 @@ const createMockTodoistClient = (
 ): {
   mockClient: TodoistApi;
   updateTask: jest.MockedFunction<any>;
+  moveTasks: jest.MockedFunction<any>;
 } => {
   const getTasks = jest.fn(async (): Promise<TodoistTask[]> => tasks);
   const updateTask = jest.fn(
@@ -38,13 +39,34 @@ const createMockTodoistClient = (
     }
   ) as jest.MockedFunction<any>;
 
+  const moveTasks = jest.fn(
+    async (
+      ids: string[],
+      args: { projectId?: string; sectionId?: string }
+    ): Promise<TodoistTask[]> => {
+      return ids.map((taskId) => {
+        const original = tasks.find((task) => task.id === taskId);
+        if (!original) {
+          throw new Error(`Task ${taskId} not found`);
+        }
+
+        return {
+          ...original,
+          projectId: args.projectId ?? original.projectId,
+          sectionId: args.sectionId ?? original.sectionId ?? null,
+        } satisfies TodoistTask;
+      });
+    }
+  ) as jest.MockedFunction<any>;
+
   const mockClient = {
     getTasks,
     updateTask,
+    moveTasks,
     getProjects: jest.fn(async (): Promise<unknown[]> => []),
   } as unknown as TodoistApi;
 
-  return { mockClient, updateTask };
+  return { mockClient, updateTask, moveTasks };
 };
 
 describe("filterTasksByCriteria", () => {
@@ -211,5 +233,72 @@ describe("filterTasksByCriteria", () => {
       ([taskId]: [string, MockUpdateInput]) => taskId
     );
     expect(updatedTaskIds).toEqual(["inside-window"]);
+  });
+
+  test("respects task timezones when filtering by due date", async () => {
+    const tasks: TodoistTask[] = [
+      {
+        id: "nyc",
+        content: "New York",
+        due: {
+          date: "2025-09-18",
+          string: "Sep 18",
+          timezone: "America/New_York",
+        },
+        priority: 1,
+      },
+      {
+        id: "tokyo",
+        content: "Tokyo",
+        due: {
+          date: "2025-09-18",
+          string: "Sep 18",
+          timezone: "Asia/Tokyo",
+        },
+        priority: 1,
+      },
+      {
+        id: "future",
+        content: "Future",
+        due: {
+          date: "2025-09-19",
+          string: "Sep 19",
+          timezone: "America/New_York",
+        },
+        priority: 1,
+      },
+    ];
+
+    let clientSetup = createMockTodoistClient(tasks);
+
+    await handleBulkUpdateTasks(clientSetup.mockClient, {
+      search_criteria: {
+        due_before: "2025-09-19",
+      },
+      updates: {
+        priority: 2,
+      },
+    });
+
+    const firstCallIds = clientSetup.updateTask.mock.calls.map(
+      ([taskId]: [string, MockUpdateInput]) => taskId
+    );
+    expect(firstCallIds).toEqual(["nyc", "tokyo"]);
+
+    clientSetup = createMockTodoistClient(tasks);
+
+    await handleBulkUpdateTasks(clientSetup.mockClient, {
+      search_criteria: {
+        due_after: "2025-09-18",
+      },
+      updates: {
+        priority: 3,
+      },
+    });
+
+    const secondCallIds = clientSetup.updateTask.mock.calls.map(
+      ([taskId]: [string, MockUpdateInput]) => taskId
+    );
+    expect(secondCallIds).toEqual(["future"]);
   });
 });

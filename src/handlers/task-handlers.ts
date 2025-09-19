@@ -10,7 +10,6 @@ import {
 } from "../types.js";
 import { CacheManager } from "../cache.js";
 // Removed unused imports - now using ErrorHandler utility
-import { resolveProjectIdentifier } from "../utils/api-helpers.js";
 import { extractTaskIdentifiers } from "../utils/parameter-transformer.js";
 import {
   validateTaskContent,
@@ -22,12 +21,15 @@ import {
   validateSectionId,
   validateLimit,
   validateTaskIdentifier,
+  validateBulkSearchCriteria,
 } from "../validation.js";
 import {
+  resolveProjectIdentifier,
   extractArrayFromResponse,
   createCacheKey,
   formatTaskForDisplay,
 } from "../utils/api-helpers.js";
+import { formatDueDetails, getDueDateOnly } from "../utils/datetime-utils.js";
 import { toApiPriority, fromApiPriority } from "../utils/priority-mapper.js";
 import { ErrorHandler } from "../utils/error-handling.js";
 
@@ -139,10 +141,11 @@ export async function handleCreateTask(
     taskCache.clear();
 
     const displayPriority = fromApiPriority(task.priority);
+    const dueDetails = formatDueDetails(task.due);
 
     return `Task created:\nID: ${task.id}\nTitle: ${task.content}${
       task.description ? `\nDescription: ${task.description}` : ""
-    }${task.due ? `\nDue: ${task.due.string}` : ""}${
+    }${dueDetails ? `\nDue: ${dueDetails}` : ""}${
       displayPriority ? `\nPriority: ${displayPriority}` : ""
     }${
       task.labels && task.labels.length > 0
@@ -162,6 +165,12 @@ export async function handleGetTasks(
   validatePriority(args.priority);
   validateProjectId(args.project_id);
   validateLimit(args.limit);
+  if (args.due_before) {
+    validateDateString(args.due_before, "due_before");
+  }
+  if (args.due_after) {
+    validateDateString(args.due_after, "due_after");
+  }
 
   // If task_id is provided, fetch specific task
   if (args.task_id) {
@@ -173,35 +182,90 @@ export async function handleGetTasks(
     }
   }
 
-  const apiParams: Record<string, string | undefined> = {};
-  if (args.project_id) {
-    apiParams.projectId = args.project_id;
-  }
-  if (args.filter) {
-    apiParams.filter = args.filter;
-  }
+  const filterString = args.filter?.trim();
+  const language = args.lang?.trim();
+  const dueBefore = args.due_before?.trim();
+  const dueAfter = args.due_after?.trim();
 
-  // Create cache key based on parameters
-  const cacheKey = createCacheKey("tasks", apiParams);
-  let tasks = taskCache.get(cacheKey);
+  let tasks: TodoistTask[] | null = null;
 
-  if (!tasks) {
-    const result = await todoistClient.getTasks(
-      Object.keys(apiParams).length > 0
-        ? (apiParams as Parameters<typeof todoistClient.getTasks>[0])
-        : undefined
-    );
-    // Handle both array response and object response formats
-    tasks = extractArrayFromResponse<TodoistTask>(result);
-    taskCache.set(cacheKey, tasks);
+  if (filterString) {
+    const filterCacheKey = createCacheKey("tasks_filter", {
+      filter: filterString,
+      lang: language,
+      limit: args.limit,
+    });
+    tasks = taskCache.get(filterCacheKey);
+
+    if (!tasks) {
+      const result = await todoistClient.getTasksByFilter({
+        query: filterString,
+        lang: language,
+        limit: args.limit,
+      });
+      tasks = extractArrayFromResponse<TodoistTask>(result);
+      taskCache.set(filterCacheKey, tasks);
+    }
+  } else {
+    const apiParams: Record<string, string | number | undefined> = {};
+    if (args.project_id) {
+      apiParams.projectId = args.project_id;
+    }
+    if (args.label_id) {
+      apiParams.label = args.label_id;
+    }
+    if (args.limit && args.limit > 0) {
+      apiParams.limit = args.limit;
+    }
+
+    const cacheKey = createCacheKey("tasks", apiParams);
+    tasks = taskCache.get(cacheKey);
+
+    if (!tasks) {
+      const result = await todoistClient.getTasks(
+        Object.keys(apiParams).length > 0
+          ? (apiParams as Parameters<typeof todoistClient.getTasks>[0])
+          : undefined
+      );
+      // Handle both array response and object response formats
+      tasks = extractArrayFromResponse<TodoistTask>(result);
+      taskCache.set(cacheKey, tasks);
+    }
   }
 
   let filteredTasks = tasks || [];
+
+  if (args.project_id) {
+    filteredTasks = filteredTasks.filter(
+      (task) => task.projectId === args.project_id
+    );
+  }
+
+  if (args.label_id) {
+    filteredTasks = filteredTasks.filter((task) =>
+      Array.isArray(task.labels) ? task.labels.includes(args.label_id!) : false
+    );
+  }
+
   const apiPriorityFilter = toApiPriority(args.priority);
   if (apiPriorityFilter !== undefined) {
     filteredTasks = filteredTasks.filter(
       (task) => task.priority === apiPriorityFilter
     );
+  }
+
+  if (dueBefore || dueAfter) {
+    filteredTasks = filteredTasks.filter((task) => {
+      const dueDate = getDueDateOnly(task.due);
+      if (!dueDate) {
+        return false;
+      }
+
+      const isBeforeThreshold = !dueBefore || dueDate < dueBefore;
+      const isAfterThreshold = !dueAfter || dueDate > dueAfter;
+
+      return isBeforeThreshold && isAfterThreshold;
+    });
   }
 
   if (args.limit && args.limit > 0) {
@@ -226,11 +290,17 @@ export async function handleUpdateTask(
 
   // Validate that at least one identifier is provided
   validateTaskIdentifier(taskId, taskName);
+  validateLabels(args.labels);
 
   // Clear cache since we're updating
   taskCache.clear();
 
   const matchingTask = await findTaskByIdOrName(todoistClient, args);
+
+  const requestedProjectId =
+    typeof args.project_id === "string" ? args.project_id : undefined;
+  const requestedSectionId =
+    typeof args.section_id === "string" ? args.section_id : undefined;
 
   const updateData: Partial<TodoistTaskData> = {};
   if (args.content) updateData.content = args.content;
@@ -238,35 +308,60 @@ export async function handleUpdateTask(
   if (args.due_string) updateData.dueString = args.due_string;
   const apiPriorityUpdate = toApiPriority(args.priority);
   if (apiPriorityUpdate !== undefined) updateData.priority = apiPriorityUpdate;
-  if (args.project_id) updateData.projectId = args.project_id;
-  if (args.section_id) updateData.sectionId = args.section_id;
-
-  // Workaround: If only project/section is being changed, include current content
-  // to avoid API error
-  if (
-    (args.project_id || args.section_id) &&
-    !args.content &&
-    Object.keys(updateData).length <= 2
-  ) {
-    updateData.content = matchingTask.content;
+  const labelsProvided = Object.prototype.hasOwnProperty.call(args, "labels");
+  if (labelsProvided) {
+    updateData.labels = Array.isArray(args.labels) ? args.labels : [];
   }
 
-  const updatedTask = await todoistClient.updateTask(
-    matchingTask.id,
-    updateData
-  );
+  let latestTask = matchingTask;
 
-  const displayUpdatedPriority = fromApiPriority(updatedTask.priority);
+  if (Object.keys(updateData).length > 0) {
+    latestTask = await todoistClient.updateTask(matchingTask.id, updateData);
+  }
+
+  if (requestedProjectId && requestedProjectId !== latestTask.projectId) {
+    const movedTasks = await todoistClient.moveTasks([matchingTask.id], {
+      projectId: requestedProjectId,
+    });
+    if (movedTasks.length > 0) {
+      latestTask = movedTasks[0];
+    }
+  }
+
+  if (requestedSectionId && requestedSectionId !== latestTask.sectionId) {
+    const movedTasks = await todoistClient.moveTasks([matchingTask.id], {
+      sectionId: requestedSectionId,
+    });
+    if (movedTasks.length > 0) {
+      latestTask = movedTasks[0];
+    }
+  }
+
+  const displayUpdatedPriority = fromApiPriority(latestTask.priority);
+  const updatedDueDetails = formatDueDetails(latestTask.due);
+  const projectLine =
+    requestedProjectId && latestTask.projectId
+      ? `\nNew Project ID: ${latestTask.projectId}`
+      : "";
+  const sectionLine = requestedSectionId
+    ? `\nNew Section ID: ${latestTask.sectionId ?? "None"}`
+    : "";
+
+  const labelsLine = labelsProvided
+    ? `\nNew Labels: ${
+        latestTask.labels && latestTask.labels.length > 0
+          ? latestTask.labels.join(", ")
+          : "None"
+      }`
+    : "";
 
   return `Task "${matchingTask.content}" updated:\nNew Title: ${
-    updatedTask.content
+    latestTask.content
   }${
-    updatedTask.description
-      ? `\nNew Description: ${updatedTask.description}`
-      : ""
-  }${updatedTask.due ? `\nNew Due Date: ${updatedTask.due.string}` : ""}${
+    latestTask.description ? `\nNew Description: ${latestTask.description}` : ""
+  }${updatedDueDetails ? `\nNew Due Date: ${updatedDueDetails}` : ""}${
     displayUpdatedPriority ? `\nNew Priority: ${displayUpdatedPriority}` : ""
-  }`;
+  }${projectLine}${sectionLine}${labelsLine}`;
 }
 
 export async function handleDeleteTask(
@@ -307,72 +402,10 @@ export async function handleCompleteTask(
   return `Successfully completed task: "${matchingTask.content}"`;
 }
 
-// Helper function to filter tasks based on search criteria
-function startOfDayUtc(dateString: string): Date | null {
-  const [year, month, day] = dateString.split("-").map(Number);
-  if (
-    Number.isNaN(year) ||
-    Number.isNaN(month) ||
-    Number.isNaN(day) ||
-    month < 1 ||
-    month > 12 ||
-    day < 1 ||
-    day > 31
-  ) {
-    return null;
-  }
-
-  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
-}
-
-function addDays(date: Date, days: number): Date {
-  const result = new Date(date);
-  result.setUTCDate(result.getUTCDate() + days);
-  return result;
-}
-
-function getTaskDueDate(task: TodoistTask): Date | null {
-  const due = task.due;
-  if (!due) return null;
-
-  if (due.datetime) {
-    const datetime = new Date(due.datetime);
-    if (!Number.isNaN(datetime.getTime())) {
-      return datetime;
-    }
-  }
-
-  if (due.date) {
-    const dateOnly = startOfDayUtc(due.date);
-    if (dateOnly) {
-      return dateOnly;
-    }
-  }
-
-  if (due.string) {
-    const parsed = new Date(due.string);
-    if (!Number.isNaN(parsed.getTime())) {
-      return parsed;
-    }
-  }
-
-  return null;
-}
-
 function filterTasksByCriteria(
   tasks: TodoistTask[],
   criteria: BulkTaskFilterArgs["search_criteria"]
 ): TodoistTask[] {
-  const dueBeforeThreshold = criteria.due_before
-    ? startOfDayUtc(criteria.due_before)
-    : null;
-  const dueAfterStart = criteria.due_after
-    ? startOfDayUtc(criteria.due_after)
-    : null;
-  const dueAfterThresholdExclusive = dueAfterStart
-    ? addDays(dueAfterStart, 1)
-    : null;
-
   return tasks.filter((task) => {
     if (criteria.project_id && task.projectId !== criteria.project_id)
       return false;
@@ -387,13 +420,20 @@ function filterTasksByCriteria(
     )
       return false;
 
-    if (dueBeforeThreshold || dueAfterThresholdExclusive) {
-      const taskDate = getTaskDueDate(task);
-      if (!taskDate) return false;
-
-      if (dueBeforeThreshold && taskDate >= dueBeforeThreshold) return false;
-      if (dueAfterThresholdExclusive && taskDate < dueAfterThresholdExclusive)
+    if (criteria.due_before || criteria.due_after) {
+      const taskDate = getDueDateOnly(task.due);
+      if (!taskDate) {
         return false;
+      }
+
+      const isBeforeThreshold =
+        !criteria.due_before || taskDate < criteria.due_before;
+      const isAfterThreshold =
+        !criteria.due_after || taskDate > criteria.due_after;
+
+      if (!isBeforeThreshold || !isAfterThreshold) {
+        return false;
+      }
     }
 
     return true;
@@ -514,6 +554,8 @@ export async function handleBulkUpdateTasks(
     // Clear cache since we're updating
     taskCache.clear();
 
+    validateBulkSearchCriteria(args.search_criteria);
+
     const result = await todoistClient.getTasks();
     const allTasks = extractArrayFromResponse<TodoistTask>(result);
     const matchingTasks = filterTasksByCriteria(allTasks, args.search_criteria);
@@ -544,6 +586,8 @@ export async function handleBulkUpdateTasks(
     const updatedTasks: TodoistTask[] = [];
     const errors: string[] = [];
 
+    validateLabels(args.updates.labels);
+
     const updateData: Partial<TodoistTaskData> = {};
     if (args.updates.content) updateData.content = args.updates.content;
     if (args.updates.description)
@@ -551,11 +595,20 @@ export async function handleBulkUpdateTasks(
     if (args.updates.due_string) updateData.dueString = args.updates.due_string;
     const apiPriority = toApiPriority(args.updates.priority);
     if (apiPriority !== undefined) updateData.priority = apiPriority;
+    const bulkLabelsProvided = Object.prototype.hasOwnProperty.call(
+      args.updates,
+      "labels"
+    );
+    if (bulkLabelsProvided) {
+      updateData.labels = Array.isArray(args.updates.labels)
+        ? args.updates.labels
+        : [];
+    }
 
-    // Resolve project identifier (ID or name) to project ID
+    let moveProjectId: string | undefined;
     if (args.updates.project_id) {
       try {
-        updateData.projectId = await resolveProjectIdentifier(
+        moveProjectId = await resolveProjectIdentifier(
           todoistClient,
           args.updates.project_id
         );
@@ -564,12 +617,37 @@ export async function handleBulkUpdateTasks(
       }
     }
 
-    if (args.updates.section_id) updateData.sectionId = args.updates.section_id;
+    const moveSectionId = args.updates.section_id;
+
+    const hasUpdateFields = Object.keys(updateData).length > 0;
 
     for (const task of matchingTasks) {
       try {
-        const updatedTask = await todoistClient.updateTask(task.id, updateData);
-        updatedTasks.push(updatedTask);
+        let latestTask = task;
+
+        if (hasUpdateFields) {
+          latestTask = await todoistClient.updateTask(task.id, updateData);
+        }
+
+        if (moveProjectId && moveProjectId !== latestTask.projectId) {
+          const movedTasks = await todoistClient.moveTasks([task.id], {
+            projectId: moveProjectId,
+          });
+          if (movedTasks.length > 0) {
+            latestTask = movedTasks[0];
+          }
+        }
+
+        if (moveSectionId && moveSectionId !== latestTask.sectionId) {
+          const movedTasks = await todoistClient.moveTasks([task.id], {
+            sectionId: moveSectionId,
+          });
+          if (movedTasks.length > 0) {
+            latestTask = movedTasks[0];
+          }
+        }
+
+        updatedTasks.push(latestTask);
       } catch (error) {
         errors.push(
           `Failed to update task "${task.content}": ${(error as Error).message}`
@@ -608,6 +686,8 @@ export async function handleBulkDeleteTasks(
   try {
     // Clear cache since we're deleting
     taskCache.clear();
+
+    validateBulkSearchCriteria(args.search_criteria);
 
     const result = await todoistClient.getTasks();
     const allTasks = extractArrayFromResponse<TodoistTask>(result);
@@ -660,6 +740,8 @@ export async function handleBulkCompleteTasks(
   try {
     // Clear cache since we're completing
     taskCache.clear();
+
+    validateBulkSearchCriteria(args.search_criteria);
 
     const result = await todoistClient.getTasks();
     const allTasks = extractArrayFromResponse<TodoistTask>(result);

@@ -2,6 +2,8 @@
  * Shared API utilities for handling Todoist API responses and common operations
  */
 
+import { TodoistTaskDueData } from "../types.js";
+import { formatDueDetails } from "./datetime-utils.js";
 import { fromApiPriority } from "./priority-mapper.js";
 
 /**
@@ -115,9 +117,12 @@ export function formatTaskForDisplay(task: {
   labels?: string[];
 }): string {
   const displayPriority = fromApiPriority(task.priority);
+  const dueDetails = formatDueDetails(
+    task.due as TodoistTaskDueData | null | undefined
+  );
   return `- ${task.content}${task.id ? ` (ID: ${task.id})` : ""}${
     task.description ? `\n  Description: ${task.description}` : ""
-  }${task.due ? `\n  Due: ${task.due.string}` : ""}${
+  }${dueDetails ? `\n  Due: ${dueDetails}` : ""}${
     task.deadline ? `\n  Deadline: ${task.deadline.date}` : ""
   }${displayPriority ? `\n  Priority: ${displayPriority}` : ""}${
     task.labels && task.labels.length > 0

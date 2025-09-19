@@ -154,7 +154,7 @@ The server provides 28 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support
-- **Todoist Task Get**: Retrieve and filter tasks by various criteria, or fetch specific task by ID
+- **Todoist Task Get**: Retrieve tasks by ID or combine priority, label, natural-language filters, and strict `due_before`/`due_after` windows with timezone-aware due details
 - **Todoist Task Update**: Update existing tasks (found by ID or partial name search)
 - **Todoist Task Complete**: Mark tasks as complete (found by ID or partial name search)
 - **Todoist Task Delete**: Remove tasks (found by ID or partial name search)
@@ -168,9 +168,9 @@ The server provides 28 tools organized by entity type:
 
 ### Bulk Task Operations
 - **Todoist Tasks Bulk Create**: Create multiple tasks at once for improved efficiency
-- **Todoist Tasks Bulk Update**: Update multiple tasks based on search criteria
-- **Todoist Tasks Bulk Delete**: Delete multiple tasks based on search criteria
-- **Todoist Tasks Bulk Complete**: Complete multiple tasks based on search criteria
+- **Todoist Tasks Bulk Update**: Update multiple tasks based on search criteria with the same strict `due_before`/`due_after` filtering used by single-task queries
+- **Todoist Tasks Bulk Delete**: Delete multiple tasks based on search criteria with timezone-aware due comparisons
+- **Todoist Tasks Bulk Complete**: Complete multiple tasks based on search criteria with timezone-aware due comparisons
 
 ### Comment Management
 - **Todoist Comment Create**: Add comments to tasks with optional file attachments

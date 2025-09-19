@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `todoist_task_get` now supports `due_before` and `due_after` parameters for strict date window filtering
+
+### Changed
+- Task responses now surface full due context (date, datetime, timezone, natural phrase) to keep Claude timezone-aware
+- Bulk task operations reuse the same due-date normalization so search/update/delete/complete produce consistent results across timezones
+
+### Fixed
+- Natural-language filters (`today`, `overdue`, etc.) now route through Todoist's filter endpoint and no longer ignore date constraints
+- Explicit date filters (`due_before`, `due_after`) and label filters are respected during task retrieval
+- Bulk task filters now validate date input and honour the same strict before/after semantics as single-task queries
+
 ## [0.8.5] - 2025-09-17
 
 ### Added
