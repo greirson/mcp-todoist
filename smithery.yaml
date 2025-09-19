@@ -1,11 +1,20 @@
 # Smithery configuration file: https://smithery.ai/docs/build/project-config
 
+runtime: "typescript"
+
 startCommand:
   type: stdio
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
     |-
-    (config) => ({ command: 'node', args: ['dist/index.js'], env: { TODOIST_API_TOKEN: config.todoistApiToken } })
+    (config) => ({
+      command: 'node',
+      args: ['dist/index.js'],
+      env: {
+        NODE_ENV: 'production',
+        TODOIST_API_TOKEN: config.todoistApiToken,
+      },
+    })
   configSchema:
     # JSON Schema defining the configuration options for the MCP.
     type: object
