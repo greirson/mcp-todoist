@@ -6,6 +6,12 @@ import {
 import type { TodoistApi } from "@doist/todoist-api-typescript";
 import type { TodoistTask } from "../types.js";
 
+type ApiTask = Awaited<ReturnType<TodoistApi["getTask"]>>;
+type ApiTaskList = Awaited<ReturnType<TodoistApi["moveTasks"]>>;
+type ApiTaskUpdate = Awaited<ReturnType<TodoistApi["updateTask"]>>;
+type ApiTasksResponse = Awaited<ReturnType<TodoistApi["getTasks"]>>;
+type ApiProjectsResponse = Awaited<ReturnType<TodoistApi["getProjects"]>>;
+
 describe("handleUpdateTask section moves", () => {
   test("calls moveTasks when section_id is provided", async () => {
     const task: TodoistTask = {
@@ -16,17 +22,18 @@ describe("handleUpdateTask section moves", () => {
       sectionId: "section-old",
     };
 
-    const getTask = jest.fn(async () => task);
-    const updateTask = jest.fn(async () => task);
-    const moveTasks = jest.fn(
-      async () =>
-        [
-          {
-            ...task,
-            sectionId: "section-new",
-          },
-        ] as TodoistTask[]
-    );
+    const getTask = jest
+      .fn<TodoistApi["getTask"]>()
+      .mockResolvedValue(task as unknown as ApiTask);
+    const updateTask = jest
+      .fn<TodoistApi["updateTask"]>()
+      .mockResolvedValue(task as unknown as ApiTaskUpdate);
+    const moveTasks = jest.fn<TodoistApi["moveTasks"]>().mockResolvedValue([
+      {
+        ...task,
+        sectionId: "section-new",
+      },
+    ] as unknown as ApiTaskList);
 
     const todoistClient = {
       getTask,
@@ -55,21 +62,20 @@ describe("handleUpdateTask section moves", () => {
       sectionId: "section-old",
     };
 
-    const getTask = jest.fn(async () => task);
-    const updateTask = jest.fn(async () => ({
+    const getTask = jest
+      .fn<TodoistApi["getTask"]>()
+      .mockResolvedValue(task as unknown as ApiTask);
+    const updateTask = jest.fn<TodoistApi["updateTask"]>().mockResolvedValue({
       ...task,
       content: "Updated",
-    }));
-    const moveTasks = jest.fn(
-      async () =>
-        [
-          {
-            ...task,
-            content: "Updated",
-            projectId: "proj-new",
-          },
-        ] as TodoistTask[]
-    );
+    } as unknown as ApiTaskUpdate);
+    const moveTasks = jest.fn<TodoistApi["moveTasks"]>().mockResolvedValue([
+      {
+        ...task,
+        content: "Updated",
+        projectId: "proj-new",
+      },
+    ] as unknown as ApiTaskList);
 
     const todoistClient = {
       getTask,
@@ -106,23 +112,26 @@ describe("handleBulkUpdateTasks move support", () => {
       },
     ];
 
-    const getTasks = jest.fn(async () => tasks);
-    const updateTask = jest.fn(async () => tasks[0]);
-    const moveTasks = jest.fn(
-      async () =>
-        [
-          {
-            ...tasks[0],
-            sectionId: "section-new",
-          },
-        ] as TodoistTask[]
-    );
+    const getTasks = jest
+      .fn<TodoistApi["getTasks"]>()
+      .mockResolvedValue(tasks as unknown as ApiTasksResponse);
+    const updateTask = jest
+      .fn<TodoistApi["updateTask"]>()
+      .mockResolvedValue(tasks[0] as unknown as ApiTaskUpdate);
+    const moveTasks = jest.fn<TodoistApi["moveTasks"]>().mockResolvedValue([
+      {
+        ...tasks[0],
+        sectionId: "section-new",
+      },
+    ] as unknown as ApiTaskList);
 
     const todoistClient = {
       getTasks,
       updateTask,
       moveTasks,
-      getProjects: jest.fn(async () => []),
+      getProjects: jest
+        .fn<TodoistApi["getProjects"]>()
+        .mockResolvedValue([] as unknown as ApiProjectsResponse),
     } as unknown as TodoistApi;
 
     await handleBulkUpdateTasks(todoistClient, {
