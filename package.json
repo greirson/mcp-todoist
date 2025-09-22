@@ -1,6 +1,6 @@
 {
   "name": "@greirson/mcp-todoist",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "description": "MCP server for Todoist API",
   "main": "dist/index.js",
   "module": "./src/index.ts",
