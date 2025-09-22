@@ -55,7 +55,7 @@ export const CREATE_TASK_TOOL: Tool = {
 export const GET_TASKS_TOOL: Tool = {
   name: "todoist_task_get",
   description:
-    "Retrieve tasks from Todoist with optional filtering or get a specific task by ID",
+    "Retrieve tasks from Todoist. Use 'filter' for Todoist filter syntax (e.g., 'today', 'p1') or 'task_name' for simple text search in task content",
   inputSchema: {
     type: "object",
     properties: {
@@ -101,6 +101,11 @@ export const GET_TASKS_TOOL: Tool = {
       lang: {
         type: "string",
         description: "Language for filter parsing, defaults to 'en' (optional)",
+      },
+      task_name: {
+        type: "string",
+        description:
+          "Filter tasks by name/content using partial text matching (case-insensitive, optional)",
       },
     },
     required: [],

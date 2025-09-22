@@ -42,7 +42,8 @@ export function isGetTasksArgs(args: unknown): args is GetTasksArgs {
     (obj.limit === undefined || typeof obj.limit === "number") &&
     (obj.due_before === undefined || typeof obj.due_before === "string") &&
     (obj.due_after === undefined || typeof obj.due_after === "string") &&
-    (obj.lang === undefined || typeof obj.lang === "string")
+    (obj.lang === undefined || typeof obj.lang === "string") &&
+    (obj.task_name === undefined || typeof obj.task_name === "string")
   );
 }
 
