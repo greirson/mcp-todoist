@@ -20,6 +20,7 @@ export interface GetTasksArgs {
   due_before?: string;
   due_after?: string;
   lang?: string;
+  task_name?: string;
 }
 
 export interface UpdateTaskArgs {

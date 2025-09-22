@@ -9,6 +9,7 @@ import {
   BulkTaskFilterArgs,
 } from "../types.js";
 import { CacheManager } from "../cache.js";
+import { ValidationError } from "../errors.js";
 // Removed unused imports - now using ErrorHandler utility
 import { extractTaskIdentifiers } from "../utils/parameter-transformer.js";
 import {
@@ -198,13 +199,27 @@ export async function handleGetTasks(
     tasks = taskCache.get(filterCacheKey);
 
     if (!tasks) {
-      const result = await todoistClient.getTasksByFilter({
-        query: filterString,
-        lang: language,
-        limit: args.limit,
-      });
-      tasks = extractArrayFromResponse<TodoistTask>(result);
-      taskCache.set(filterCacheKey, tasks);
+      try {
+        const result = await todoistClient.getTasksByFilter({
+          query: filterString,
+          lang: language,
+          limit: args.limit,
+        });
+        tasks = extractArrayFromResponse<TodoistTask>(result);
+        taskCache.set(filterCacheKey, tasks);
+      } catch (error: unknown) {
+        // Check if it's a 400 Bad Request from invalid filter syntax
+        if (error instanceof Error && error.message.includes("400")) {
+          throw new ValidationError(
+            `Invalid filter syntax "${filterString}". The filter parameter expects Todoist filter syntax ` +
+              `like 'today', 'overdue', 'p1', or 'search:"${filterString}"'. ` +
+              `For simple text search, use the task_name parameter instead.`,
+            "filter"
+          );
+        }
+        // Re-throw other errors
+        throw error;
+      }
     }
   } else {
     const apiParams: Record<string, string | number | undefined> = {};
@@ -266,6 +281,14 @@ export async function handleGetTasks(
 
       return isBeforeThreshold && isAfterThreshold;
     });
+  }
+
+  // Apply task_name filter if provided
+  if (args.task_name) {
+    const searchTerm = args.task_name.toLowerCase();
+    filteredTasks = filteredTasks.filter((task) =>
+      task.content.toLowerCase().includes(searchTerm)
+    );
   }
 
   if (args.limit && args.limit > 0) {

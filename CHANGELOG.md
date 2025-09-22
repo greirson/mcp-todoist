@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Task Name Search**: New `task_name` parameter for `todoist_task_get` tool enables partial text search in task content (case-insensitive)
+- **Enhanced Error Messages**: Filter parameter now returns helpful error messages for invalid Todoist filter syntax, guiding users to correct usage
+
+### Fixed
+- **Filter Parameter**: Fixed 400 errors when using plain text in `filter` parameter - now provides educational error messages explaining proper Todoist filter syntax
+- **Task Search**: Resolved issue where task search functionality was missing, preventing users from finding tasks by content
+
 ## [0.8.6] - 2025-09-19
 
 ### Added
