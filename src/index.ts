@@ -7,6 +7,10 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { TodoistApi } from "@doist/todoist-api-typescript";
+import {
+  createTodoistClient,
+  type TodoistClient,
+} from "./utils/dry-run-wrapper.js";
 import { ALL_TOOLS } from "./tools/index.js";
 import {
   isCreateTaskArgs,
@@ -119,8 +123,11 @@ if (!TODOIST_API_TOKEN) {
   process.exit(1);
 }
 
-// Initialize Todoist client
-const todoistClient = new TodoistApi(TODOIST_API_TOKEN);
+// Initialize Todoist client (with optional dry-run wrapper)
+const todoistClient = createTodoistClient(TODOIST_API_TOKEN);
+
+// Cast to TodoistApi for handler compatibility (DryRunWrapper implements the same interface)
+const apiClient = todoistClient as TodoistApi;
 
 // Tool handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
@@ -142,147 +149,147 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (!isCreateTaskArgs(args)) {
           throw new Error("Invalid arguments for todoist_task_create");
         }
-        result = await handleCreateTask(todoistClient, args);
+        result = await handleCreateTask(apiClient, args);
         break;
 
       case "todoist_task_get":
         if (!isGetTasksArgs(args)) {
           throw new Error("Invalid arguments for todoist_task_get");
         }
-        result = await handleGetTasks(todoistClient, args);
+        result = await handleGetTasks(apiClient, args);
         break;
 
       case "todoist_task_update":
         if (!isUpdateTaskArgs(args)) {
           throw new Error("Invalid arguments for todoist_task_update");
         }
-        result = await handleUpdateTask(todoistClient, args);
+        result = await handleUpdateTask(apiClient, args);
         break;
 
       case "todoist_task_delete":
         if (!isDeleteTaskArgs(args)) {
           throw new Error("Invalid arguments for todoist_task_delete");
         }
-        result = await handleDeleteTask(todoistClient, args);
+        result = await handleDeleteTask(apiClient, args);
         break;
 
       case "todoist_task_complete":
         if (!isCompleteTaskArgs(args)) {
           throw new Error("Invalid arguments for todoist_task_complete");
         }
-        result = await handleCompleteTask(todoistClient, args);
+        result = await handleCompleteTask(apiClient, args);
         break;
 
       case "todoist_project_get":
         if (!isGetProjectsArgs(args)) {
           throw new Error("Invalid arguments for todoist_project_get");
         }
-        result = await handleGetProjects(todoistClient);
+        result = await handleGetProjects(apiClient);
         break;
 
       case "todoist_section_get":
         if (!isGetSectionsArgs(args)) {
           throw new Error("Invalid arguments for todoist_section_get");
         }
-        result = await handleGetSections(todoistClient, args);
+        result = await handleGetSections(apiClient, args);
         break;
 
       case "todoist_project_create":
         if (!isCreateProjectArgs(args)) {
           throw new Error("Invalid arguments for todoist_project_create");
         }
-        result = await handleCreateProject(todoistClient, args);
+        result = await handleCreateProject(apiClient, args);
         break;
 
       case "todoist_section_create":
         if (!isCreateSectionArgs(args)) {
           throw new Error("Invalid arguments for todoist_section_create");
         }
-        result = await handleCreateSection(todoistClient, args);
+        result = await handleCreateSection(apiClient, args);
         break;
 
       case "todoist_tasks_bulk_create":
         if (!isBulkCreateTasksArgs(args)) {
           throw new Error("Invalid arguments for todoist_tasks_bulk_create");
         }
-        result = await handleBulkCreateTasks(todoistClient, args);
+        result = await handleBulkCreateTasks(apiClient, args);
         break;
 
       case "todoist_tasks_bulk_update":
         if (!isBulkUpdateTasksArgs(args)) {
           throw new Error("Invalid arguments for todoist_tasks_bulk_update");
         }
-        result = await handleBulkUpdateTasks(todoistClient, args);
+        result = await handleBulkUpdateTasks(apiClient, args);
         break;
 
       case "todoist_tasks_bulk_delete":
         if (!isBulkTaskFilterArgs(args)) {
           throw new Error("Invalid arguments for todoist_tasks_bulk_delete");
         }
-        result = await handleBulkDeleteTasks(todoistClient, args);
+        result = await handleBulkDeleteTasks(apiClient, args);
         break;
 
       case "todoist_tasks_bulk_complete":
         if (!isBulkTaskFilterArgs(args)) {
           throw new Error("Invalid arguments for todoist_tasks_bulk_complete");
         }
-        result = await handleBulkCompleteTasks(todoistClient, args);
+        result = await handleBulkCompleteTasks(apiClient, args);
         break;
 
       case "todoist_comment_create":
         if (!isCreateCommentArgs(args)) {
           throw new Error("Invalid arguments for todoist_comment_create");
         }
-        result = await handleCreateComment(todoistClient, args);
+        result = await handleCreateComment(apiClient, args);
         break;
 
       case "todoist_comment_get":
         if (!isGetCommentsArgs(args)) {
           throw new Error("Invalid arguments for todoist_comment_get");
         }
-        result = await handleGetComments(todoistClient, args);
+        result = await handleGetComments(apiClient, args);
         break;
 
       case "todoist_label_get":
         if (!isGetLabelsArgs(args)) {
           throw new Error("Invalid arguments for todoist_label_get");
         }
-        result = await handleGetLabels(todoistClient);
+        result = await handleGetLabels(apiClient);
         break;
 
       case "todoist_label_create":
         if (!isCreateLabelArgs(args)) {
           throw new Error("Invalid arguments for todoist_label_create");
         }
-        result = await handleCreateLabel(todoistClient, args);
+        result = await handleCreateLabel(apiClient, args);
         break;
 
       case "todoist_label_update":
         if (!isUpdateLabelArgs(args)) {
           throw new Error("Invalid arguments for todoist_label_update");
         }
-        result = await handleUpdateLabel(todoistClient, args);
+        result = await handleUpdateLabel(apiClient, args);
         break;
 
       case "todoist_label_delete":
         if (!isLabelNameArgs(args)) {
           throw new Error("Invalid arguments for todoist_label_delete");
         }
-        result = await handleDeleteLabel(todoistClient, args);
+        result = await handleDeleteLabel(apiClient, args);
         break;
 
       case "todoist_label_stats":
         if (!isGetLabelStatsArgs(args)) {
           throw new Error("Invalid arguments for todoist_label_stats");
         }
-        result = await handleGetLabelStats(todoistClient);
+        result = await handleGetLabelStats(apiClient);
         break;
 
       case "todoist_subtask_create":
         if (!isCreateSubtaskArgs(args)) {
           throw new Error("Invalid arguments for todoist_subtask_create");
         }
-        const subtaskResult = await handleCreateSubtask(todoistClient, args);
+        const subtaskResult = await handleCreateSubtask(apiClient, args);
         result = `Created subtask "${subtaskResult.subtask.content}" (ID: ${subtaskResult.subtask.id}) under parent task "${subtaskResult.parent.content}" (ID: ${subtaskResult.parent.id})`;
         break;
 
@@ -291,7 +298,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_subtasks_bulk_create");
         }
         const bulkSubtaskResult = await handleBulkCreateSubtasks(
-          todoistClient,
+          apiClient,
           args
         );
         result =
@@ -319,7 +326,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             "Invalid arguments for todoist_task_convert_to_subtask"
           );
         }
-        const convertResult = await handleConvertToSubtask(todoistClient, args);
+        const convertResult = await handleConvertToSubtask(apiClient, args);
         result = `Converted task "${convertResult.task.content}" (ID: ${convertResult.task.id}) to subtask of "${convertResult.parent.content}" (ID: ${convertResult.parent.id})`;
         break;
 
@@ -327,7 +334,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (!isPromoteSubtaskArgs(args)) {
           throw new Error("Invalid arguments for todoist_subtask_promote");
         }
-        const promotedTask = await handlePromoteSubtask(todoistClient, args);
+        const promotedTask = await handlePromoteSubtask(apiClient, args);
         result = `Promoted subtask "${promotedTask.content}" (ID: ${promotedTask.id}) to main task`;
         break;
 
@@ -335,18 +342,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (!isGetTaskHierarchyArgs(args)) {
           throw new Error("Invalid arguments for todoist_task_hierarchy_get");
         }
-        const hierarchy = await handleGetTaskHierarchy(todoistClient, args);
+        const hierarchy = await handleGetTaskHierarchy(apiClient, args);
         result = formatTaskHierarchy(hierarchy);
         break;
 
       case "todoist_test_connection":
-        const connectionResult = await handleTestConnection(todoistClient);
+        const connectionResult = await handleTestConnection(apiClient);
         result = JSON.stringify(connectionResult, null, 2);
         break;
 
       case "todoist_test_all_features":
         const featuresResult = await handleTestAllFeatures(
-          todoistClient,
+          apiClient,
           args as { mode?: "basic" | "enhanced" }
         );
         result = JSON.stringify(featuresResult, null, 2);
@@ -354,7 +361,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "todoist_test_performance":
         const performanceResult = await handleTestPerformance(
-          todoistClient,
+          apiClient,
           args as { iterations?: number }
         );
         result = JSON.stringify(performanceResult, null, 2);

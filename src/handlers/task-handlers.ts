@@ -144,7 +144,11 @@ export async function handleCreateTask(
     const displayPriority = fromApiPriority(task.priority);
     const dueDetails = formatDueDetails(task.due);
 
-    return `Task created:\nID: ${task.id}\nTitle: ${task.content}${
+    // Check if this was a dry-run operation
+    const isDryRun = (task as any).__dryRun === true;
+    const prefix = isDryRun ? "[DRY-RUN] " : "";
+
+    return `${prefix}Task created:\nID: ${task.id}\nTitle: ${task.content}${
       task.description ? `\nDescription: ${task.description}` : ""
     }${dueDetails ? `\nDue: ${dueDetails}` : ""}${
       displayPriority ? `\nPriority: ${displayPriority}` : ""
@@ -360,6 +364,10 @@ export async function handleUpdateTask(
     }
   }
 
+  // Check if this was a dry-run operation
+  const isDryRun = (latestTask as any).__dryRun === true;
+  const prefix = isDryRun ? "[DRY-RUN] " : "";
+
   const displayUpdatedPriority = fromApiPriority(latestTask.priority);
   const updatedDueDetails = formatDueDetails(latestTask.due);
   const projectLine =
@@ -378,7 +386,7 @@ export async function handleUpdateTask(
       }`
     : "";
 
-  return `Task "${matchingTask.content}" updated:\nNew Title: ${
+  return `${prefix}Task "${matchingTask.content}" updated:\nNew Title: ${
     latestTask.content
   }${
     latestTask.description ? `\nNew Description: ${latestTask.description}` : ""
@@ -403,7 +411,12 @@ export async function handleDeleteTask(
   const matchingTask = await findTaskByIdOrName(todoistClient, args);
 
   await todoistClient.deleteTask(matchingTask.id);
-  return `Successfully deleted task: "${matchingTask.content}"`;
+
+  // Check if we're in dry-run mode
+  const isDryRun = process.env.DRYRUN === "true";
+  const prefix = isDryRun ? "[DRY-RUN] " : "";
+
+  return `${prefix}Successfully deleted task: "${matchingTask.content}"`;
 }
 
 export async function handleCompleteTask(
@@ -422,7 +435,12 @@ export async function handleCompleteTask(
   const matchingTask = await findTaskByIdOrName(todoistClient, args);
 
   await todoistClient.closeTask(matchingTask.id);
-  return `Successfully completed task: "${matchingTask.content}"`;
+
+  // Check if we're in dry-run mode
+  const isDryRun = process.env.DRYRUN === "true";
+  const prefix = isDryRun ? "[DRY-RUN] " : "";
+
+  return `${prefix}Successfully completed task: "${matchingTask.content}"`;
 }
 
 function filterTasksByCriteria(
@@ -553,7 +571,11 @@ export async function handleBulkCreateTasks(
     const successCount = createdTasks.length;
     const errorCount = errors.length;
 
-    let result = `Bulk task creation completed: ${successCount} created, ${errorCount} failed.\n\n`;
+    // Check if we're in dry-run mode
+    const isDryRun = process.env.DRYRUN === "true";
+    const prefix = isDryRun ? "[DRY-RUN] " : "";
+
+    let result = `${prefix}Bulk task creation completed: ${successCount} created, ${errorCount} failed.\n\n`;
 
     if (successCount > 0) {
       result += "Created tasks:\n";
@@ -686,7 +708,11 @@ export async function handleBulkUpdateTasks(
     const successCount = updatedTasks.length;
     const errorCount = errors.length;
 
-    let response = `Bulk update completed: ${successCount} updated, ${errorCount} failed.\n\n`;
+    // Check if we're in dry-run mode
+    const isDryRun = process.env.DRYRUN === "true";
+    const prefix = isDryRun ? "[DRY-RUN] " : "";
+
+    let response = `${prefix}Bulk update completed: ${successCount} updated, ${errorCount} failed.\n\n`;
 
     if (successCount > 0) {
       response += "Updated tasks:\n";
@@ -742,7 +768,11 @@ export async function handleBulkDeleteTasks(
     const successCount = deletedTasks.length;
     const errorCount = errors.length;
 
-    let response = `Bulk delete completed: ${successCount} deleted, ${errorCount} failed.\n\n`;
+    // Check if we're in dry-run mode
+    const isDryRun = process.env.DRYRUN === "true";
+    const prefix = isDryRun ? "[DRY-RUN] " : "";
+
+    let response = `${prefix}Bulk delete completed: ${successCount} deleted, ${errorCount} failed.\n\n`;
 
     if (successCount > 0) {
       response += "Deleted tasks:\n";
@@ -796,7 +826,11 @@ export async function handleBulkCompleteTasks(
     const successCount = completedTasks.length;
     const errorCount = errors.length;
 
-    let response = `Bulk complete completed: ${successCount} completed, ${errorCount} failed.\n\n`;
+    // Check if we're in dry-run mode
+    const isDryRun = process.env.DRYRUN === "true";
+    const prefix = isDryRun ? "[DRY-RUN] " : "";
+
+    let response = `${prefix}Bulk complete completed: ${successCount} completed, ${errorCount} failed.\n\n`;
 
     if (successCount > 0) {
       response += "Completed tasks:\n";

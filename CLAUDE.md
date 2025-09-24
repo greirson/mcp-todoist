@@ -69,6 +69,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 - **`src/utils/`**: Shared utility functions:
   - `api-helpers.ts` - API response handling and formatting utilities
   - `error-handling.ts` - Centralized error management with context tracking
+  - `dry-run-wrapper.ts` - Dry-run mode implementation for safe testing and validation
 
 ### Tool Architecture
 
@@ -158,7 +159,7 @@ Hierarchical task management with parent-child relationships:
 - **Creation Strategy**: Subtasks are created using the `parent_id` field in the Todoist API
 - **API Compatibility**: Uses delete & recreate pattern for converting tasks to subtasks due to API limitations
 - **Hierarchy Building**: Recursive algorithm builds task trees with completion percentage calculation
-- **Task Conversion**: 
+- **Task Conversion**:
   - `Convert to Subtask`: Deletes original task and recreates with `parent_id`
   - `Promote Subtask`: Deletes subtask and recreates as main task without `parent_id`
 - **Completion Tracking**: Calculates completion percentages for parent tasks based on subtask status
@@ -167,12 +168,27 @@ Hierarchical task management with parent-child relationships:
 - **Cache Integration**: Subtask operations integrated with 30-second TTL caching system
 - **Search Strategy**: Supports both task ID and name-based parent/child identification
 
+### Dry-Run Mode Architecture
+
+Complete simulation framework for safe testing and validation:
+
+- **DryRunWrapper Class**: Located in `src/utils/dry-run-wrapper.ts`, wraps TodoistApi to intercept mutations
+- **Environment Activation**: Enabled when `process.env.DRYRUN=true`
+- **Real Data Validation**: Uses actual API calls to validate projects, tasks, sections, and labels exist
+- **Simulated Mutations**: Create, update, delete, and complete operations are simulated (not executed)
+- **Read Operations**: Pass through to real API unchanged for authentic data queries
+- **Mock Response Generation**: Returns realistic mock data with generated IDs for mutation operations
+- **Detailed Logging**: Clear `[DRY-RUN]` prefixes show exactly what operations would perform
+- **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
+- **Comprehensive Coverage**: All 28 MCP tools support dry-run mode with full validation
+- **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
+
 ### Data Flow Pattern
 
 1. **Request Validation**: Type guards validate incoming parameters
 2. **Input Sanitization**: Validation functions check business rules
 3. **Cache Check**: GET operations check cache first
-4. **API Call**: Execute Todoist API operation
+4. **API Call**: Execute Todoist API operation (or simulate in dry-run mode)
 5. **Cache Management**: Update/invalidate cache as needed
 6. **Error Handling**: Structured error responses with error codes
 
@@ -180,6 +196,7 @@ Hierarchical task management with parent-child relationships:
 
 - `TODOIST_API_TOKEN` environment variable is required and validated at startup
 - Server exits with error code 1 if token is missing
+- `DRYRUN=true` optional environment variable enables dry-run mode for safe testing
 
 ### Testing Infrastructure
 
@@ -195,6 +212,12 @@ The codebase includes comprehensive testing capabilities:
 - Requires `TODOIST_API_TOKEN` environment variable for execution
 - Tests skip gracefully when token is not available
 - Comprehensive testing of all MCP tools and API operations
+
+**Dry-Run Tests:**
+- `src/__tests__/dry-run-wrapper.test.ts` - Comprehensive dry-run mode validation
+- Tests all mutation operations (create, update, delete, complete) in simulation mode
+- Validates real data queries pass through unchanged
+- Tests error handling and validation in dry-run mode
 
 **Built-in Testing Tools:**
 - `todoist_test_connection` - Validates API token and connection
@@ -248,11 +271,15 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 
 - **Tool Names**: All MCP tool names use underscores (e.g., `todoist_task_create`) to comply with MCP naming requirements `^[a-zA-Z0-9_-]{1,64}$`
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
+- **Dry-Run Mode**: Enable with `DRYRUN=true` environment variable for safe testing and validation
+  - Uses real API data for validation while simulating mutations
+  - All 28 MCP tools support dry-run mode with comprehensive logging
+  - Perfect for testing automations, learning the API, and safe experimentation
 - **Task Search**: Update/delete/complete operations support both:
   - **Task ID**: Direct lookup by ID (more reliable, takes precedence)
   - **Task Name**: Case-insensitive partial string matching against task content
 - **Task Identification**: When both `task_id` and `task_name` are provided, ID takes precedence
-- **Due Dates vs Deadlines**: 
+- **Due Dates vs Deadlines**:
   - `due_string`/`due_date`: When the task appears in "Today" (start date)
   - `deadline_date`: Actual deadline for task completion (YYYY-MM-DD format)
 - **Bulk Operations**: Use bulk tools (e.g., `todoist_tasks_bulk_create`) when working with multiple tasks to improve efficiency and reduce API calls
@@ -286,6 +313,13 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - ✅ **New MCP Tools**: Added 5 subtask management tools (total: 28 tools)
   - ✅ **Type System Enhancement**: Extended type definitions for subtask operations and hierarchy management
   - ✅ **API Compatibility**: Implemented workarounds for Todoist API limitations using delete & recreate patterns
+- ✅ **Dry-Run Mode Implementation**: Complete simulation framework for safe testing and validation
+  - ✅ **DryRunWrapper Architecture**: Created `src/utils/dry-run-wrapper.ts` for operation simulation
+  - ✅ **Environment Configuration**: Enabled via `DRYRUN=true` environment variable
+  - ✅ **Comprehensive Tool Support**: All 28 MCP tools support dry-run mode with full validation
+  - ✅ **Real Data Validation**: Uses actual API calls to validate while simulating mutations
+  - ✅ **Factory Pattern Integration**: `createTodoistClient()` automatically handles dry-run wrapping
+  - ✅ **Test Coverage**: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`
 
 **Planned Future Phases:**
 - **Phase 4**: Duplicate Detection - Smart task deduplication using similarity algorithms
@@ -433,3 +467,9 @@ For every commit that adds features or changes functionality:
 - **Performance Tuning**: `@performance-optimizer optimize the task search and filtering logic`
 - **Documentation**: `@documentation-specialist update docs for the new bulk operations tools`
 
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.

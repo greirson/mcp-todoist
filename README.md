@@ -33,6 +33,7 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 
 - [Features](#features)
 - [Installation & Setup](#installation--setup)
+- [Dry-Run Mode](#dry-run-mode)
 - [Tools Overview](#tools-overview)
 - [Usage Examples](#usage-examples)
 - [Getting Started Workflow](#getting-started-workflow)
@@ -49,6 +50,7 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 * **Comment System**: Add comments to tasks and retrieve comments with attachment support
 * **Label Management**: Full CRUD operations for labels with usage statistics and analytics
 * **Project & Section Organization**: Create and manage projects and sections
+* **Dry-Run Mode**: Test automations and operations without making real changes
 * **Enhanced Testing**: Basic API validation and comprehensive CRUD testing with automatic cleanup
 * **Smart Discovery**: List projects and sections to find IDs for organization
 * **Rich Task Attributes**: Support for descriptions, due dates, priorities, labels, deadlines, and project assignment
@@ -147,6 +149,77 @@ In Claude Desktop, try asking:
 ```
 
 You should see a list of your Todoist projects, confirming the integration is working!
+
+## Dry-Run Mode
+
+Dry-run mode allows you to test operations and automations without making any real changes to your Todoist workspace. This is perfect for testing, debugging, learning the API, or validating automation scripts before running them for real.
+
+### How to Enable Dry-Run Mode
+
+Add `DRYRUN=true` to your environment configuration:
+
+```json
+{
+  "mcpServers": {
+    "todoist": {
+      "command": "npx",
+      "args": ["@greirson/mcp-todoist"],
+      "env": {
+        "TODOIST_API_TOKEN": "your_api_token_here",
+        "DRYRUN": "true"
+      }
+    }
+  }
+}
+```
+
+### What Dry-Run Mode Does
+
+- **Validates Operations**: Uses real API data to validate that operations would succeed
+- **Simulates Mutations**: Create, update, delete, and complete operations are simulated (not executed)
+- **Real Data Queries**: Read operations (get tasks, projects, labels) use the real API
+- **Detailed Logging**: Shows exactly what would happen with clear `[DRY-RUN]` prefixes
+- **Error Detection**: Catches the same errors that would occur in real execution
+
+### Use Cases
+
+- **Testing Automations**: Validate complex bulk operations before executing
+- **Learning the API**: Explore functionality without fear of making unwanted changes
+- **Debugging Issues**: Understand what operations would be performed
+- **Safe Experimentation**: Try new workflows without affecting your actual tasks
+- **Training and Demos**: Show how operations work without modifying real data
+
+### Example Usage
+
+With dry-run mode enabled, operations show what would happen:
+
+```
+You: "Create a task called 'Test Task' in my Work project"
+
+Response:
+[DRY-RUN] Dry-run mode enabled - mutations will be simulated
+[DRY-RUN] Would create task: "Test Task" in project 2203306141, section none
+
+Task created successfully (simulated):
+ID: 100001
+Title: Test Task
+Project: Work (2203306141)
+Priority: 4 (Normal)
+```
+
+### Supported Operations
+
+All 28 MCP tools support dry-run mode:
+- Task creation, updates, completion, and deletion
+- Subtask operations and hierarchy changes
+- Bulk operations across multiple tasks
+- Project and section creation
+- Label management operations
+- Comment creation
+
+### Disabling Dry-Run Mode
+
+Remove the `DRYRUN` environment variable or set it to `false`, then restart Claude Desktop to return to normal operation mode.
 
 ## Tools Overview
 
@@ -290,6 +363,16 @@ The server provides 28 tools organized by entity type:
 "Validate that all MCP tools are working correctly"
 ```
 
+### Dry-Run Testing
+When dry-run mode is enabled (DRYRUN=true), use normal commands - they'll automatically be simulated:
+```
+"Create a test task with priority 1"
+"Update all overdue tasks to be due tomorrow"
+"Delete all completed tasks in project 12345"
+"Create 5 subtasks under task 'Project Planning'"
+```
+All these operations will validate against your real data but won't make any changes.
+
 ## Getting Started Workflow
 
 ### 1. First Steps
@@ -324,6 +407,7 @@ The server provides 28 tools organized by entity type:
 
 - **Start Simple**: Begin with basic task creation and project viewing
 - **Use Natural Language**: Ask questions as you normally would
+- **Test with Dry-Run**: Use dry-run mode to validate complex operations before executing
 - **Leverage Bulk Operations**: Use bulk tools when working with multiple tasks
 - **Organize First**: Set up projects and sections before creating many tasks
 - **Regular Cleanup**: Use bulk operations to clean up completed or outdated tasks
@@ -409,6 +493,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
   - `api-helpers.ts` - API response handling utilities
   - `error-handling.ts` - Centralized error management
   - `parameter-transformer.ts` - MCP to Todoist SDK parameter format conversion
+  - `dry-run-wrapper.ts` - Dry-run mode implementation
 
 ## Changelog
 

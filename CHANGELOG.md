@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.8] - 2025-01-23
 
+### Added
+- **Dry-Run Mode**: Complete simulation framework for safe testing and validation
+  - Added `DryRunWrapper` class in `src/utils/dry-run-wrapper.ts` for operation simulation
+  - Enabled via `DRYRUN=true` environment variable
+  - All 28 MCP tools support dry-run mode with comprehensive validation
+  - Uses real API data for validation while simulating mutations (create, update, delete, complete)
+  - UI responses clearly show `[DRY-RUN]` prefix when operations are simulated
+  - All logging output to stderr to maintain MCP protocol compliance (stdout for JSON-RPC only)
+  - Perfect for testing automations, learning the API, debugging, and safe experimentation
+  - Comprehensive test coverage in `src/__tests__/dry-run-wrapper.test.ts`
+
+### Technical Implementation
+- **DryRunWrapper Architecture**: Intercepts TodoistApi mutations when dry-run mode is enabled
+- **Real Data Validation**: Uses actual API calls to validate projects, tasks, sections, and labels exist
+- **Simulated Responses**: Returns realistic mock data with generated IDs for mutation operations
+- **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
+- **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
+- **UI Indicators**: All handler responses prepend `[DRY-RUN]` when in dry-run mode for clear user feedback
+
 ### Security
 - **Critical Fix**: Fixed vulnerability in bulk operations where empty `content_contains` string matched ALL tasks instead of none (Issue #34)
   - Empty or whitespace-only strings in `content_contains` now correctly match no tasks
