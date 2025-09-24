@@ -537,12 +537,36 @@ export function validateBulkSearchCriteria(criteria: {
     validateDateString(criteria.due_after, "due_after");
   }
 
+  // Fix for issue #34: Reject empty or whitespace-only content_contains
   if (criteria.content_contains !== undefined) {
+    const trimmed = criteria.content_contains.trim();
+    if (trimmed === "") {
+      throw new ValidationError(
+        "content_contains cannot be empty or contain only whitespace. Remove this field to match all tasks, or provide specific search text.",
+        "content_contains"
+      );
+    }
     validateAndSanitizeContent(criteria.content_contains, "content_contains", {
       maxLength: 200,
       allowHtml: false,
       required: false,
     });
+  }
+
+  // Ensure at least one valid search criterion is provided
+  const hasValidCriteria =
+    criteria.project_id !== undefined ||
+    criteria.priority !== undefined ||
+    criteria.due_before !== undefined ||
+    criteria.due_after !== undefined ||
+    (criteria.content_contains !== undefined &&
+      criteria.content_contains.trim() !== "");
+
+  if (!hasValidCriteria) {
+    throw new ValidationError(
+      "At least one valid search criterion must be provided for bulk operations. Valid criteria: project_id, priority, due_before, due_after, or non-empty content_contains.",
+      "search_criteria"
+    );
   }
 }
 
