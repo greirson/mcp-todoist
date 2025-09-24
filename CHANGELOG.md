@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.8.8] - 2025-01-23
 
+### Fixed
+- **Label Filter Fix (Issue #35)**: Fixed label filtering inconsistency in `todoist_task_get` tool
+  - The `label_id` parameter now correctly filters tasks by label, supporting:
+    - Numeric label IDs (e.g., "123")
+    - Label names (e.g., "trigger")
+    - Label names with @ prefix (e.g., "@trigger")
+  - Fixed issue where the Todoist TypeScript client's `label` parameter doesn't actually filter results
+  - Implemented client-side filtering for both `label_id` parameter and `@label` syntax in filters
+  - Added comprehensive validation for non-existent labels (returns no tasks instead of all tasks)
+  - Enhanced handling of tasks with undefined or missing labels array
+  - Added comprehensive test suite with 9 tests covering all edge cases
+  - **Root Cause**: The Todoist TypeScript client's `getTasks()` method ignores the `label` parameter due to API mismatch (expects `label_id` not `label`)
+  - **Solution**: Implemented proper client-side filtering with label resolution and caching
+
 ### Added
 - **Dry-Run Mode**: Complete simulation framework for safe testing and validation
   - Added `DryRunWrapper` class in `src/utils/dry-run-wrapper.ts` for operation simulation
