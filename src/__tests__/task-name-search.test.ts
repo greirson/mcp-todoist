@@ -247,8 +247,7 @@ describe("Task Name Search Functionality", () => {
       const result = await handleGetTasks(mockTodoistClient, args);
 
       // Should only return one Bobo task due to limit
-      const lines = result.split("\n\n");
-      expect(lines.length).toBe(1);
+      expect(result).toContain("1 task found");
       expect(result).toContain("Bobo McJiggles Task");
     });
   });

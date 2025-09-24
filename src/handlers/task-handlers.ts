@@ -44,6 +44,26 @@ const taskCache = cacheManager.getOrCreateCache<TodoistTask[]>("tasks", 30000, {
 
 // Using shared utilities from api-helpers.ts
 
+// Helper function to get all labels with caching
+async function getAllLabels(
+  todoistClient: TodoistApi
+): Promise<{ id: string; name: string }[]> {
+  const labelCache = cacheManager.getOrCreateCache<
+    { id: string; name: string }[]
+  >("labels", 30000);
+  const cacheKey = "all_labels";
+
+  let labels = labelCache.get(cacheKey);
+  if (!labels) {
+    const response = await todoistClient.getLabels();
+    // Handle the response format from the API
+    labels = Array.isArray(response) ? response : [];
+    labelCache.set(cacheKey, labels);
+  }
+
+  return labels || [];
+}
+
 // Helper function to find a task by ID or name (handles both snake_case and camelCase)
 async function findTaskByIdOrName(
   todoistClient: TodoistApi,
@@ -260,10 +280,48 @@ export async function handleGetTasks(
     );
   }
 
+  // Handle label filtering - support both IDs and names
   if (args.label_id) {
+    let labelName = args.label_id;
+
+    // Remove @ prefix if present
+    if (labelName.startsWith("@")) {
+      labelName = labelName.substring(1);
+    }
+
+    // Check if it's a numeric ID and resolve to name
+    if (/^\d+$/.test(labelName)) {
+      const labels = await getAllLabels(todoistClient);
+      const label = labels.find((l) => l.id === labelName);
+      labelName = label ? label.name : labelName;
+    }
+
+    // Filter tasks by label name
     filteredTasks = filteredTasks.filter((task) =>
-      Array.isArray(task.labels) ? task.labels.includes(args.label_id!) : false
+      Array.isArray(task.labels) ? task.labels.includes(labelName) : false
     );
+  }
+
+  // Handle @label syntax in filter parameter
+  if (filterString) {
+    const labelMatches = filterString.match(/@([\w-]+)/g);
+    if (labelMatches) {
+      const requiredLabels = labelMatches.map((m) => m.substring(1));
+
+      // Check if it's an AND condition (all labels required)
+      if (filterString.includes("&")) {
+        filteredTasks = filteredTasks.filter((task) => {
+          if (!Array.isArray(task.labels)) return false;
+          return requiredLabels.every((label) => task.labels!.includes(label));
+        });
+      } else {
+        // OR condition (any label matches)
+        filteredTasks = filteredTasks.filter((task) => {
+          if (!Array.isArray(task.labels)) return false;
+          return requiredLabels.some((label) => task.labels!.includes(label));
+        });
+      }
+    }
   }
 
   const apiPriorityFilter = toApiPriority(args.priority);
@@ -303,9 +361,14 @@ export async function handleGetTasks(
     .map((task) => formatTaskForDisplay(task))
     .join("\n\n");
 
-  return filteredTasks.length > 0
-    ? taskList
-    : "No tasks found matching the criteria";
+  const taskCount = filteredTasks.length;
+
+  if (taskCount === 0) {
+    return "No tasks found matching the criteria";
+  }
+
+  const taskWord = taskCount === 1 ? "task" : "tasks";
+  return `${taskCount} ${taskWord} found:\n\n${taskList}`;
 }
 
 export async function handleUpdateTask(
