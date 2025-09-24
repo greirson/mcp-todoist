@@ -257,6 +257,8 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
   - `deadline_date`: Actual deadline for task completion (YYYY-MM-DD format)
 - **Bulk Operations**: Use bulk tools (e.g., `todoist_tasks_bulk_create`) when working with multiple tasks to improve efficiency and reduce API calls
 - **Bulk Search Criteria**: Bulk operations support flexible filtering by project, priority, due dates, and content matching
+  - **Empty String Handling (Security Fix v0.8.8)**: Empty or whitespace-only strings in `content_contains` now correctly match NO tasks (not all tasks)
+  - **Minimum Criteria Requirement**: At least one valid search criterion must be provided for bulk operations
 - **Project Name Resolution**: The `todoist_tasks_bulk_update` tool supports both project IDs and project names in the `project_id` field. Project names are automatically resolved to IDs
 - **Testing**: Use `todoist_test_all_features` after making changes to ensure functionality works correctly
 - **Linting**: Always run `npm run lint -- --fix` after making changes to auto-fix formatting issues

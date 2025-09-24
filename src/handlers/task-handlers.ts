@@ -435,13 +435,18 @@ function filterTasksByCriteria(
     const apiPriorityFilter = toApiPriority(criteria.priority);
     if (apiPriorityFilter !== undefined && task.priority !== apiPriorityFilter)
       return false;
-    if (
-      criteria.content_contains &&
-      !task.content
-        .toLowerCase()
-        .includes(criteria.content_contains.toLowerCase())
-    )
-      return false;
+    // Fix for issue #34: Handle empty string in content_contains
+    if (criteria.content_contains !== undefined) {
+      // Treat empty or whitespace-only strings as "no match"
+      const searchTerm = criteria.content_contains.trim();
+      if (searchTerm === "") {
+        // Empty search should match nothing, not everything
+        return false;
+      }
+      if (!task.content.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return false;
+      }
+    }
 
     if (criteria.due_before || criteria.due_after) {
       const taskDate = getDueDateOnly(task.due);
