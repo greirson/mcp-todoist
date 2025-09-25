@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.8.8] - 2025-01-24
 
 ### Fixed
 - **Hierarchy Parent Display (Issue #37)**: Fixed missing parent task information in `todoist_task_hierarchy_get`
@@ -16,9 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Root Cause**: The function only built the tree downward from the given task, never checking for parents
   - **Solution**: First traverse upward to find the topmost parent, then build complete tree from there
 
-## [0.8.8] - 2025-01-23
-
-### Fixed
 - **Label Filter Fix (Issue #35)**: Fixed label filtering inconsistency in `todoist_task_get` tool
   - The `label_id` parameter now correctly filters tasks by label, supporting:
     - Numeric label IDs (e.g., "123")
