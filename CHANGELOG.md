@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- **Hierarchy Parent Display (Issue #37)**: Fixed missing parent task information in `todoist_task_hierarchy_get`
+  - The hierarchy function now traverses upward to find parent tasks, not just children
+  - When called on a subtask, it now shows the complete hierarchy from the topmost parent
+  - Added visual indicator (`← current task`) to mark the originally requested task in the hierarchy
+  - Enhanced `TaskNode` and `TaskHierarchy` types with `isOriginalTask` and `originalTaskId` fields
+  - **Root Cause**: The function only built the tree downward from the given task, never checking for parents
+  - **Solution**: First traverse upward to find the topmost parent, then build complete tree from there
+
 ## [0.8.8] - 2025-01-23
 
 ### Fixed

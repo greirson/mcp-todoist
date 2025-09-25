@@ -362,6 +362,7 @@ export interface TaskNode {
   children: TaskNode[];
   depth: number;
   completionPercentage: number;
+  isOriginalTask?: boolean;
 }
 
 export interface TaskHierarchy {
@@ -369,4 +370,5 @@ export interface TaskHierarchy {
   totalTasks: number;
   completedTasks: number;
   overallCompletion: number;
+  originalTaskId?: string;
 }
