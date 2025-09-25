@@ -87,7 +87,8 @@ function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
     const status = node.task.isCompleted ? "✓" : "○";
     const completion =
       node.children.length > 0 ? ` [${node.completionPercentage}%]` : "";
-    let result = `${indent}${status} ${node.task.content} (ID: ${node.task.id})${completion}\n`;
+    const currentTaskMarker = node.isOriginalTask ? " ← current task" : "";
+    let result = `${indent}${status} ${node.task.content} (ID: ${node.task.id})${completion}${currentTaskMarker}\n`;
 
     for (const child of node.children) {
       result += formatNode(child, indent + "  ");

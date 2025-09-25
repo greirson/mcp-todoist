@@ -249,15 +249,15 @@ export async function handlePromoteSubtask(
 }
 
 /**
- * Get task hierarchy with all subtasks
+ * Get task hierarchy with all subtasks and parent tasks
  */
 export async function handleGetTaskHierarchy(
   todoistClient: TodoistApi,
   args: GetTaskHierarchyArgs
 ): Promise<TaskHierarchy> {
   try {
-    // Find root task
-    const rootTask = await findTask(todoistClient, {
+    // Find the requested task
+    const requestedTask = await findTask(todoistClient, {
       task_id: args.task_id,
       task_name: args.task_name,
     });
@@ -266,10 +266,30 @@ export async function handleGetTaskHierarchy(
     const response = (await todoistClient.getTasks()) as TasksResponse;
     const allTasks = extractArrayFromResponse(response) as TodoistTask[];
 
-    // Build task tree recursively
+    // Find the topmost parent by traversing upward
+    let topmostParent = requestedTask;
+    const visitedIds = new Set<string>(); // Prevent infinite loops
+
+    while (topmostParent.parentId && !visitedIds.has(topmostParent.id)) {
+      visitedIds.add(topmostParent.id);
+      const parent = allTasks.find((t: unknown) => {
+        const todoTask = t as TodoistTask;
+        return todoTask.id === topmostParent.parentId;
+      });
+
+      if (parent) {
+        topmostParent = parent as TodoistTask;
+      } else {
+        // Parent not found, stop traversal
+        break;
+      }
+    }
+
+    // Build task tree recursively from the topmost parent
     async function buildTaskTree(
       task: TodoistTask,
-      depth: number = 0
+      depth: number = 0,
+      originalTaskId: string = ""
     ): Promise<ExtendedTaskNode> {
       // Find direct children
       const children = allTasks.filter((t: unknown) => {
@@ -282,7 +302,9 @@ export async function handleGetTaskHierarchy(
 
       // Recursively build child nodes
       const childNodes = await Promise.all(
-        children.map((child) => buildTaskTree(child as TodoistTask, depth + 1))
+        children.map((child) =>
+          buildTaskTree(child as TodoistTask, depth + 1, originalTaskId)
+        )
       );
 
       // Calculate completion percentage
@@ -309,10 +331,11 @@ export async function handleGetTaskHierarchy(
         completionPercentage,
         totalTasks: 1 + totalSubtasks,
         completedTasks: (task.isCompleted ? 1 : 0) + completedSubtasks,
+        isOriginalTask: task.id === originalTaskId, // Mark the originally requested task
       };
     }
 
-    const rootNode = await buildTaskTree(rootTask);
+    const rootNode = await buildTaskTree(topmostParent, 0, requestedTask.id);
 
     return {
       root: rootNode,
@@ -321,6 +344,7 @@ export async function handleGetTaskHierarchy(
       overallCompletion: Math.round(
         (rootNode.completedTasks / rootNode.totalTasks) * 100
       ),
+      originalTaskId: requestedTask.id, // Include the originally requested task ID
     };
   } catch (error) {
     throw ErrorHandler.handleAPIError("getTaskHierarchy", error);
