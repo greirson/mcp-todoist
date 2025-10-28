@@ -158,14 +158,19 @@ You can deploy this MCP server to Railway for cloud-based access via HTTP/SSE tr
 **Quick Deploy:**
 1. Create a new project on [Railway.app](https://railway.app)
 2. Connect your GitHub repository
-3. Add environment variable: `TODOIST_API_TOKEN=your_token`
+3. Add environment variables:
+   - `TODOIST_API_TOKEN=your_todoist_token`
+   - `MCP_AUTH_TOKEN=your_secure_token` (generate with `openssl rand -base64 32`)
 4. Deploy automatically
 
 **Features:**
 - HTTP/SSE transport for remote MCP clients
+- Secure authentication with bearer tokens
 - Health check endpoint at `/health`
 - Auto-scaling and monitoring
 - Easy environment variable management
+
+**Security:** All MCP endpoints require authentication via `Authorization: Bearer YOUR_TOKEN` header.
 
 For detailed instructions, see [RAILWAY.md](RAILWAY.md).
 

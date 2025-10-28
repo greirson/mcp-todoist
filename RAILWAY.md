@@ -54,14 +54,37 @@
 
 После создания проекта, перейдите в **Variables** и добавьте:
 
+**Обязательные переменные:**
+
 ```
 TODOIST_API_TOKEN=your_todoist_api_token_here
+MCP_AUTH_TOKEN=your_secure_random_token_here
+```
+
+**Генерация безопасного токена для MCP_AUTH_TOKEN:**
+
+```bash
+# С помощью openssl
+openssl rand -base64 32
+
+# С помощью Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+
+# Или онлайн генератор: https://www.random.org/strings/
 ```
 
 **Опционально:** Для тестирования в dry-run режиме добавьте:
 ```
 DRYRUN=true
 ```
+
+### ⚠️ Безопасность
+
+**MCP_AUTH_TOKEN** защищает ваш HTTP endpoint от несанкционированного доступа:
+- Требуется для всех запросов к `/sse` и `/message`
+- Передается через HTTP заголовок: `Authorization: Bearer YOUR_TOKEN`
+- Публичные endpoints (`/health`, `/`) не требуют аутентификации
+- **Никогда не коммитьте токены в репозиторий** - используйте только переменные окружения Railway
 
 ### Шаг 3: Настройка домена (опционально)
 
@@ -143,20 +166,38 @@ MCP Client <--> HTTP/SSE <--> Express Server <--> MCP Server <--> Todoist API
 
 ## Endpoints
 
-| Endpoint | Метод | Описание |
-|----------|-------|----------|
-| `/` | GET | Информация о сервере |
-| `/health` | GET | Health check для Railway |
-| `/sse` | GET | SSE endpoint для MCP protocol |
-| `/message` | POST | Обработка SSE сообщений |
+| Endpoint | Метод | Аутентификация | Описание |
+|----------|-------|----------------|----------|
+| `/` | GET | ❌ Нет | Информация о сервере |
+| `/health` | GET | ❌ Нет | Health check для Railway |
+| `/sse` | GET | ✅ Требуется | SSE endpoint для MCP protocol |
+| `/message` | POST | ✅ Требуется | Обработка SSE сообщений |
+
+### Использование защищенных endpoints
+
+Защищенные endpoints требуют заголовок `Authorization`:
+
+```bash
+# Пример с curl
+curl -H "Authorization: Bearer YOUR_MCP_AUTH_TOKEN" \
+     https://your-app.railway.app/sse
+
+# Пример с fetch (JavaScript)
+fetch('https://your-app.railway.app/sse', {
+  headers: {
+    'Authorization': 'Bearer YOUR_MCP_AUTH_TOKEN'
+  }
+})
+```
 
 ## Переменные окружения
 
 | Переменная | Обязательна | Описание |
 |------------|-------------|----------|
-| `TODOIST_API_TOKEN` | Да | API токен Todoist |
-| `PORT` | Нет | Порт сервера (Railway устанавливает автоматически) |
-| `DRYRUN` | Нет | Режим сухого запуска (true/false) |
+| `TODOIST_API_TOKEN` | ✅ Да | API токен Todoist |
+| `MCP_AUTH_TOKEN` | ✅ Да | Токен аутентификации для HTTP endpoints |
+| `PORT` | ❌ Нет | Порт сервера (Railway устанавливает автоматически) |
+| `DRYRUN` | ❌ Нет | Режим сухого запуска (true/false) |
 
 ## Локальное тестирование HTTP режима
 
@@ -169,8 +210,16 @@ npm install
 # Соберите проект
 npm run build
 
-# Установите переменные окружения
-export TODOIST_API_TOKEN="your_token"
+# Создайте .env файл
+cp .env.example .env
+
+# Отредактируйте .env и добавьте токены:
+# TODOIST_API_TOKEN=your_todoist_token
+# MCP_AUTH_TOKEN=your_generated_token
+
+# Или установите переменные окружения напрямую
+export TODOIST_API_TOKEN="your_todoist_token"
+export MCP_AUTH_TOKEN="$(openssl rand -base64 32)"
 export PORT=3000
 
 # Запустите HTTP сервер
@@ -178,14 +227,44 @@ npm start
 ```
 
 Откройте в браузере:
-- http://localhost:3000 - информация о сервере
-- http://localhost:3000/health - health check
+- http://localhost:3000 - информация о сервере (публичный)
+- http://localhost:3000/health - health check (публичный)
+
+Для защищенных endpoints используйте curl:
+```bash
+# SSE endpoint (требует аутентификацию)
+curl -H "Authorization: Bearer $MCP_AUTH_TOKEN" \
+     http://localhost:3000/sse
+```
 
 ## Troubleshooting
 
 ### Ошибка: "TODOIST_API_TOKEN environment variable is required"
 
 **Решение**: Добавьте переменную окружения `TODOIST_API_TOKEN` в настройках Railway.
+
+### Ошибка: "MCP_AUTH_TOKEN environment variable is required"
+
+**Решение**:
+1. Сгенерируйте безопасный токен: `openssl rand -base64 32`
+2. Добавьте переменную окружения `MCP_AUTH_TOKEN` в настройках Railway
+3. Используйте этот токен в заголовке `Authorization: Bearer YOUR_TOKEN` при подключении
+
+### Ошибка: "401 Unauthorized" или "403 Forbidden"
+
+**Причины:**
+- Отсутствует заголовок `Authorization`
+- Неверный токен в заголовке
+- Токен не совпадает с `MCP_AUTH_TOKEN` в Railway
+
+**Решение:**
+```bash
+# Проверьте, что токен правильно передается
+curl -v -H "Authorization: Bearer YOUR_TOKEN" \
+     https://your-app.railway.app/sse
+
+# Проверьте токен в Railway Variables
+```
 
 ### Health check fails
 

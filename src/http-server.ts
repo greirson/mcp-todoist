@@ -399,6 +399,14 @@ async function runHTTPServer(): Promise<void> {
     process.exit(1);
   }
 
+  // Check for MCP auth token (required for production security)
+  const MCP_AUTH_TOKEN = process.env.MCP_AUTH_TOKEN;
+  if (!MCP_AUTH_TOKEN) {
+    console.error("Error: MCP_AUTH_TOKEN environment variable is required");
+    console.error("Generate a secure token with: openssl rand -base64 32");
+    process.exit(1);
+  }
+
   // Initialize Todoist client (with optional dry-run wrapper)
   const todoistClient = createTodoistClient(TODOIST_API_TOKEN);
   const apiClient = todoistClient as TodoistApi;
@@ -408,6 +416,34 @@ async function runHTTPServer(): Promise<void> {
 
   // Create Express app
   const app = express();
+
+  // Authentication middleware for protected endpoints
+  const authenticate = (req: express.Request, res: express.Response, next: express.NextFunction): void => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Missing Authorization header. Use: Authorization: Bearer YOUR_MCP_AUTH_TOKEN'
+      });
+      return;
+    }
+
+    const token = authHeader.startsWith('Bearer ')
+      ? authHeader.substring(7)
+      : authHeader;
+
+    if (token !== MCP_AUTH_TOKEN) {
+      console.error('Authentication failed from:', req.ip);
+      res.status(403).json({
+        error: 'Forbidden',
+        message: 'Invalid authentication token'
+      });
+      return;
+    }
+
+    next();
+  };
 
   // Health check endpoint for Railway
   app.get('/health', (_req, res) => {
@@ -433,9 +469,9 @@ async function runHTTPServer(): Promise<void> {
     });
   });
 
-  // SSE endpoint for MCP
-  app.get('/sse', async (req, res) => {
-    console.log('New SSE connection from:', req.ip);
+  // SSE endpoint for MCP (protected with authentication)
+  app.get('/sse', authenticate, async (req, res) => {
+    console.log('New authenticated SSE connection from:', req.ip);
 
     const transport = new SSEServerTransport('/message', res);
     await mcpServer.connect(transport);
@@ -443,8 +479,8 @@ async function runHTTPServer(): Promise<void> {
     console.log('SSE transport connected');
   });
 
-  // Handle SSE messages
-  app.post('/message', async (req, res) => {
+  // Handle SSE messages (protected with authentication)
+  app.post('/message', authenticate, async (req, res) => {
     // SSE transport handles this internally
     res.status(200).end();
   });
