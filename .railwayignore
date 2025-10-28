@@ -1,0 +1,41 @@
+# Railway ignore file - exclude unnecessary files from deployment
+
+# Development files
+node_modules/
+.git/
+.github/
+
+# Testing
+coverage/
+*.test.ts
+*.spec.ts
+__tests__/
+
+# Documentation (already built)
+*.md
+!RAILWAY.md
+LICENSE
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build artifacts (will be rebuilt on Railway)
+dist/
+
+# Misc
+.DS_Store
+Thumbs.db

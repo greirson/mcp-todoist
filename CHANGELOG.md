@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Railway Deployment Support**: Cloud deployment capabilities for HTTP/SSE access
+  - Created `src/http-server.ts` - HTTP server with SSE transport for Railway deployment
+  - Added Express.js dependency for HTTP endpoint handling
+  - Implemented health check endpoint at `/health` for Railway monitoring
+  - Created server info endpoint at `/` with service details
+  - SSE endpoint at `/sse` for MCP protocol over HTTP
+  - Comprehensive deployment guide in `RAILWAY.md`
+  - Railway configuration in `railway.json` with health checks and restart policies
+  - Added `Procfile` for Railway process configuration
+  - Created `.railwayignore` for optimized deployments
+  - Updated `Dockerfile` to support both stdio (Smithery) and HTTP (Railway) modes
+  - New npm scripts:
+    - `npm start` - launches HTTP server for Railway
+    - `npm run start:stdio` - launches stdio server for local Claude Desktop
+
+### Changed
+- **Dual Transport Support**: Server now supports both stdio (local) and HTTP/SSE (cloud) transports
+- **Updated README.md**: Added Railway deployment section with quick start guide
+- **Updated Dockerfile**: Changed default CMD to `npm start` for Railway compatibility
+
+### Technical Implementation
+- **HTTP/SSE Architecture**: Express server wrapping MCP Server with SSE transport
+- **Environment Variables**: Supports `PORT` variable (auto-set by Railway)
+- **Health Monitoring**: `/health` endpoint returns service status and version
+- **Multi-client Support**: HTTP/SSE allows multiple concurrent MCP clients
+- **Backward Compatibility**: Stdio mode still available via `npm run start:stdio`
+
 ## [0.8.8] - 2025-01-24
 
 ### Fixed

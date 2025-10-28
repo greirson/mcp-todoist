@@ -1,4 +1,6 @@
-# Generated for Smithery deployments. See: https://smithery.ai/docs/build/project-config/dockerfile
+# Multi-purpose Dockerfile for MCP Todoist Server
+# - Default (Railway): HTTP/SSE server on port from env
+# - Smithery: stdio transport for desktop clients
 FROM node:20-alpine
 
 WORKDIR /app
@@ -10,5 +12,9 @@ RUN npm ci
 COPY src ./src
 RUN npm run build && npm prune --omit=dev
 
-# Default command runs the MCP server over stdio
-CMD ["node", "dist/index.js"]
+# Expose port for Railway deployment
+EXPOSE 3000
+
+# Default command runs HTTP server (Railway)
+# For stdio mode (Smithery), override with: CMD ["node", "dist/index.js"]
+CMD ["npm", "start"]
