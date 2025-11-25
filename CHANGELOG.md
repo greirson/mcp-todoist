@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.9] - 2025-11-25
+
+### Fixed
+- **Claude Code Compatibility (Issues #47, #48)**: Fixed critical bug where MCP server was completely unusable with Claude Code
+  - Claude Code's API rejects tool schemas using `oneOf`, `allOf`, or `anyOf` at the top level
+  - Removed 9 instances of `anyOf` from tool schemas across 3 files:
+    - `label-tools.ts`: UPDATE_LABEL_TOOL, DELETE_LABEL_TOOL
+    - `comment-tools.ts`: CREATE_COMMENT_TOOL
+    - `subtask-tools.ts`: CREATE_SUBTASK_TOOL, BULK_CREATE_SUBTASKS_TOOL, CONVERT_TO_SUBTASK_TOOL, PROMOTE_SUBTASK_TOOL, GET_TASK_HIERARCHY_TOOL
+  - Runtime validation via existing type guards still enforces "at least one identifier required"
+  - Updated property descriptions to clarify "provide this OR [alternative]" pattern
+  - Server now works with both Claude Desktop and Claude Code
+
 ## [0.8.8] - 2025-01-24
 
 ### Fixed

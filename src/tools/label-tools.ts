@@ -47,13 +47,11 @@ export const UPDATE_LABEL_TOOL: Tool = {
     properties: {
       label_id: {
         type: "string",
-        description:
-          "ID of the label to update (optional if label_name is provided)",
+        description: "ID of the label to update (provide this OR label_name)",
       },
       label_name: {
         type: "string",
-        description:
-          "Name of the label to update (optional if label_id is provided)",
+        description: "Name of the label to update (provide this OR label_id)",
       },
       name: {
         type: "string",
@@ -73,7 +71,6 @@ export const UPDATE_LABEL_TOOL: Tool = {
           "Whether the label should be marked as favorite (optional)",
       },
     },
-    anyOf: [{ required: ["label_id"] }, { required: ["label_name"] }],
   },
 };
 
@@ -85,16 +82,13 @@ export const DELETE_LABEL_TOOL: Tool = {
     properties: {
       label_id: {
         type: "string",
-        description:
-          "ID of the label to delete (optional if label_name is provided)",
+        description: "ID of the label to delete (provide this OR label_name)",
       },
       label_name: {
         type: "string",
-        description:
-          "Name of the label to delete (optional if label_id is provided)",
+        description: "Name of the label to delete (provide this OR label_id)",
       },
     },
-    anyOf: [{ required: ["label_id"] }, { required: ["label_name"] }],
   },
 };
 
