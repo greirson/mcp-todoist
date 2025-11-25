@@ -9,13 +9,12 @@ export const CREATE_COMMENT_TOOL: Tool = {
     properties: {
       task_id: {
         type: "string",
-        description:
-          "ID of the task to comment on (optional if task_name is provided)",
+        description: "ID of the task to comment on (provide this OR task_name)",
       },
       task_name: {
         type: "string",
         description:
-          "Name/content of the task to comment on (optional if task_id is provided)",
+          "Name/content of the task to comment on (provide this OR task_id)",
       },
       content: {
         type: "string",
@@ -42,7 +41,6 @@ export const CREATE_COMMENT_TOOL: Tool = {
       },
     },
     required: ["content"],
-    anyOf: [{ required: ["task_id"] }, { required: ["task_name"] }],
   },
 };
 

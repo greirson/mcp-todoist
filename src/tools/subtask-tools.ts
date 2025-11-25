@@ -9,13 +9,12 @@ export const CREATE_SUBTASK_TOOL: Tool = {
     properties: {
       parent_task_id: {
         type: "string",
-        description:
-          "ID of the parent task (optional if parent_task_name is provided)",
+        description: "ID of the parent task (provide this OR parent_task_name)",
       },
       parent_task_name: {
         type: "string",
         description:
-          "Name/content of the parent task (optional if parent_task_id is provided)",
+          "Name/content of the parent task (provide this OR parent_task_id)",
       },
       content: {
         type: "string",
@@ -47,10 +46,6 @@ export const CREATE_SUBTASK_TOOL: Tool = {
       },
     },
     required: ["content"],
-    anyOf: [
-      { required: ["parent_task_id"] },
-      { required: ["parent_task_name"] },
-    ],
   },
 };
 
@@ -63,13 +58,12 @@ export const BULK_CREATE_SUBTASKS_TOOL: Tool = {
     properties: {
       parent_task_id: {
         type: "string",
-        description:
-          "ID of the parent task (optional if parent_task_name is provided)",
+        description: "ID of the parent task (provide this OR parent_task_name)",
       },
       parent_task_name: {
         type: "string",
         description:
-          "Name/content of the parent task (optional if parent_task_id is provided)",
+          "Name/content of the parent task (provide this OR parent_task_id)",
       },
       subtasks: {
         type: "array",
@@ -110,10 +104,6 @@ export const BULK_CREATE_SUBTASKS_TOOL: Tool = {
       },
     },
     required: ["subtasks"],
-    anyOf: [
-      { required: ["parent_task_id"] },
-      { required: ["parent_task_name"] },
-    ],
   },
 };
 
@@ -125,26 +115,23 @@ export const CONVERT_TO_SUBTASK_TOOL: Tool = {
     properties: {
       task_id: {
         type: "string",
-        description:
-          "ID of the task to convert (optional if task_name is provided)",
+        description: "ID of the task to convert (provide this OR task_name)",
       },
       task_name: {
         type: "string",
         description:
-          "Name/content of the task to convert (optional if task_id is provided)",
+          "Name/content of the task to convert (provide this OR task_id)",
       },
       parent_task_id: {
         type: "string",
-        description:
-          "ID of the parent task (optional if parent_task_name is provided)",
+        description: "ID of the parent task (provide this OR parent_task_name)",
       },
       parent_task_name: {
         type: "string",
         description:
-          "Name/content of the parent task (optional if parent_task_id is provided)",
+          "Name/content of the parent task (provide this OR parent_task_id)",
       },
     },
-    anyOf: [{ required: ["task_id"] }, { required: ["task_name"] }],
   },
 };
 
@@ -157,12 +144,12 @@ export const PROMOTE_SUBTASK_TOOL: Tool = {
       subtask_id: {
         type: "string",
         description:
-          "ID of the subtask to promote (optional if subtask_name is provided)",
+          "ID of the subtask to promote (provide this OR subtask_name)",
       },
       subtask_name: {
         type: "string",
         description:
-          "Name/content of the subtask to promote (optional if subtask_id is provided)",
+          "Name/content of the subtask to promote (provide this OR subtask_id)",
       },
       project_id: {
         type: "string",
@@ -173,7 +160,6 @@ export const PROMOTE_SUBTASK_TOOL: Tool = {
         description: "ID of the section to move the task to (optional)",
       },
     },
-    anyOf: [{ required: ["subtask_id"] }, { required: ["subtask_name"] }],
   },
 };
 
@@ -186,12 +172,12 @@ export const GET_TASK_HIERARCHY_TOOL: Tool = {
       task_id: {
         type: "string",
         description:
-          "ID of the task to get hierarchy for (optional if task_name is provided)",
+          "ID of the task to get hierarchy for (provide this OR task_name)",
       },
       task_name: {
         type: "string",
         description:
-          "Name/content of the task to get hierarchy for (optional if task_id is provided)",
+          "Name/content of the task to get hierarchy for (provide this OR task_id)",
       },
       include_completed: {
         type: "boolean",
@@ -200,7 +186,6 @@ export const GET_TASK_HIERARCHY_TOOL: Tool = {
         default: false,
       },
     },
-    anyOf: [{ required: ["task_id"] }, { required: ["task_name"] }],
   },
 };
 
