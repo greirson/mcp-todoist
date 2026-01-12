@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Completed Tasks Reporting**: New `todoist_completed_tasks_get` tool to fetch completed tasks via Todoist Sync API
+  - Filter by `project_id`, date range (`since`/`until`), and pagination (`limit`/`offset`)
+  - Include notes with `annotate_notes` parameter
+  - Returns task content, completion date, and project name
+  - Limit validation (1-200, matching Todoist API limits)
+  - The REST API v2 doesn't expose completed tasks, so this uses the Sync API directly
+- **Tool Count**: Increased from 28 to 29 tools
+
 ## [0.8.9] - 2025-11-25
 
 ### Fixed
