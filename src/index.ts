@@ -275,7 +275,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (!isGetCompletedTasksArgs(args)) {
           throw new Error("Invalid arguments for todoist_completed_tasks_get");
         }
-        result = await handleGetCompletedTasks(args, TODOIST_API_TOKEN);
+        result = await handleGetCompletedTasks(apiClient, args);
         break;
 
       case "todoist_comment_create":

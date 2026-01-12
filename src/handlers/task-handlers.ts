@@ -23,6 +23,7 @@ import {
   validateProjectId,
   validateSectionId,
   validateLimit,
+  validateOffset,
   validateTaskIdentifier,
   validateBulkSearchCriteria,
 } from "../validation.js";
@@ -919,15 +920,25 @@ export async function handleBulkCompleteTasks(
  * The REST API doesn't support fetching completed tasks, so we use the Sync API directly.
  */
 export async function handleGetCompletedTasks(
-  args: GetCompletedTasksArgs,
-  apiToken: string
+  todoistClient: TodoistApi,
+  args: GetCompletedTasksArgs
 ): Promise<string> {
   return ErrorHandler.wrapAsync("get completed tasks", async () => {
-    // Validate limit
-    if (args.limit !== undefined) {
-      if (args.limit < 1 || args.limit > 200) {
-        throw new ValidationError("Limit must be between 1 and 200", "limit");
-      }
+    // Validate inputs
+    validateLimit(args.limit, 200);
+    validateOffset(args.offset);
+    validateDateString(args.since, "since");
+    validateDateString(args.until, "until");
+    validateProjectId(args.project_id);
+
+    // Extract API token from TodoistApi client
+    const apiToken: string | undefined =
+      (todoistClient as any).authToken ??
+      (todoistClient as any).token ??
+      (todoistClient as any).apiToken;
+
+    if (!apiToken) {
+      throw new Error("Missing API token in TodoistApi client instance.");
     }
 
     // Build query parameters

@@ -6,7 +6,6 @@ import {
   handleTestPerformance,
 } from "../handlers/test-handlers";
 import { handleGetCompletedTasks } from "../handlers/task-handlers";
-import { isGetCompletedTasksArgs } from "../type-guards";
 
 const token = process.env.TODOIST_API_TOKEN;
 const describeIfToken = token ? describe : describe.skip;
@@ -129,7 +128,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
 
   describe("Completed Tasks (Sync API)", () => {
     test("should fetch completed tasks without filters", async () => {
-      const result = await handleGetCompletedTasks({}, token!);
+      const result = await handleGetCompletedTasks(todoistClient!, {});
 
       // Should return either tasks or "no tasks found" message
       expect(typeof result).toBe("string");
@@ -139,7 +138,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
     });
 
     test("should fetch completed tasks with limit", async () => {
-      const result = await handleGetCompletedTasks({ limit: 5 }, token!);
+      const result = await handleGetCompletedTasks(todoistClient!, { limit: 5 });
 
       expect(typeof result).toBe("string");
       // If there are results, count shouldn't exceed limit
@@ -156,7 +155,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
         .toISOString()
         .split("T")[0] + "T00:00:00";
 
-      const result = await handleGetCompletedTasks({ since, until }, token!);
+      const result = await handleGetCompletedTasks(todoistClient!, { since, until });
 
       expect(typeof result).toBe("string");
       expect(
@@ -166,55 +165,17 @@ describeIfToken("Todoist MCP Integration Tests", () => {
 
     test("should handle invalid limit gracefully", async () => {
       await expect(
-        handleGetCompletedTasks({ limit: 500 }, token!)
-      ).rejects.toThrow("Limit must be between 1 and 200");
+        handleGetCompletedTasks(todoistClient!, { limit: 500 })
+      ).rejects.toThrow("Limit must be an integer between 1 and 200");
     });
 
     test("should include project names in output", async () => {
-      const result = await handleGetCompletedTasks({ limit: 3 }, token!);
+      const result = await handleGetCompletedTasks(todoistClient!, { limit: 3 });
 
       // If there are results, they should include project info
       if (!result.includes("No completed tasks")) {
         expect(result.includes("Project:")).toBe(true);
       }
     });
-  });
-});
-
-describe("Completed Tasks Type Guard", () => {
-  test("should accept valid empty args", () => {
-    expect(isGetCompletedTasksArgs({})).toBe(true);
-  });
-
-  test("should accept valid args with all fields", () => {
-    expect(
-      isGetCompletedTasksArgs({
-        project_id: "123",
-        since: "2024-01-01T00:00:00",
-        until: "2024-01-31T23:59:59",
-        limit: 50,
-        offset: 10,
-        annotate_notes: true,
-      })
-    ).toBe(true);
-  });
-
-  test("should accept valid args with partial fields", () => {
-    expect(isGetCompletedTasksArgs({ limit: 100 })).toBe(true);
-    expect(isGetCompletedTasksArgs({ since: "2024-01-01T00:00:00" })).toBe(true);
-    expect(isGetCompletedTasksArgs({ project_id: "123" })).toBe(true);
-  });
-
-  test("should reject invalid types", () => {
-    expect(isGetCompletedTasksArgs({ limit: "50" })).toBe(false);
-    expect(isGetCompletedTasksArgs({ project_id: 123 })).toBe(false);
-    expect(isGetCompletedTasksArgs({ annotate_notes: "true" })).toBe(false);
-  });
-
-  test("should reject null and non-objects", () => {
-    expect(isGetCompletedTasksArgs(null)).toBe(false);
-    expect(isGetCompletedTasksArgs(undefined)).toBe(false);
-    expect(isGetCompletedTasksArgs("string")).toBe(false);
-    expect(isGetCompletedTasksArgs(123)).toBe(false);
   });
 });

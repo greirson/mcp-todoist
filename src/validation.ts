@@ -336,12 +336,26 @@ export function validateSectionName(name: string): string {
   });
 }
 
-export function validateLimit(limit?: number): void {
+export function validateLimit(
+  limit?: number,
+  max: number = 100
+): void {
   if (limit !== undefined) {
-    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    if (!Number.isInteger(limit) || limit < 1 || limit > max) {
       throw new ValidationError(
-        "Limit must be an integer between 1 and 100",
+        `Limit must be an integer between 1 and ${max}`,
         "limit"
+      );
+    }
+  }
+}
+
+export function validateOffset(offset?: number): void {
+  if (offset !== undefined) {
+    if (!Number.isInteger(offset) || offset < 0) {
+      throw new ValidationError(
+        "Offset must be a non-negative integer",
+        "offset"
       );
     }
   }
