@@ -372,3 +372,30 @@ export interface TaskHierarchy {
   overallCompletion: number;
   originalTaskId?: string;
 }
+
+// Completed tasks interfaces (Sync API)
+export interface GetCompletedTasksArgs {
+  project_id?: string;
+  since?: string;
+  until?: string;
+  limit?: number;
+  offset?: number;
+  annotate_notes?: boolean;
+}
+
+export interface CompletedTask {
+  id: string;
+  task_id: string;
+  content: string;
+  completed_at: string;
+  project_id: string;
+  section_id?: string | null;
+  note_count: number;
+  user_id: string;
+}
+
+export interface CompletedTasksResponse {
+  items: CompletedTask[];
+  projects: Record<string, TodoistProject>;
+  sections: Record<string, TodoistSection>;
+}

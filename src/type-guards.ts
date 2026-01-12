@@ -19,6 +19,7 @@ import {
   ConvertToSubtaskArgs,
   PromoteSubtaskArgs,
   GetTaskHierarchyArgs,
+  GetCompletedTasksArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -346,5 +347,21 @@ export function isGetTaskHierarchyArgs(
     (obj.task_id !== undefined || obj.task_name !== undefined) &&
     (obj.include_completed === undefined ||
       typeof obj.include_completed === "boolean")
+  );
+}
+
+export function isGetCompletedTasksArgs(
+  args: unknown
+): args is GetCompletedTasksArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.since === undefined || typeof obj.since === "string") &&
+    (obj.until === undefined || typeof obj.until === "string") &&
+    (obj.limit === undefined || typeof obj.limit === "number") &&
+    (obj.offset === undefined || typeof obj.offset === "number") &&
+    (obj.annotate_notes === undefined || typeof obj.annotate_notes === "boolean")
   );
 }
