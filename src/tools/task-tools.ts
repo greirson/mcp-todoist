@@ -433,6 +433,48 @@ export const BULK_COMPLETE_TASKS_TOOL: Tool = {
   },
 };
 
+export const GET_COMPLETED_TASKS_TOOL: Tool = {
+  name: "todoist_completed_tasks_get",
+  description:
+    "Retrieve completed tasks from Todoist. Uses the Sync API to fetch tasks that have been marked as complete. Supports filtering by project, date range, and pagination.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      project_id: {
+        type: "string",
+        description: "Filter completed tasks by project ID (optional)",
+      },
+      since: {
+        type: "string",
+        description:
+          "Return tasks completed after this date/time. ISO 8601 format, e.g., '2024-01-01T00:00:00' (optional)",
+      },
+      until: {
+        type: "string",
+        description:
+          "Return tasks completed before or on this date/time. ISO 8601 format, e.g., '2024-01-31T23:59:59' (optional)",
+      },
+      limit: {
+        type: "number",
+        description:
+          "Maximum number of completed tasks to return (default: 30, max: 200)",
+        minimum: 1,
+        maximum: 200,
+      },
+      offset: {
+        type: "number",
+        description: "Number of tasks to skip for pagination (optional)",
+        minimum: 0,
+      },
+      annotate_notes: {
+        type: "boolean",
+        description: "Include notes/comments with completed tasks (optional)",
+      },
+    },
+    required: [],
+  },
+};
+
 export const TASK_TOOLS = [
   CREATE_TASK_TOOL,
   GET_TASKS_TOOL,
@@ -443,4 +485,5 @@ export const TASK_TOOLS = [
   BULK_UPDATE_TASKS_TOOL,
   BULK_DELETE_TASKS_TOOL,
   BULK_COMPLETE_TASKS_TOOL,
+  GET_COMPLETED_TASKS_TOOL,
 ];

@@ -45,6 +45,7 @@ import {
   isCreateReminderArgs,
   isUpdateReminderArgs,
   isDeleteReminderArgs,
+  isGetCompletedTasksArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -56,6 +57,7 @@ import {
   handleBulkUpdateTasks,
   handleBulkDeleteTasks,
   handleBulkCompleteTasks,
+  handleGetCompletedTasks,
 } from "./handlers/task-handlers.js";
 import {
   handleGetProjects,
@@ -267,6 +269,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_tasks_bulk_complete");
         }
         result = await handleBulkCompleteTasks(apiClient, args);
+        break;
+
+      case "todoist_completed_tasks_get":
+        if (!isGetCompletedTasksArgs(args)) {
+          throw new Error("Invalid arguments for todoist_completed_tasks_get");
+        }
+        result = await handleGetCompletedTasks(args, TODOIST_API_TOKEN);
         break;
 
       case "todoist_comment_create":

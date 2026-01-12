@@ -27,6 +27,7 @@ import {
   CreateReminderArgs,
   UpdateReminderArgs,
   DeleteReminderArgs,
+  GetCompletedTasksArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -438,7 +439,9 @@ export function isGetRemindersArgs(args: unknown): args is GetRemindersArgs {
   );
 }
 
-export function isCreateReminderArgs(args: unknown): args is CreateReminderArgs {
+export function isCreateReminderArgs(
+  args: unknown
+): args is CreateReminderArgs {
   if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
@@ -457,10 +460,12 @@ export function isCreateReminderArgs(args: unknown): args is CreateReminderArgs 
   return (
     (obj.task_id === undefined || typeof obj.task_id === "string") &&
     (obj.task_name === undefined || typeof obj.task_name === "string") &&
-    (obj.minute_offset === undefined || typeof obj.minute_offset === "number") &&
+    (obj.minute_offset === undefined ||
+      typeof obj.minute_offset === "number") &&
     (obj.due_date === undefined || typeof obj.due_date === "string") &&
     (obj.timezone === undefined || typeof obj.timezone === "string") &&
-    (obj.location_name === undefined || typeof obj.location_name === "string") &&
+    (obj.location_name === undefined ||
+      typeof obj.location_name === "string") &&
     (obj.latitude === undefined || typeof obj.latitude === "string") &&
     (obj.longitude === undefined || typeof obj.longitude === "string") &&
     (obj.location_trigger === undefined ||
@@ -470,7 +475,9 @@ export function isCreateReminderArgs(args: unknown): args is CreateReminderArgs 
   );
 }
 
-export function isUpdateReminderArgs(args: unknown): args is UpdateReminderArgs {
+export function isUpdateReminderArgs(
+  args: unknown
+): args is UpdateReminderArgs {
   if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
@@ -483,11 +490,14 @@ export function isUpdateReminderArgs(args: unknown): args is UpdateReminderArgs 
   // Validate optional fields
   return (
     (obj.type === undefined ||
-      (typeof obj.type === "string" && VALID_REMINDER_TYPES.includes(obj.type))) &&
-    (obj.minute_offset === undefined || typeof obj.minute_offset === "number") &&
+      (typeof obj.type === "string" &&
+        VALID_REMINDER_TYPES.includes(obj.type))) &&
+    (obj.minute_offset === undefined ||
+      typeof obj.minute_offset === "number") &&
     (obj.due_date === undefined || typeof obj.due_date === "string") &&
     (obj.timezone === undefined || typeof obj.timezone === "string") &&
-    (obj.location_name === undefined || typeof obj.location_name === "string") &&
+    (obj.location_name === undefined ||
+      typeof obj.location_name === "string") &&
     (obj.latitude === undefined || typeof obj.latitude === "string") &&
     (obj.longitude === undefined || typeof obj.longitude === "string") &&
     (obj.location_trigger === undefined ||
@@ -497,11 +507,31 @@ export function isUpdateReminderArgs(args: unknown): args is UpdateReminderArgs 
   );
 }
 
-export function isDeleteReminderArgs(args: unknown): args is DeleteReminderArgs {
+export function isDeleteReminderArgs(
+  args: unknown
+): args is DeleteReminderArgs {
   if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
 
   // Must have reminder_id
   return "reminder_id" in obj && typeof obj.reminder_id === "string";
+}
+
+// Completed tasks type guard
+export function isGetCompletedTasksArgs(
+  args: unknown
+): args is GetCompletedTasksArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.since === undefined || typeof obj.since === "string") &&
+    (obj.until === undefined || typeof obj.until === "string") &&
+    (obj.limit === undefined || typeof obj.limit === "number") &&
+    (obj.offset === undefined || typeof obj.offset === "number") &&
+    (obj.annotate_notes === undefined ||
+      typeof obj.annotate_notes === "boolean")
+  );
 }

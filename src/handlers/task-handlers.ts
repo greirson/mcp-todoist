@@ -7,6 +7,8 @@ import {
   BulkCreateTasksArgs,
   BulkUpdateTasksArgs,
   BulkTaskFilterArgs,
+  GetCompletedTasksArgs,
+  CompletedTasksResponse,
 } from "../types.js";
 import { CacheManager } from "../cache.js";
 import { ValidationError } from "../errors.js";
@@ -910,4 +912,94 @@ export async function handleBulkCompleteTasks(
   } catch (error) {
     ErrorHandler.handleAPIError("bulk complete tasks", error);
   }
+}
+
+/**
+ * Fetches completed tasks from the Todoist Sync API.
+ * The REST API doesn't support fetching completed tasks, so we use the Sync API directly.
+ */
+export async function handleGetCompletedTasks(
+  args: GetCompletedTasksArgs,
+  apiToken: string
+): Promise<string> {
+  return ErrorHandler.wrapAsync("get completed tasks", async () => {
+    // Validate limit
+    if (args.limit !== undefined) {
+      if (args.limit < 1 || args.limit > 200) {
+        throw new ValidationError("Limit must be between 1 and 200", "limit");
+      }
+    }
+
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (args.project_id) {
+      params.append("project_id", args.project_id);
+    }
+    if (args.since) {
+      params.append("since", args.since);
+    }
+    if (args.until) {
+      params.append("until", args.until);
+    }
+    if (args.limit !== undefined) {
+      params.append("limit", args.limit.toString());
+    }
+    if (args.offset !== undefined) {
+      params.append("offset", args.offset.toString());
+    }
+    if (args.annotate_notes !== undefined) {
+      params.append("annotate_notes", args.annotate_notes.toString());
+    }
+
+    const queryString = params.toString();
+    const url = `https://api.todoist.com/sync/v9/completed/get_all${queryString ? `?${queryString}` : ""}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      if (response.status === 401) {
+        throw new Error("Authentication failed. Check your API token.");
+      } else if (response.status === 403) {
+        throw new Error("Access denied. Premium feature may be required.");
+      }
+      throw new Error(`Todoist API error (${response.status}): ${errorText}`);
+    }
+
+    const data: CompletedTasksResponse = await response.json();
+
+    if (!data.items || data.items.length === 0) {
+      return "No completed tasks found matching the criteria.";
+    }
+
+    // Format the response
+    const taskCount = data.items.length;
+    const taskWord = taskCount === 1 ? "task" : "tasks";
+
+    let result = `${taskCount} completed ${taskWord} found:\n\n`;
+
+    for (const item of data.items) {
+      // Get project name if available
+      const projectName =
+        data.projects[item.project_id]?.name || "Unknown Project";
+
+      // Format completion date
+      const completedDate = item.completed_at.split("T")[0];
+
+      result += `- ${item.content}\n`;
+      result += `  Completed: ${completedDate}\n`;
+      result += `  Project: ${projectName}\n`;
+      if (item.note_count > 0) {
+        result += `  Notes: ${item.note_count}\n`;
+      }
+      result += "\n";
+    }
+
+    return result.trim();
+  });
 }
