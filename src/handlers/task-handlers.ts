@@ -11,7 +11,11 @@ import {
   CompletedTasksResponse,
 } from "../types.js";
 import { CacheManager } from "../cache.js";
-import { ValidationError } from "../errors.js";
+import {
+  ValidationError,
+  AuthenticationError,
+  TodoistAPIError,
+} from "../errors.js";
 // Removed unused imports - now using ErrorHandler utility
 import { extractTaskIdentifiers } from "../utils/parameter-transformer.js";
 import {
@@ -979,11 +983,15 @@ export async function handleGetCompletedTasks(
     if (!response.ok) {
       const errorText = await response.text();
       if (response.status === 401) {
-        throw new Error("Authentication failed. Check your API token.");
+        throw new AuthenticationError();
       } else if (response.status === 403) {
-        throw new Error("Access denied. Premium feature may be required.");
+        throw new TodoistAPIError(
+          "Access denied. Completed tasks may require Todoist Premium."
+        );
       }
-      throw new Error(`Todoist API error (${response.status}): ${errorText}`);
+      throw new TodoistAPIError(
+        `Sync API error (${response.status}): ${errorText}`
+      );
     }
 
     const data: CompletedTasksResponse = await response.json();
