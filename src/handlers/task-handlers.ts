@@ -924,7 +924,20 @@ export async function handleBulkCompleteTasks(
 
 /**
  * Fetches completed tasks from the Todoist Sync API.
- * The REST API doesn't support fetching completed tasks, so we use the Sync API directly.
+ *
+ * Implementation Notes:
+ * - The REST API v2 doesn't support fetching completed tasks, so we use the Sync API directly.
+ * - We extract the API token from the TodoistApi client to make direct HTTP requests.
+ *   This relies on internal implementation details of the library and may need updates
+ *   if the library structure changes.
+ * - Caching is not used because completed tasks are read-only and change infrequently.
+ *   Each call fetches fresh data from the API.
+ * - Dry-run mode is supported: when DRYRUN=true, returns a simulated response
+ *   without making actual API calls.
+ *
+ * @param todoistClient - The TodoistApi client instance (token is extracted from it)
+ * @param args - Query parameters including project_id, since, until, limit, offset
+ * @returns Formatted string with completed task details
  */
 export async function handleGetCompletedTasks(
   todoistClient: TodoistApi,
