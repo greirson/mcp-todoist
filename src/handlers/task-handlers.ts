@@ -19,6 +19,7 @@ import {
   validateDescription,
   validatePriority,
   validateDateString,
+  validateIsoDatetime,
   validateLabels,
   validateProjectId,
   validateSectionId,
@@ -928,8 +929,8 @@ export async function handleGetCompletedTasks(
     // Validate inputs
     validateLimit(args.limit, 200);
     validateOffset(args.offset);
-    validateDateString(args.since, "since");
-    validateDateString(args.until, "until");
+    validateIsoDatetime(args.since, "since");
+    validateIsoDatetime(args.until, "until");
     validateProjectId(args.project_id);
 
     // Check dry-run mode - return early without making actual API call
