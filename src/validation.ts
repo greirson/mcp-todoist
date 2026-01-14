@@ -259,6 +259,39 @@ export function validateDateString(
   }
 }
 
+/**
+ * Validates ISO 8601 datetime strings for Sync API parameters.
+ * Accepts both date-only (YYYY-MM-DD) and datetime (YYYY-MM-DDTHH:MM:SS) formats.
+ *
+ * @param datetime - The datetime string to validate
+ * @param fieldName - Field name for error messages (default: "datetime")
+ */
+export function validateIsoDatetime(
+  datetime?: string,
+  fieldName = "datetime"
+): void {
+  if (datetime !== undefined) {
+    if (typeof datetime !== "string") {
+      throw new ValidationError(`${fieldName} must be a string`, fieldName);
+    }
+
+    // ISO 8601 format: YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS (seconds optional)
+    const isoRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$/;
+    if (!isoRegex.test(datetime)) {
+      throw new ValidationError(
+        `${fieldName} must be in ISO 8601 format (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS)`,
+        fieldName
+      );
+    }
+
+    // Also validate that it's a valid date
+    const date = new Date(datetime);
+    if (isNaN(date.getTime())) {
+      throw new ValidationError(`${fieldName} is not a valid date`, fieldName);
+    }
+  }
+}
+
 export function validateLabels(labels?: string[]): void {
   if (labels !== undefined) {
     if (!Array.isArray(labels)) {
