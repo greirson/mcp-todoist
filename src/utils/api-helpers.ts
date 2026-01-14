@@ -2,9 +2,11 @@
  * Shared API utilities for handling Todoist API responses and common operations
  */
 
+import { TodoistApi } from "@doist/todoist-api-typescript";
 import { TodoistTaskDueData } from "../types.js";
 import { formatDueDetails } from "./datetime-utils.js";
 import { fromApiPriority } from "./priority-mapper.js";
+import { AuthenticationError } from "../errors.js";
 
 /**
  * Generic interface for Todoist API responses that may return data in different formats
@@ -207,4 +209,31 @@ export async function resolveProjectIdentifier(
 
   // If not found, throw an error
   throw new Error(`Project not found: "${projectIdentifier}"`);
+}
+
+/**
+ * Extracts the API token from a TodoistApi client instance.
+ * This is needed for direct API calls (e.g., Sync API) that bypass the SDK.
+ *
+ * Note: This relies on internal implementation details of the TodoistApi client.
+ * If the library's internal structure changes, this may need to be updated.
+ *
+ * @param client - The TodoistApi client instance
+ * @returns The API token string
+ * @throws AuthenticationError if token cannot be extracted
+ */
+export function extractApiToken(client: TodoistApi): string {
+  // Try multiple possible property names for compatibility
+  // Cast through unknown first to satisfy TypeScript strict mode
+  const clientObj = client as unknown as Record<string, unknown>;
+  const apiToken: string | undefined =
+    (clientObj.authToken as string | undefined) ??
+    (clientObj.token as string | undefined) ??
+    (clientObj.apiToken as string | undefined);
+
+  if (!apiToken) {
+    throw new AuthenticationError();
+  }
+
+  return apiToken;
 }

@@ -73,7 +73,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 28 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 29 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support
@@ -180,7 +180,7 @@ Complete simulation framework for safe testing and validation:
 - **Mock Response Generation**: Returns realistic mock data with generated IDs for mutation operations
 - **Detailed Logging**: Clear `[DRY-RUN]` prefixes show exactly what operations would perform
 - **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
-- **Comprehensive Coverage**: All 28 MCP tools support dry-run mode with full validation
+- **Comprehensive Coverage**: All 29 MCP tools support dry-run mode with full validation
 - **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
 
 ### Data Flow Pattern
@@ -273,8 +273,13 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Dry-Run Mode**: Enable with `DRYRUN=true` environment variable for safe testing and validation
   - Uses real API data for validation while simulating mutations
-  - All 28 MCP tools support dry-run mode with comprehensive logging
+  - All 29 MCP tools support dry-run mode with comprehensive logging
   - Perfect for testing automations, learning the API, and safe experimentation
+- **Sync API Usage**: The `todoist_completed_tasks_get` tool uses the Todoist Sync API directly because the REST API doesn't support completed tasks retrieval
+  - Makes direct HTTP requests with the API token extracted from the TodoistApi client
+  - This pattern may need updates if the `@doist/todoist-api-typescript` library structure changes
+  - Supports ISO 8601 datetime format for date filtering (e.g., `2024-01-01T00:00:00`)
+  - No caching is used since completed tasks are read-only and change infrequently
 - **Task Search**: Update/delete/complete operations support both:
   - **Task ID**: Direct lookup by ID (more reliable, takes precedence)
   - **Task Name**: Case-insensitive partial string matching against task content
@@ -310,13 +315,13 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
 - ✅ **Phase 3**: Subtask Management (v0.8.0) - Hierarchical task management with parent-child relationships
   - ✅ **Subtask Handlers**: Created `src/handlers/subtask-handlers.ts` with full CRUD operations for hierarchical tasks
   - ✅ **Enhanced Testing**: Built `src/handlers/test-handlers-enhanced.ts` with comprehensive CRUD testing and automatic cleanup
-  - ✅ **New MCP Tools**: Added 5 subtask management tools (total: 28 tools)
+  - ✅ **New MCP Tools**: Added 5 subtask management tools (total: 29 tools)
   - ✅ **Type System Enhancement**: Extended type definitions for subtask operations and hierarchy management
   - ✅ **API Compatibility**: Implemented workarounds for Todoist API limitations using delete & recreate patterns
 - ✅ **Dry-Run Mode Implementation**: Complete simulation framework for safe testing and validation
   - ✅ **DryRunWrapper Architecture**: Created `src/utils/dry-run-wrapper.ts` for operation simulation
   - ✅ **Environment Configuration**: Enabled via `DRYRUN=true` environment variable
-  - ✅ **Comprehensive Tool Support**: All 28 MCP tools support dry-run mode with full validation
+  - ✅ **Comprehensive Tool Support**: All 29 MCP tools support dry-run mode with full validation
   - ✅ **Real Data Validation**: Uses actual API calls to validate while simulating mutations
   - ✅ **Factory Pattern Integration**: `createTodoistClient()` automatically handles dry-run wrapping
   - ✅ **Test Coverage**: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`
