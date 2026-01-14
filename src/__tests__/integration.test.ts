@@ -138,7 +138,9 @@ describeIfToken("Todoist MCP Integration Tests", () => {
     });
 
     test("should fetch completed tasks with limit", async () => {
-      const result = await handleGetCompletedTasks(todoistClient!, { limit: 5 });
+      const result = await handleGetCompletedTasks(todoistClient!, {
+        limit: 5,
+      });
 
       expect(typeof result).toBe("string");
       // If there are results, count shouldn't exceed limit
@@ -151,11 +153,15 @@ describeIfToken("Todoist MCP Integration Tests", () => {
     test("should fetch completed tasks with date range", async () => {
       // Get tasks from the last 7 days
       const until = new Date().toISOString().split("T")[0] + "T23:59:59";
-      const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split("T")[0] + "T00:00:00";
+      const since =
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0] + "T00:00:00";
 
-      const result = await handleGetCompletedTasks(todoistClient!, { since, until });
+      const result = await handleGetCompletedTasks(todoistClient!, {
+        since,
+        until,
+      });
 
       expect(typeof result).toBe("string");
       expect(
@@ -170,7 +176,9 @@ describeIfToken("Todoist MCP Integration Tests", () => {
     });
 
     test("should include project names in output", async () => {
-      const result = await handleGetCompletedTasks(todoistClient!, { limit: 3 });
+      const result = await handleGetCompletedTasks(todoistClient!, {
+        limit: 3,
+      });
 
       // If there are results, they should include project info
       if (!result.includes("No completed tasks")) {
