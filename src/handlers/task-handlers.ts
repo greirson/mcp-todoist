@@ -31,6 +31,7 @@ import {
   validateOffset,
   validateTaskIdentifier,
   validateBulkSearchCriteria,
+  VALIDATION_LIMITS,
 } from "../validation.js";
 import {
   resolveProjectIdentifier,
@@ -930,8 +931,8 @@ export async function handleGetCompletedTasks(
   args: GetCompletedTasksArgs
 ): Promise<string> {
   return ErrorHandler.wrapAsync("get completed tasks", async () => {
-    // Validate inputs
-    validateLimit(args.limit, 200);
+    // Validate inputs (Sync API supports higher limit than REST API)
+    validateLimit(args.limit, VALIDATION_LIMITS.SYNC_API_LIMIT_MAX);
     validateOffset(args.offset);
     validateIsoDatetime(args.since, "since");
     validateIsoDatetime(args.until, "until");
