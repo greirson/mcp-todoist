@@ -931,6 +931,15 @@ export async function handleGetCompletedTasks(
     validateDateString(args.until, "until");
     validateProjectId(args.project_id);
 
+    // Check dry-run mode - return early without making actual API call
+    if (process.env.DRYRUN === "true") {
+      console.error("[DRY-RUN] Would fetch completed tasks from Sync API");
+      console.error(
+        `[DRY-RUN] Parameters: project_id=${args.project_id || "all"}, since=${args.since || "none"}, until=${args.until || "none"}, limit=${args.limit || 30}, offset=${args.offset || 0}`
+      );
+      return "DRY-RUN: Would retrieve completed tasks from Todoist Sync API. No actual API call made.";
+    }
+
     // Extract API token from TodoistApi client
     const apiToken: string | undefined =
       (todoistClient as any).authToken ??
