@@ -32,6 +32,7 @@ import {
   extractArrayFromResponse,
   createCacheKey,
   formatTaskForDisplay,
+  extractApiToken,
 } from "../utils/api-helpers.js";
 import { formatDueDetails, getDueDateOnly } from "../utils/datetime-utils.js";
 import { toApiPriority, fromApiPriority } from "../utils/priority-mapper.js";
@@ -940,15 +941,8 @@ export async function handleGetCompletedTasks(
       return "DRY-RUN: Would retrieve completed tasks from Todoist Sync API. No actual API call made.";
     }
 
-    // Extract API token from TodoistApi client
-    const apiToken: string | undefined =
-      (todoistClient as any).authToken ??
-      (todoistClient as any).token ??
-      (todoistClient as any).apiToken;
-
-    if (!apiToken) {
-      throw new Error("Missing API token in TodoistApi client instance.");
-    }
+    // Extract API token from TodoistApi client (needed for Sync API calls)
+    const apiToken = extractApiToken(todoistClient);
 
     // Build query parameters
     const params = new URLSearchParams();
