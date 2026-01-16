@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.9.0] - 2026-01-15
+## [0.9.0] - 2026-01-16
 
 ### Added
 - **Phase 8: Full Comment Management**: Complete CRUD operations for comments
@@ -26,6 +26,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Handler Functions**: Added `handleUpdateComment()` and `handleDeleteComment()` in `comment-handlers.ts`
 - **Dry-Run Support**: Comment update and delete operations already supported by existing DryRunWrapper
 - **Cache Integration**: Comment operations properly invalidate cache on mutations
+
+## [0.8.10] - 2026-01-15
+
+### Changed
+- **Dependency Updates**: Updated all dependencies to latest versions
+  - Core dependencies:
+    - `@doist/todoist-api-typescript`: 5.1.1 -> 5.5.1 (new Todoist API features)
+    - `@modelcontextprotocol/sdk`: 1.17.1 -> 1.18.2 (MCP protocol improvements)
+  - TypeScript tooling:
+    - `typescript`: 5.7.2 -> 5.9.3
+    - `@types/node`: 22.10.1 -> 24.6.1
+  - Linting:
+    - `@typescript-eslint/eslint-plugin`: 8.32.1 -> 8.48.0
+    - `@typescript-eslint/parser`: 8.32.1 -> 8.48.0
+  - Testing:
+    - `jest`: 30.0.5 -> 30.2.0
+- All tests pass with updated dependencies
+- No breaking changes or deprecated API calls detected
 
 ## [0.8.9] - 2025-11-25
 
