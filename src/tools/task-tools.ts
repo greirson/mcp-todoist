@@ -4,7 +4,7 @@ import { Tool } from "@modelcontextprotocol/sdk/types.js";
 export const CREATE_TASK_TOOL: Tool = {
   name: "todoist_task_create",
   description:
-    "Create a new task in Todoist with optional description, due date, priority, labels, deadline, project, and section",
+    "Create a new task in Todoist with optional description, due date, priority, labels, deadline, project, section, and duration for time blocking",
   inputSchema: {
     type: "object",
     properties: {
@@ -46,6 +46,17 @@ export const CREATE_TASK_TOOL: Tool = {
         type: "string",
         description:
           "Section ID within the project to assign the task to (optional)",
+      },
+      duration: {
+        type: "number",
+        description:
+          "Task duration amount for time blocking (e.g., 30 for 30 minutes, 2 for 2 days) (optional)",
+      },
+      duration_unit: {
+        type: "string",
+        description:
+          "Duration unit: 'minute' or 'day'. Defaults to 'minute' if duration is provided (optional)",
+        enum: ["minute", "day"],
       },
     },
     required: ["content"],
@@ -115,7 +126,7 @@ export const GET_TASKS_TOOL: Tool = {
 export const UPDATE_TASK_TOOL: Tool = {
   name: "todoist_task_update",
   description:
-    "Update an existing task found by ID or partial name search. Supports updating content, description, due date, priority, labels, deadline, project, and section",
+    "Update an existing task found by ID or partial name search. Supports updating content, description, due date, priority, labels, deadline, project, section, and duration",
   inputSchema: {
     type: "object",
     properties: {
@@ -166,6 +177,17 @@ export const UPDATE_TASK_TOOL: Tool = {
         type: "string",
         description: "Move task to this section ID (optional)",
       },
+      duration: {
+        type: "number",
+        description:
+          "New task duration amount for time blocking (e.g., 30 for 30 minutes) (optional)",
+      },
+      duration_unit: {
+        type: "string",
+        description:
+          "Duration unit: 'minute' or 'day'. Defaults to 'minute' if duration is provided (optional)",
+        enum: ["minute", "day"],
+      },
     },
     required: [],
   },
@@ -215,10 +237,32 @@ export const COMPLETE_TASK_TOOL: Tool = {
   },
 };
 
+export const REOPEN_TASK_TOOL: Tool = {
+  name: "todoist_task_reopen",
+  description:
+    "Reopen a previously completed task found by ID or partial name search (case-insensitive). Use this to restore a task that was marked as complete.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      task_id: {
+        type: "string",
+        description:
+          "Task ID to reopen (optional, takes precedence over task_name)",
+      },
+      task_name: {
+        type: "string",
+        description:
+          "Partial task name to search for reopening (used if task_id not provided)",
+      },
+    },
+    required: [],
+  },
+};
+
 export const BULK_CREATE_TASKS_TOOL: Tool = {
   name: "todoist_tasks_bulk_create",
   description:
-    "Create multiple tasks at once for improved efficiency. Each task can have full attributes like individual task creation.",
+    "Create multiple tasks at once for improved efficiency. Each task can have full attributes including duration for time blocking.",
   inputSchema: {
     type: "object",
     properties: {
@@ -266,6 +310,17 @@ export const BULK_CREATE_TASKS_TOOL: Tool = {
               type: "string",
               description: "Section ID to assign the task to (optional)",
             },
+            duration: {
+              type: "number",
+              description:
+                "Task duration amount for time blocking (e.g., 30 for 30 minutes) (optional)",
+            },
+            duration_unit: {
+              type: "string",
+              description:
+                "Duration unit: 'minute' or 'day'. Defaults to 'minute' (optional)",
+              enum: ["minute", "day"],
+            },
           },
           required: ["content"],
         },
@@ -280,7 +335,7 @@ export const BULK_CREATE_TASKS_TOOL: Tool = {
 export const BULK_UPDATE_TASKS_TOOL: Tool = {
   name: "todoist_tasks_bulk_update",
   description:
-    "Update multiple tasks at once based on search criteria. Very efficient for updating many tasks with the same changes.",
+    "Update multiple tasks at once based on search criteria. Supports updating content, priority, due dates, labels, project, section, and duration.",
   inputSchema: {
     type: "object",
     properties: {
@@ -352,6 +407,17 @@ export const BULK_UPDATE_TASKS_TOOL: Tool = {
           section_id: {
             type: "string",
             description: "Move matching tasks to this section (optional)",
+          },
+          duration: {
+            type: "number",
+            description:
+              "New task duration amount for time blocking (optional)",
+          },
+          duration_unit: {
+            type: "string",
+            description:
+              "Duration unit: 'minute' or 'day'. Defaults to 'minute' (optional)",
+            enum: ["minute", "day"],
           },
         },
         description: "Updates to apply to matching tasks",
@@ -480,6 +546,7 @@ export const TASK_TOOLS = [
   UPDATE_TASK_TOOL,
   DELETE_TASK_TOOL,
   COMPLETE_TASK_TOOL,
+  REOPEN_TASK_TOOL,
   BULK_CREATE_TASKS_TOOL,
   BULK_UPDATE_TASKS_TOOL,
   BULK_DELETE_TASKS_TOOL,

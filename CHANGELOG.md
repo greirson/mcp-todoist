@@ -5,9 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.9.0] - 2025-01-15
+## [0.9.0] - 2026-01-16
 
 ### Added
+- **Phase 4: Duration & Task Enhancements**: Complete task duration support and reopen capability
+  - **Task Duration Support**: Added `duration` and `duration_unit` parameters for time blocking workflows
+    - `duration`: Integer value (1-1440) representing task duration
+    - `duration_unit`: Either "minute" or "day" (defaults to "minute")
+    - Available on: `todoist_task_create`, `todoist_task_update`, `todoist_tasks_bulk_create`, `todoist_tasks_bulk_update`
+  - **Task Reopen Tool**: New `todoist_task_reopen` tool to restore completed tasks
+    - Supports both `task_id` and `task_name` parameters for flexible task identification
+    - Uses Todoist API's native `reopenTask()` method
+    - Integrates with dry-run mode for safe testing
+  - **Duration Validation**: Comprehensive input validation for duration parameters
+    - Integer validation (no decimals)
+    - Range validation (1-1440)
+    - Unit validation (minute or day only)
+    - Pair validation (duration_unit requires duration)
+  - **Test Coverage**: Added comprehensive tests for duration validation and reopen functionality
+    - Unit tests in `src/__tests__/duration-validation.test.ts`
+    - Integration tests in `src/handlers/test-handlers-enhanced/duration-reopen-tests.ts`
 - **Quick Add Task (Phase 5)**: New `todoist_task_quick_add` tool for natural language task creation
   - Parses text like the official Todoist app with support for:
     - Due dates in free form text (e.g., "tomorrow", "next Monday", "Jan 23")
@@ -24,16 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Full dry-run mode support for safe testing
   - Comprehensive test suite with 5 integration tests
 
-### Technical Implementation
-- Direct integration with Todoist Quick Add API (`POST /api/v1/tasks/quick`)
-- Uses native `fetch` for HTTP requests since SDK doesn't expose Quick Add endpoint
-- Added `QuickAddTaskArgs` and `QuickAddTaskResult` type definitions
-- Added `isQuickAddTaskArgs` type guard for input validation
-- Enhanced test suite in `test-handlers-enhanced/quick-add-tests.ts`
-- Tool count increased from 28 to 29
-
 ### Changed
-- **Dependency Updates**: Updated all dependencies to latest versions (merged from v0.8.10)
+- **Tool Count**: Increased from 28 to 30 tools (task reopen + quick add)
+- **Type System**: Extended with `DurationUnit`, `TaskDuration`, `ReopenTaskArgs`, `QuickAddTaskArgs`, `QuickAddTaskResult` types
+- **Task Tools**: CREATE, UPDATE, BULK_CREATE, and BULK_UPDATE now support duration parameters
+- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations and Quick Add tests
+- **Dependency Updates**: Updated all dependencies to latest versions
   - Core dependencies:
     - `@doist/todoist-api-typescript`: 5.1.1 -> 5.5.1 (new Todoist API features)
     - `@modelcontextprotocol/sdk`: 1.17.1 -> 1.18.2 (MCP protocol improvements)
@@ -47,6 +60,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `jest`: 30.0.5 -> 30.2.0
 - All tests pass with updated dependencies
 
+### Technical Implementation
+- **Duration API Integration**: Uses Todoist SDK's `duration` and `durationUnit` parameters
+- **Validation Layer**: New `validateDuration()`, `validateDurationUnit()`, and `validateDurationPair()` functions
+- **Handler Updates**: All relevant task handlers updated to process duration parameters
+- **Dry-Run Support**: Duration and reopen operations fully supported in dry-run mode
+- **Quick Add API**: Direct integration with Todoist Quick Add API (`POST /api/v1/tasks/quick`)
+- Added `isQuickAddTaskArgs` type guard for input validation
 ## [0.8.9] - 2025-11-25
 
 ### Fixed

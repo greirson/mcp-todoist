@@ -209,7 +209,7 @@ Priority: 4 (Normal)
 
 ### Supported Operations
 
-All 28 MCP tools support dry-run mode:
+All 29 MCP tools support dry-run mode:
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
 - Bulk operations across multiple tasks
@@ -226,11 +226,12 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 The server provides 29 tools organized by entity type:
 
 ### Task Management
-- **Todoist Task Create**: Create new tasks with full attribute support
+- **Todoist Task Create**: Create new tasks with full attribute support including duration
 - **Todoist Task Get**: Retrieve tasks by ID or combine priority, label, natural-language filters, and strict `due_before`/`due_after` windows with timezone-aware due details
-- **Todoist Task Update**: Update existing tasks (found by ID or partial name search)
+- **Todoist Task Update**: Update existing tasks (found by ID or partial name search) with duration support
 - **Todoist Task Complete**: Mark tasks as complete (found by ID or partial name search)
 - **Todoist Task Delete**: Remove tasks (found by ID or partial name search)
+- **Todoist Task Reopen**: Restore completed tasks (found by ID or partial name search)
 - **Todoist Task Quick Add**: Natural language task creation (see [Quick Add](#quick-add) below)
 
 ### Subtask Management
@@ -307,10 +308,15 @@ The server provides 29 tools organized by entity type:
 "Update meeting task to be in section 67890"
 "Mark the PR review task as complete"
 
+# Task duration for time blocking
+"Create task 'Deep work session' with 90 minute duration"
+"Update task 'Meeting' to have a 2 day duration"
+
 # Task identification by ID (more reliable than name search)
 "Get task with ID 1234567890"
 "Update task ID 1234567890 to priority 4"
 "Complete task with ID 1234567890"
+"Reopen task with ID 1234567890"
 "Delete task ID 1234567890"
 ```
 
@@ -490,7 +496,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
 
 #### Modular Tool Organization
 - **`src/tools/`**: Domain-specific MCP tool definitions organized by functionality:
-  - `task-tools.ts` - Task management (9 tools)
+  - `task-tools.ts` - Task management (10 tools)
   - `subtask-tools.ts` - Subtask operations (5 tools)
   - `project-tools.ts` - Project/section management (4 tools)
   - `comment-tools.ts` - Comment operations (2 tools)
