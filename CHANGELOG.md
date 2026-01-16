@@ -15,6 +15,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Pagination support with `limit` (max 200) and `offset` parameters
   - Optional notes/comments annotation with `annotate_notes` parameter
   - Returns task content, completion date, project name, and note count
+- **Phase 4: Duration & Task Enhancements**: Complete task duration support and reopen capability
+  - **Task Duration Support**: Added `duration` and `duration_unit` parameters for time blocking workflows
+    - `duration`: Integer value (1-1440) representing task duration
+    - `duration_unit`: Either "minute" or "day" (defaults to "minute")
+    - Available on: `todoist_task_create`, `todoist_task_update`, `todoist_tasks_bulk_create`, `todoist_tasks_bulk_update`
+  - **Task Reopen Tool**: New `todoist_task_reopen` tool to restore completed tasks
+    - Supports both `task_id` and `task_name` parameters for flexible task identification
+    - Uses Todoist API's native `reopenTask()` method
+    - Integrates with dry-run mode for safe testing
+  - **Duration Validation**: Comprehensive input validation for duration parameters
+    - Integer validation (no decimals)
+    - Range validation (1-1440)
+    - Unit validation (minute or day only)
+    - Pair validation (duration_unit requires duration)
+  - **Test Coverage**: Added comprehensive tests for duration validation and reopen functionality
+    - Unit tests in `src/__tests__/duration-validation.test.ts`
+    - Integration tests in `src/handlers/test-handlers-enhanced/duration-reopen-tests.ts`
 - **Quick Add Task (Phase 5)**: New `todoist_task_quick_add` tool for natural language task creation
   - Parses text like the official Todoist app with support for:
     - Due dates in free form text (e.g., "tomorrow", "next Monday", "Jan 23")
@@ -38,12 +55,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Sync API Integration**: Uses Todoist Sync API v9 endpoint `/sync/v9/completed/get_all`
 - **Quick Add API Integration**: Direct integration with `POST /api/v1/tasks/quick`
-- **Type Definitions**: Added `GetCompletedTasksArgs`, `CompletedTask`, `CompletedTasksResponse`, `QuickAddTaskArgs`, `QuickAddTaskResult` interfaces
-- **Type Guards**: Added `isGetCompletedTasksArgs` and `isQuickAddTaskArgs` validation functions
+- **Type Definitions**: Added `GetCompletedTasksArgs`, `CompletedTask`, `CompletedTasksResponse`, `QuickAddTaskArgs`, `QuickAddTaskResult`, `DurationUnit`, `TaskDuration`, `ReopenTaskArgs` interfaces
+- **Type Guards**: Added `isGetCompletedTasksArgs`, `isQuickAddTaskArgs`, and `isReopenTaskArgs` validation functions
+- **Duration Validation**: Added `validateDuration()`, `validateDurationUnit()`, `validateDurationPair()` functions
 
 ### Changed
 
-- Total MCP tools increased from 36 to 38
+- Total MCP tools increased from 36 to 39 (added task reopen, completed tasks, duration support)
+- Task CREATE, UPDATE, BULK_CREATE, and BULK_UPDATE now support duration parameters
+- Enhanced testing infrastructure with Duration & Reopen Operations test suite
 
 ## [0.10.0] - 2026-01-16
 
@@ -136,7 +156,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `@typescript-eslint/parser`: 8.32.1 -> 8.48.0
   - Testing:
     - `jest`: 30.0.5 -> 30.2.0
-- All tests pass with updated dependencies
+- # All tests pass with updated dependencies
+  - Comprehensive test suite with 5 integration tests
+- **Full Section Management (Phase 7)**: Complete CRUD operations for sections
+  - **todoist_section_update**: Update section names with support for both ID and name-based lookup
+  - **todoist_section_delete**: Delete sections (and all contained tasks) by ID or name search
+  - **Section ordering**: Added `order` parameter to `todoist_section_create` for controlling section position
+  - **Name-based operations**: Both update and delete support case-insensitive partial name matching with optional project filtering
+  - **Ambiguity handling**: Clear error messages when multiple sections match a search term
+- **Section Test Suite**: Comprehensive tests in `src/handlers/test-handlers-enhanced/section-tests.ts` covering:
+  - Section creation with ordering
+  - Section retrieval by project
+  - Section update by ID
+  - Section update by name
+  - Section deletion with cleanup
+
+### Changed
+
+- **Tool Count**: Increased from 28 to 31 tools (task reopen + quick add + section update + section delete)
+- **Type System**: Extended with `DurationUnit`, `TaskDuration`, `ReopenTaskArgs`, `QuickAddTaskArgs`, `QuickAddTaskResult`, `UpdateSectionArgs`, `DeleteSectionArgs` types
+- **Task Tools**: CREATE, UPDATE, BULK_CREATE, and BULK_UPDATE now support duration parameters
+- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations, Quick Add tests, and Section tests (5 suites, 28+ tests)
+  > > > > > > > d5651c6 (feat: add task duration support and reopen capability (Phase 4) (#57))
 
 ## [0.8.9] - 2025-11-25
 

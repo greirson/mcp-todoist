@@ -217,7 +217,7 @@ Priority: 4 (Normal)
 
 ### Supported Operations
 
-All 32 MCP tools support dry-run mode:
+All 39 MCP tools support dry-run mode:
 
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
@@ -233,15 +233,16 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 38 tools organized by entity type:
+The server provides 39 tools organized by entity type:
 
 ### Task Management
 
-- **Todoist Task Create**: Create new tasks with full attribute support
+- **Todoist Task Create**: Create new tasks with full attribute support including duration
 - **Todoist Task Get**: Retrieve tasks by ID or combine priority, label, natural-language filters, and strict `due_before`/`due_after` windows with timezone-aware due details
-- **Todoist Task Update**: Update existing tasks (found by ID or partial name search)
+- **Todoist Task Update**: Update existing tasks (found by ID or partial name search) with duration support
 - **Todoist Task Complete**: Mark tasks as complete (found by ID or partial name search)
 - **Todoist Task Delete**: Remove tasks (found by ID or partial name search)
+- **Todoist Task Reopen**: Restore completed tasks (found by ID or partial name search)
 - **Todoist Completed Tasks Get**: Retrieve completed tasks with date range filtering and pagination
 - **Todoist Task Quick Add**: Natural language task creation with inline parsing for dates, projects, labels, priorities
 
@@ -340,10 +341,15 @@ The server provides 38 tools organized by entity type:
 "Update meeting task to be in section 67890"
 "Mark the PR review task as complete"
 
+# Task duration for time blocking
+"Create task 'Deep work session' with 90 minute duration"
+"Update task 'Meeting' to have a 2 day duration"
+
 # Task identification by ID (more reliable than name search)
 "Get task with ID 1234567890"
 "Update task ID 1234567890 to priority 4"
 "Complete task with ID 1234567890"
+"Reopen task with ID 1234567890"
 "Delete task ID 1234567890"
 ```
 
