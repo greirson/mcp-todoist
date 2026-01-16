@@ -46,6 +46,10 @@ import {
   isConvertToSubtaskArgs,
   isPromoteSubtaskArgs,
   isGetTaskHierarchyArgs,
+  isGetFiltersArgs,
+  isCreateFilterArgs,
+  isUpdateFilterArgs,
+  isFilterNameArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -96,6 +100,12 @@ import {
   handlePromoteSubtask,
   handleGetTaskHierarchy,
 } from "./handlers/subtask-handlers.js";
+import {
+  handleGetFilters,
+  handleCreateFilter,
+  handleUpdateFilter,
+  handleDeleteFilter,
+} from "./handlers/filter-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -428,6 +438,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         const hierarchy = await handleGetTaskHierarchy(apiClient, args);
         result = formatTaskHierarchy(hierarchy);
+        break;
+
+      case "todoist_filter_get":
+        if (!isGetFiltersArgs(args)) {
+          throw new Error("Invalid arguments for todoist_filter_get");
+        }
+        result = await handleGetFilters();
+        break;
+
+      case "todoist_filter_create":
+        if (!isCreateFilterArgs(args)) {
+          throw new Error("Invalid arguments for todoist_filter_create");
+        }
+        result = await handleCreateFilter(args);
+        break;
+
+      case "todoist_filter_update":
+        if (!isUpdateFilterArgs(args)) {
+          throw new Error("Invalid arguments for todoist_filter_update");
+        }
+        result = await handleUpdateFilter(args);
+        break;
+
+      case "todoist_filter_delete":
+        if (!isFilterNameArgs(args)) {
+          throw new Error("Invalid arguments for todoist_filter_delete");
+        }
+        result = await handleDeleteFilter(args);
         break;
 
       case "todoist_test_connection":

@@ -46,12 +46,14 @@
   "homepage": "https://github.com/greirson/mcp-todoist#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.18.2",
-    "@doist/todoist-api-typescript": "^5.5.1"
+    "@doist/todoist-api-typescript": "^5.5.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.6.1",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.48.0",
     "@typescript-eslint/parser": "^8.48.0",
     "eslint": "^9.27.0",

@@ -95,11 +95,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Section update by name
   - Section deletion with cleanup
 
+- **Phase 11: Filter Management System**: Complete CRUD operations for custom Todoist filters via Sync API
+  - **Filter Operations** (`src/handlers/filter-handlers.ts`): Full CRUD operations using Todoist Sync API
+    - `handleGetFilters()` - Retrieve all custom filters with caching
+    - `handleCreateFilter()` - Create filters with query syntax, color, and favorite options
+    - `handleUpdateFilter()` - Update filters by ID or name
+    - `handleDeleteFilter()` - Delete filters by ID or name
+  - **New MCP Tools**: 4 additional tools for filter management
+    - `todoist_filter_get` - List all custom filters with queries and settings
+    - `todoist_filter_create` - Create filters using Todoist query syntax
+    - `todoist_filter_update` - Update existing filters
+    - `todoist_filter_delete` - Remove filters
+  - **Enhanced Type System**: New interfaces for filter operations
+    - `TodoistFilter`, `CreateFilterArgs`, `UpdateFilterArgs`, `FilterNameArgs`
+    - `SyncApiResponse` for Todoist Sync API responses
+    - Added `FilterNotFoundError` and `FilterFrozenError` error classes
+  - **Filter Validation**: Comprehensive input validation
+    - Filter name length validation (max 100 characters)
+    - Query syntax validation (max 500 characters)
+    - Color validation for Todoist color palette
+    - Item order validation for filter positioning
+
+- **Sync API Integration**: Direct integration with Todoist Sync API v1
+  - UUID-based command tracking for reliable operations
+  - Proper sync token management for incremental syncs
+  - Error handling for Sync API-specific responses
+
+- **Enhanced Testing**: Filter test suite with 5 comprehensive tests
+  - GET, CREATE, UPDATE, verify update, DELETE operations
+  - Graceful handling of Pro/Business plan restrictions
+  - Automatic test data cleanup
+
 ### Changed
-- **Tool Count**: Increased from 28 to 35 tools (task reopen + quick add + 4 project tools + section update + section delete)
-- **Type System**: Extended with `DurationUnit`, `TaskDuration`, `ReopenTaskArgs`, `QuickAddTaskArgs`, `QuickAddTaskResult`, `UpdateSectionArgs`, `DeleteSectionArgs`, `UpdateProjectArgs`, `ProjectNameArgs`, `GetProjectCollaboratorsArgs` types
-- **Task Tools**: CREATE, UPDATE, BULK_CREATE, and BULK_UPDATE now support duration parameters
-- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations, Quick Add tests, Section tests, Project tests, and Collaboration tests (7 suites, 40+ tests)
+- **Tool Count**: Increased from 36 to 40 tools with 4 new filter management tools
+- **Type System**: Extended with `TodoistFilter`, `CreateFilterArgs`, `UpdateFilterArgs`, `FilterNameArgs`, `SyncApiResponse`, `FilterNotFoundError`, `FilterFrozenError` types
+- **Enhanced Testing**: Test suite now includes Filter Operations (8 suites, 45+ tests)
 - **Dependency Updates**: Updated all dependencies to latest versions
   - Core dependencies:
     - `@doist/todoist-api-typescript`: 5.1.1 -> 5.5.1 (new Todoist API features)
@@ -112,8 +142,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `@typescript-eslint/parser`: 8.32.1 -> 8.48.0
   - Testing:
     - `jest`: 30.0.5 -> 30.2.0
+- Added `uuid` package for Sync API command tracking
 - All tests pass with updated dependencies
 - No breaking changes or deprecated API calls detected
+
+### Technical Implementation
+- **Sync API**: Uses Todoist Sync API v1 (`https://api.todoist.com/api/v1/sync`) for filter operations
+- **Caching**: 30-second TTL cache for filter queries with automatic invalidation on mutations
+- **Plan Detection**: Graceful handling when filters are unavailable (requires Pro/Business)
+- **Frozen Filter Protection**: Detects and prevents modifications to frozen filters from cancelled subscriptions
+
+### Documentation
+- **README Updates**: Added filter management examples and updated tool count to 34
+- **Usage Examples**: New filter workflow examples for natural language interaction
+- **Architecture Documentation**: Updated technical specifications in CLAUDE.md
 
 ## [0.8.9] - 2025-11-25
 

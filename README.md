@@ -50,6 +50,7 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 * **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
 * **Comment System**: Add comments to tasks and retrieve comments with attachment support
 * **Label Management**: Full CRUD operations for labels with usage statistics and analytics
+* **Filter Management**: Create, update, and delete custom filters using Todoist's query syntax (Sync API, requires Pro/Business plan)
 * **Project & Section Organization**: Create and manage projects and sections
 * **Dry-Run Mode**: Test automations and operations without making real changes
 * **Enhanced Testing**: Basic API validation and comprehensive CRUD testing with automatic cleanup
@@ -210,12 +211,13 @@ Priority: 4 (Normal)
 
 ### Supported Operations
 
-All 36 MCP tools support dry-run mode:
+All 40 MCP tools support dry-run mode:
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
 - Bulk operations across multiple tasks
 - Project and section creation
 - Label management operations
+- Filter management operations
 - Comment creation
 
 ### Disabling Dry-Run Mode
@@ -224,7 +226,7 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 36 tools organized by entity type:
+The server provides 40 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support including duration
@@ -258,6 +260,12 @@ The server provides 36 tools organized by entity type:
 - **Todoist Label Update**: Update existing labels (name, color, order, favorite status)
 - **Todoist Label Delete**: Remove labels from your workspace
 - **Todoist Label Stats**: Get detailed usage statistics for all labels
+
+### Filter Management (Requires Pro/Business Plan)
+- **Todoist Filter Get**: List all custom filters with their queries and settings
+- **Todoist Filter Create**: Create new filters using Todoist query syntax
+- **Todoist Filter Update**: Update existing filters (name, query, color, order, favorite status)
+- **Todoist Filter Delete**: Remove filters from your workspace
 
 ### Project Management
 - **Todoist Project Create**: Create new projects with sub-project hierarchy, description, and view style (list/board)
@@ -395,6 +403,15 @@ The Quick Add tool parses natural language text like the Todoist app, supporting
 "Get usage statistics for all my labels"
 ```
 
+### Filter Management (Pro/Business Plan)
+```
+"Show me all my custom filters"
+"Create a filter called 'High Priority Today' with query 'p1 & today'"
+"Create a filter 'Work Tasks' with query '#Work & @urgent'"
+"Update the 'High Priority' filter to include '@critical' label"
+"Delete the 'Old Filter' filter"
+```
+
 ### Task Discovery
 ```
 "Show all my tasks"
@@ -523,6 +540,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
   - `project-tools.ts` - Project/section/collaboration management (5 tools)
   - `comment-tools.ts` - Comment operations (2 tools)
   - `label-tools.ts` - Label management (5 tools)
+  - `filter-tools.ts` - Filter management (4 tools, Sync API)
   - `test-tools.ts` - Testing and validation (3 tools)
   - `index.ts` - Centralized exports
 
@@ -533,6 +551,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
   - `project-handlers.ts` - Project and section operations
   - `comment-handlers.ts` - Comment creation and retrieval
   - `label-handlers.ts` - Label CRUD and statistics
+  - `filter-handlers.ts` - Filter CRUD using Sync API
   - `test-handlers.ts` - API testing infrastructure
   - `test-handlers-enhanced/` - Comprehensive CRUD testing framework
 
