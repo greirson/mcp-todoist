@@ -1,3 +1,16 @@
+/**
+ * Duration unit type for task durations
+ */
+export type DurationUnit = "minute" | "day";
+
+/**
+ * Task duration configuration
+ */
+export interface TaskDuration {
+  amount: number;
+  unit: DurationUnit;
+}
+
 export interface CreateTaskArgs {
   content: string;
   description?: string;
@@ -8,6 +21,8 @@ export interface CreateTaskArgs {
   project_id?: string;
   section_id?: string;
   parent_id?: string;
+  duration?: number;
+  duration_unit?: DurationUnit;
 }
 
 export interface GetTasksArgs {
@@ -33,6 +48,13 @@ export interface UpdateTaskArgs {
   project_id?: string;
   section_id?: string;
   labels?: string[];
+  duration?: number;
+  duration_unit?: DurationUnit;
+}
+
+export interface ReopenTaskArgs {
+  task_name?: string;
+  task_id?: string;
 }
 
 export interface TaskNameArgs {
@@ -76,6 +98,20 @@ export interface CreateProjectArgs {
 export interface CreateSectionArgs {
   name: string;
   project_id: string;
+  order?: number;
+}
+
+export interface UpdateSectionArgs {
+  section_id?: string;
+  section_name?: string;
+  project_id?: string;
+  name?: string;
+}
+
+export interface SectionIdentifierArgs {
+  section_id?: string;
+  section_name?: string;
+  project_id?: string;
 }
 
 export interface TodoistTaskData {
@@ -87,6 +123,8 @@ export interface TodoistTaskData {
   deadlineDate?: string;
   projectId?: string;
   sectionId?: string;
+  duration?: number;
+  durationUnit?: DurationUnit;
 }
 
 export interface TodoistProjectData {
@@ -122,6 +160,7 @@ export interface TodoistTask {
   sectionId?: string | null;
   parentId?: string | null;
   isCompleted?: boolean;
+  duration?: TaskDuration | null;
 }
 
 export interface TodoistProject {
@@ -158,6 +197,8 @@ export interface BulkUpdateTasksArgs {
     project_id?: string;
     section_id?: string;
     labels?: string[];
+    duration?: number;
+    duration_unit?: DurationUnit;
   };
 }
 

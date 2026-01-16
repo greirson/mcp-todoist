@@ -19,10 +19,13 @@ import {
   isTaskNameArgs as isDeleteTaskArgs,
   isTaskNameArgs as isCompleteTaskArgs,
   isQuickAddTaskArgs,
+  isTaskNameArgs as isReopenTaskArgs,
   isGetProjectsArgs,
   isGetSectionsArgs,
   isCreateProjectArgs,
   isCreateSectionArgs,
+  isUpdateSectionArgs,
+  isSectionIdentifierArgs,
   isBulkCreateTasksArgs,
   isBulkUpdateTasksArgs,
   isBulkTaskFilterArgs,
@@ -45,6 +48,7 @@ import {
   handleUpdateTask,
   handleDeleteTask,
   handleCompleteTask,
+  handleReopenTask,
   handleBulkCreateTasks,
   handleBulkUpdateTasks,
   handleBulkDeleteTasks,
@@ -56,6 +60,8 @@ import {
   handleGetSections,
   handleCreateProject,
   handleCreateSection,
+  handleUpdateSection,
+  handleDeleteSection,
 } from "./handlers/project-handlers.js";
 import {
   handleCreateComment,
@@ -190,6 +196,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         result = await handleQuickAddTask(TODOIST_API_TOKEN, args);
         break;
 
+      case "todoist_task_reopen":
+        if (!isReopenTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_reopen");
+        }
+        result = await handleReopenTask(apiClient, args);
+        break;
+
       case "todoist_project_get":
         if (!isGetProjectsArgs(args)) {
           throw new Error("Invalid arguments for todoist_project_get");
@@ -216,6 +229,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_section_create");
         }
         result = await handleCreateSection(apiClient, args);
+        break;
+
+      case "todoist_section_update":
+        if (!isUpdateSectionArgs(args)) {
+          throw new Error("Invalid arguments for todoist_section_update");
+        }
+        result = await handleUpdateSection(apiClient, args);
+        break;
+
+      case "todoist_section_delete":
+        if (!isSectionIdentifierArgs(args)) {
+          throw new Error("Invalid arguments for todoist_section_delete");
+        }
+        result = await handleDeleteSection(apiClient, args);
         break;
 
       case "todoist_tasks_bulk_create":
