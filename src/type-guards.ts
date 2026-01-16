@@ -6,6 +6,8 @@ import {
   GetSectionsArgs,
   CreateProjectArgs,
   CreateSectionArgs,
+  UpdateSectionArgs,
+  SectionIdentifierArgs,
   BulkCreateTasksArgs,
   BulkUpdateTasksArgs,
   BulkTaskFilterArgs,
@@ -120,14 +122,57 @@ export function isCreateProjectArgs(args: unknown): args is CreateProjectArgs {
 }
 
 export function isCreateSectionArgs(args: unknown): args is CreateSectionArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
   return (
-    typeof args === "object" &&
-    args !== null &&
-    "name" in args &&
-    "project_id" in args &&
-    typeof (args as { name: string }).name === "string" &&
-    typeof (args as { project_id: string }).project_id === "string"
+    "name" in obj &&
+    "project_id" in obj &&
+    typeof obj.name === "string" &&
+    typeof obj.project_id === "string" &&
+    (obj.order === undefined || typeof obj.order === "number")
   );
+}
+
+export function isUpdateSectionArgs(args: unknown): args is UpdateSectionArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+
+  // Must have either section_id or section_name
+  const hasSectionId =
+    obj.section_id !== undefined && typeof obj.section_id === "string";
+  const hasSectionName =
+    obj.section_name !== undefined && typeof obj.section_name === "string";
+
+  if (!hasSectionId && !hasSectionName) {
+    return false;
+  }
+
+  return (
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.name === undefined || typeof obj.name === "string")
+  );
+}
+
+export function isSectionIdentifierArgs(
+  args: unknown
+): args is SectionIdentifierArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+
+  // Must have either section_id or section_name
+  const hasSectionId =
+    obj.section_id !== undefined && typeof obj.section_id === "string";
+  const hasSectionName =
+    obj.section_name !== undefined && typeof obj.section_name === "string";
+
+  if (!hasSectionId && !hasSectionName) {
+    return false;
+  }
+
+  return obj.project_id === undefined || typeof obj.project_id === "string";
 }
 
 export function isBulkCreateTasksArgs(

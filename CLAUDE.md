@@ -73,7 +73,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 28 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 30 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support
@@ -111,8 +111,10 @@ The server exposes 28 tools organized by entity type with standardized naming co
 - `todoist_project_get` - Lists all projects with their IDs and names
 
 **Section Management:**
-- `todoist_section_create` - Creates sections within projects
+- `todoist_section_create` - Creates sections within projects with optional ordering
 - `todoist_section_get` - Lists sections within projects
+- `todoist_section_update` - Updates section names by ID or name search
+- `todoist_section_delete` - Deletes sections and all contained tasks by ID or name search
 
 **Testing Infrastructure:**
 - `todoist_test_connection` - Quick API token validation and connection test
@@ -180,7 +182,7 @@ Complete simulation framework for safe testing and validation:
 - **Mock Response Generation**: Returns realistic mock data with generated IDs for mutation operations
 - **Detailed Logging**: Clear `[DRY-RUN]` prefixes show exactly what operations would perform
 - **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
-- **Comprehensive Coverage**: All 28 MCP tools support dry-run mode with full validation
+- **Comprehensive Coverage**: All 30 MCP tools support dry-run mode with full validation
 - **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
 
 ### Data Flow Pattern
@@ -273,7 +275,7 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Dry-Run Mode**: Enable with `DRYRUN=true` environment variable for safe testing and validation
   - Uses real API data for validation while simulating mutations
-  - All 28 MCP tools support dry-run mode with comprehensive logging
+  - All 30 MCP tools support dry-run mode with comprehensive logging
   - Perfect for testing automations, learning the API, and safe experimentation
 - **Task Search**: Update/delete/complete operations support both:
   - **Task ID**: Direct lookup by ID (more reliable, takes precedence)
@@ -316,10 +318,17 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
 - ✅ **Dry-Run Mode Implementation**: Complete simulation framework for safe testing and validation
   - ✅ **DryRunWrapper Architecture**: Created `src/utils/dry-run-wrapper.ts` for operation simulation
   - ✅ **Environment Configuration**: Enabled via `DRYRUN=true` environment variable
-  - ✅ **Comprehensive Tool Support**: All 28 MCP tools support dry-run mode with full validation
+  - ✅ **Comprehensive Tool Support**: All 30 MCP tools support dry-run mode with full validation
   - ✅ **Real Data Validation**: Uses actual API calls to validate while simulating mutations
   - ✅ **Factory Pattern Integration**: `createTodoistClient()` automatically handles dry-run wrapping
   - ✅ **Test Coverage**: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`
+
+- **Phase 7**: Full Section Management (v0.9.0) - Complete CRUD operations for sections
+  - **Section Update**: New `todoist_section_update` tool with name-based and ID-based lookup
+  - **Section Delete**: New `todoist_section_delete` tool with cascade deletion of contained tasks
+  - **Section Ordering**: Added `order` parameter to `todoist_section_create` tool
+  - **Enhanced Testing**: Created `src/handlers/test-handlers-enhanced/section-tests.ts` with 5 section tests
+  - **New MCP Tools**: Added 2 section management tools (total: 30 tools)
 
 **Planned Future Phases:**
 - **Phase 4**: Duplicate Detection - Smart task deduplication using similarity algorithms
