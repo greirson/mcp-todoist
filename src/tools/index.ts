@@ -28,6 +28,7 @@ export {
   BULK_DELETE_TASKS_TOOL,
   BULK_COMPLETE_TASKS_TOOL,
   GET_COMPLETED_TASKS_TOOL,
+  QUICK_ADD_TASK_TOOL,
 } from "./task-tools.js";
 
 export {

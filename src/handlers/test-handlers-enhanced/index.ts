@@ -7,10 +7,12 @@ import { testBulkOperations } from "./bulk-tests.js";
 import { testSectionOperations } from "./section-tests.js";
 import { testCommentOperations } from "./comment-tests.js";
 import { testReminderOperations } from "./reminder-tests.js";
+import { testQuickAddOperations } from "./quick-add-tests.js";
 import { TestSuite, ComprehensiveTestReport } from "./types.js";
 
 export async function handleTestAllFeaturesEnhanced(
-  todoistClient: TodoistApi
+  todoistClient: TodoistApi,
+  apiToken?: string
 ): Promise<ComprehensiveTestReport> {
   const testStartTime = Date.now();
   const suites: TestSuite[] = [];
@@ -23,6 +25,11 @@ export async function handleTestAllFeaturesEnhanced(
   suites.push(await testBulkOperations(todoistClient));
   suites.push(await testCommentOperations(todoistClient));
   suites.push(await testReminderOperations(todoistClient));
+
+  // Run quick add tests if API token is provided
+  if (apiToken) {
+    suites.push(await testQuickAddOperations(todoistClient, apiToken));
+  }
 
   // Calculate totals
   const totalTests = suites.reduce((sum, suite) => sum + suite.tests.length, 0);
@@ -62,3 +69,4 @@ export { testSectionOperations } from "./section-tests.js";
 export { testBulkOperations } from "./bulk-tests.js";
 export { testCommentOperations } from "./comment-tests.js";
 export { testReminderOperations } from "./reminder-tests.js";
+export { testQuickAddOperations } from "./quick-add-tests.js";

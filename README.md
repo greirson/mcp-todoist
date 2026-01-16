@@ -233,7 +233,7 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 37 tools organized by entity type:
+The server provides 38 tools organized by entity type:
 
 ### Task Management
 
@@ -243,6 +243,7 @@ The server provides 37 tools organized by entity type:
 - **Todoist Task Complete**: Mark tasks as complete (found by ID or partial name search)
 - **Todoist Task Delete**: Remove tasks (found by ID or partial name search)
 - **Todoist Completed Tasks Get**: Retrieve completed tasks with date range filtering and pagination
+- **Todoist Task Quick Add**: Natural language task creation with inline parsing for dates, projects, labels, priorities
 
 ### Subtask Management
 
@@ -345,6 +346,27 @@ The server provides 37 tools organized by entity type:
 "Complete task with ID 1234567890"
 "Delete task ID 1234567890"
 ```
+
+### Quick Add
+
+The Quick Add tool parses natural language text like the Todoist app, supporting multiple features in a single command:
+
+```
+"Quick add: Buy groceries tomorrow #Shopping @errands p1"
+"Quick add: Review PR next Monday #Work @code-review p2 //Check error handling"
+"Quick add: Call mom {deadline in 3 days}"
+"Quick add: Team meeting today at 2pm #Work @meetings with reminder 1 hour before"
+```
+
+**Quick Add Syntax:**
+
+- **Due dates**: Natural language dates like "tomorrow", "next Friday", "Jan 23", "in 3 days"
+- **Projects**: `#ProjectName` (no spaces in project names)
+- **Labels**: `@label` (e.g., "@urgent", "@work")
+- **Assignees**: `+name` (for shared projects)
+- **Priority**: `p1` (urgent), `p2`, `p3`, `p4` (lowest)
+- **Deadlines**: `{in 3 days}` or `{March 15}`
+- **Descriptions**: `//your description here` (must be at the end)
 
 ### Subtask Management
 

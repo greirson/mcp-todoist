@@ -9,6 +9,8 @@ import {
   BulkTaskFilterArgs,
   GetCompletedTasksArgs,
   CompletedTasksResponse,
+  QuickAddTaskArgs,
+  QuickAddTaskResult,
 } from "../types.js";
 import { CacheManager } from "../cache.js";
 import {
@@ -924,34 +926,18 @@ export async function handleBulkCompleteTasks(
 
 /**
  * Fetches completed tasks from the Todoist Sync API.
- *
- * Implementation Notes:
- * - The REST API v2 doesn't support fetching completed tasks, so we use the Sync API directly.
- * - We extract the API token from the TodoistApi client to make direct HTTP requests.
- *   This relies on internal implementation details of the library and may need updates
- *   if the library structure changes.
- * - Caching is not used because completed tasks are read-only and change infrequently.
- *   Each call fetches fresh data from the API.
- * - Dry-run mode is supported: when DRYRUN=true, returns a simulated response
- *   without making actual API calls.
- *
- * @param todoistClient - The TodoistApi client instance (token is extracted from it)
- * @param args - Query parameters including project_id, since, until, limit, offset
- * @returns Formatted string with completed task details
  */
 export async function handleGetCompletedTasks(
   todoistClient: TodoistApi,
   args: GetCompletedTasksArgs
 ): Promise<string> {
   return ErrorHandler.wrapAsync("get completed tasks", async () => {
-    // Validate inputs (Sync API supports higher limit than REST API)
     validateLimit(args.limit, VALIDATION_LIMITS.SYNC_API_LIMIT_MAX);
     validateOffset(args.offset);
     validateIsoDatetime(args.since, "since");
     validateIsoDatetime(args.until, "until");
     validateProjectId(args.project_id);
 
-    // Check dry-run mode - return early without making actual API call
     if (process.env.DRYRUN === "true") {
       console.error("[DRY-RUN] Would fetch completed tasks from Sync API");
       console.error(
@@ -960,10 +946,8 @@ export async function handleGetCompletedTasks(
       return "DRY-RUN: Would retrieve completed tasks from Todoist Sync API. No actual API call made.";
     }
 
-    // Extract API token from TodoistApi client (needed for Sync API calls)
     const apiToken = extractApiToken(todoistClient);
 
-    // Build query parameters
     const params = new URLSearchParams();
     if (args.project_id) {
       params.append("project_id", args.project_id);
@@ -1014,18 +998,14 @@ export async function handleGetCompletedTasks(
       return "No completed tasks found matching the criteria.";
     }
 
-    // Format the response
     const taskCount = data.items.length;
     const taskWord = taskCount === 1 ? "task" : "tasks";
 
     let result = `${taskCount} completed ${taskWord} found:\n\n`;
 
     for (const item of data.items) {
-      // Get project name if available
       const projectName =
         data.projects[item.project_id]?.name || "Unknown Project";
-
-      // Format completion date
       const completedDate = item.completed_at.split("T")[0];
 
       result += `- ${item.content}\n`;
@@ -1039,4 +1019,203 @@ export async function handleGetCompletedTasks(
 
     return result.trim();
   });
+}
+
+interface QuickAddRequestBody {
+  text: string;
+  note?: string;
+  reminder?: string;
+  auto_reminder?: boolean;
+  meta?: boolean;
+}
+
+/**
+ * Handles quick add task using natural language parsing.
+ */
+export async function handleQuickAddTask(
+  apiToken: string,
+  args: QuickAddTaskArgs
+): Promise<string> {
+  return ErrorHandler.wrapAsync("quick add task", async () => {
+    if (!args.text || args.text.trim().length === 0) {
+      throw new ValidationError("Task text cannot be empty", "text");
+    }
+
+    const isDryRun = process.env.DRYRUN === "true";
+
+    if (isDryRun) {
+      console.error(`[DRY-RUN] Would quick add task: "${args.text}"`);
+      if (args.note) {
+        console.error(`[DRY-RUN]   with note: "${args.note}"`);
+      }
+      if (args.reminder) {
+        console.error(`[DRY-RUN]   with reminder: "${args.reminder}"`);
+      }
+      if (args.auto_reminder) {
+        console.error(`[DRY-RUN]   with auto_reminder enabled`);
+      }
+
+      const parsed = parseQuickAddText(args.text);
+
+      return (
+        `[DRY-RUN] Task would be created:\n` +
+        `Text: ${args.text}\n` +
+        `Parsed content: ${parsed.content}\n` +
+        (parsed.project ? `Project: #${parsed.project}\n` : "") +
+        (parsed.labels.length > 0
+          ? `Labels: ${parsed.labels.map((l) => `@${l}`).join(", ")}\n`
+          : "") +
+        (parsed.priority ? `Priority: p${parsed.priority}\n` : "") +
+        (parsed.description ? `Description: ${parsed.description}\n` : "") +
+        (args.note ? `Note: ${args.note}\n` : "") +
+        (args.reminder ? `Reminder: ${args.reminder}\n` : "")
+      );
+    }
+
+    const requestBody: QuickAddRequestBody = {
+      text: args.text.trim(),
+    };
+
+    if (args.note) {
+      requestBody.note = args.note;
+    }
+    if (args.reminder) {
+      requestBody.reminder = args.reminder;
+    }
+    if (args.auto_reminder !== undefined) {
+      requestBody.auto_reminder = args.auto_reminder;
+    }
+
+    const response = await fetch("https://api.todoist.com/api/v1/tasks/quick", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorMessage: string;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage =
+          errorJson.error || errorJson.message || `HTTP ${response.status}`;
+      } catch {
+        errorMessage = errorText || `HTTP ${response.status}`;
+      }
+      throw new Error(`Quick Add API error: ${errorMessage}`);
+    }
+
+    const responseText = await response.text();
+    let taskResult: QuickAddTaskResult | null = null;
+
+    if (responseText && responseText !== "{}") {
+      try {
+        taskResult = JSON.parse(responseText);
+      } catch {
+        // Response was not valid JSON, continue without task details
+      }
+    }
+
+    taskCache.clear();
+
+    let result = "Task created via Quick Add:\n";
+    result += `Input: "${args.text}"\n`;
+
+    if (taskResult && taskResult.id) {
+      result += `\nCreated Task:\n`;
+      result += `ID: ${taskResult.id}\n`;
+      if (taskResult.content) {
+        result += `Content: ${taskResult.content}\n`;
+      }
+      if (taskResult.description) {
+        result += `Description: ${taskResult.description}\n`;
+      }
+      if (taskResult.project_name) {
+        result += `Project: ${taskResult.project_name}\n`;
+      } else if (taskResult.project_id) {
+        result += `Project ID: ${taskResult.project_id}\n`;
+      }
+      if (taskResult.labels && taskResult.labels.length > 0) {
+        result += `Labels: ${taskResult.labels.join(", ")}\n`;
+      }
+      if (taskResult.priority && taskResult.priority !== 1) {
+        const displayPriority = fromApiPriority(taskResult.priority);
+        if (displayPriority) {
+          result += `Priority: ${displayPriority}\n`;
+        }
+      }
+      if (taskResult.due) {
+        const dueDetails = formatDueDetails(taskResult.due);
+        if (dueDetails) {
+          result += `Due: ${dueDetails}\n`;
+        }
+      }
+      if (taskResult.deadline) {
+        result += `Deadline: ${taskResult.deadline.date}\n`;
+      }
+      if (taskResult.url) {
+        result += `URL: ${taskResult.url}\n`;
+      }
+    } else {
+      result += "\nTask created successfully (details not returned by API)";
+    }
+
+    if (args.note) {
+      result += `\nNote added: ${args.note}`;
+    }
+    if (args.reminder) {
+      result += `\nReminder set: ${args.reminder}`;
+    }
+
+    return result.trim();
+  });
+}
+
+function parseQuickAddText(text: string): {
+  content: string;
+  project: string | null;
+  labels: string[];
+  priority: number | null;
+  description: string | null;
+} {
+  let content = text;
+  let project: string | null = null;
+  const labels: string[] = [];
+  let priority: number | null = null;
+  let description: string | null = null;
+
+  const descMatch = content.match(/\/\/(.*)$/);
+  if (descMatch) {
+    description = descMatch[1].trim();
+    content = content.replace(/\/\/.*$/, "").trim();
+  }
+
+  const priorityMatch = content.match(/\bp([1-4])\b/i);
+  if (priorityMatch) {
+    priority = parseInt(priorityMatch[1], 10);
+    content = content.replace(/\bp[1-4]\b/gi, "").trim();
+  }
+
+  const projectMatch = content.match(/#(\S+)/);
+  if (projectMatch) {
+    project = projectMatch[1];
+    content = content.replace(/#\S+/g, "").trim();
+  }
+
+  const labelMatches = content.match(/@(\S+)/g);
+  if (labelMatches) {
+    labelMatches.forEach((match) => {
+      labels.push(match.substring(1));
+    });
+    content = content.replace(/@\S+/g, "").trim();
+  }
+
+  content = content.replace(/\{[^}]+\}/g, "").trim();
+  content = content.replace(/\+\S+/g, "").trim();
+  content = content.replace(/\s+/g, " ").trim();
+
+  return { content, project, labels, priority, description };
 }
