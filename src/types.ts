@@ -93,6 +93,29 @@ export interface CreateProjectArgs {
   name: string;
   color?: string;
   is_favorite?: boolean;
+  parent_id?: string;
+  description?: string;
+  view_style?: "list" | "board";
+}
+
+export interface UpdateProjectArgs {
+  project_id?: string;
+  project_name?: string;
+  name?: string;
+  color?: string;
+  is_favorite?: boolean;
+  description?: string;
+  view_style?: "list" | "board";
+}
+
+export interface ProjectNameArgs {
+  project_id?: string;
+  project_name?: string;
+}
+
+export interface GetProjectCollaboratorsArgs {
+  project_id?: string;
+  project_name?: string;
 }
 
 export interface CreateSectionArgs {
@@ -131,6 +154,8 @@ export interface TodoistProjectData {
   name: string;
   color?: string;
   isFavorite?: boolean;
+  parentId?: string;
+  viewStyle?: "list" | "board";
 }
 
 export interface TodoistSectionData {
@@ -168,6 +193,17 @@ export interface TodoistProject {
   name: string;
   color?: string;
   isFavorite?: boolean;
+  parentId?: string | null;
+  description?: string;
+  viewStyle?: string;
+  isArchived?: boolean;
+  isShared?: boolean;
+}
+
+export interface TodoistCollaborator {
+  id: string;
+  name: string;
+  email: string;
 }
 
 export interface TodoistSection {
