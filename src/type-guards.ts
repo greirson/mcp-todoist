@@ -13,6 +13,8 @@ import {
   BulkTaskFilterArgs,
   CreateCommentArgs,
   GetCommentsArgs,
+  UpdateCommentArgs,
+  DeleteCommentArgs,
   CreateLabelArgs,
   UpdateLabelArgs,
   LabelNameArgs,
@@ -245,12 +247,16 @@ export function isCreateCommentArgs(args: unknown): args is CreateCommentArgs {
   if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
+  // Must have content and at least one of: task_id, task_name, or project_id
   return (
     "content" in obj &&
     typeof obj.content === "string" &&
     (obj.task_id === undefined || typeof obj.task_id === "string") &&
     (obj.task_name === undefined || typeof obj.task_name === "string") &&
-    (obj.task_id !== undefined || obj.task_name !== undefined)
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.task_id !== undefined ||
+      obj.task_name !== undefined ||
+      obj.project_id !== undefined)
   );
 }
 
@@ -263,6 +269,25 @@ export function isGetCommentsArgs(args: unknown): args is GetCommentsArgs {
     (obj.task_name === undefined || typeof obj.task_name === "string") &&
     (obj.project_id === undefined || typeof obj.project_id === "string")
   );
+}
+
+export function isUpdateCommentArgs(args: unknown): args is UpdateCommentArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "comment_id" in obj &&
+    typeof obj.comment_id === "string" &&
+    "content" in obj &&
+    typeof obj.content === "string"
+  );
+}
+
+export function isDeleteCommentArgs(args: unknown): args is DeleteCommentArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return "comment_id" in obj && typeof obj.comment_id === "string";
 }
 
 export function isCreateLabelArgs(args: unknown): args is CreateLabelArgs {
