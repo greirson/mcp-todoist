@@ -73,7 +73,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 28 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 29 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support
@@ -81,6 +81,7 @@ The server exposes 28 tools organized by entity type with standardized naming co
 - `todoist_task_update` - Updates existing tasks found by name search
 - `todoist_task_delete` - Deletes tasks found by name search
 - `todoist_task_complete` - Marks tasks as complete found by name search
+- `todoist_task_quick_add` - Natural language task creation with inline parsing for dates, projects, labels, priorities
 
 **Subtask Management:**
 - `todoist_subtask_create` - Creates subtasks under parent tasks with full attribute support
@@ -313,17 +314,25 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - ✅ **New MCP Tools**: Added 5 subtask management tools (total: 28 tools)
   - ✅ **Type System Enhancement**: Extended type definitions for subtask operations and hierarchy management
   - ✅ **API Compatibility**: Implemented workarounds for Todoist API limitations using delete & recreate patterns
-- ✅ **Dry-Run Mode Implementation**: Complete simulation framework for safe testing and validation
-  - ✅ **DryRunWrapper Architecture**: Created `src/utils/dry-run-wrapper.ts` for operation simulation
-  - ✅ **Environment Configuration**: Enabled via `DRYRUN=true` environment variable
-  - ✅ **Comprehensive Tool Support**: All 28 MCP tools support dry-run mode with full validation
-  - ✅ **Real Data Validation**: Uses actual API calls to validate while simulating mutations
-  - ✅ **Factory Pattern Integration**: `createTodoistClient()` automatically handles dry-run wrapping
-  - ✅ **Test Coverage**: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`
+- [x] **Dry-Run Mode Implementation**: Complete simulation framework for safe testing and validation
+  - [x] **DryRunWrapper Architecture**: Created `src/utils/dry-run-wrapper.ts` for operation simulation
+  - [x] **Environment Configuration**: Enabled via `DRYRUN=true` environment variable
+  - [x] **Comprehensive Tool Support**: All 28 MCP tools support dry-run mode with full validation
+  - [x] **Real Data Validation**: Uses actual API calls to validate while simulating mutations
+  - [x] **Factory Pattern Integration**: `createTodoistClient()` automatically handles dry-run wrapping
+  - [x] **Test Coverage**: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`
+- [x] **Phase 5**: Quick Add & Natural Language (v0.9.0) - Natural language task creation
+  - [x] **Quick Add Handler**: Created `handleQuickAddTask` in `src/handlers/task-handlers.ts`
+  - [x] **Direct API Integration**: Uses Todoist Quick Add API (`POST /api/v1/tasks/quick`) via native fetch
+  - [x] **New MCP Tool**: Added `todoist_task_quick_add` tool (total: 29 tools)
+  - [x] **Natural Language Parsing**: Supports dates, #projects, @labels, +assignees, priorities (p1-p4), {deadlines}, //descriptions
+  - [x] **Optional Parameters**: Supports `note`, `reminder`, and `auto_reminder` parameters
+  - [x] **Dry-Run Support**: Full simulation with parsed component display
+  - [x] **Comprehensive Testing**: Added `quick-add-tests.ts` with 5 integration tests
 
 **Planned Future Phases:**
 - **Phase 4**: Duplicate Detection - Smart task deduplication using similarity algorithms
-- **Phase 5**: Project Analytics - Comprehensive project health metrics and insights
+- **Phase 6**: Project Analytics - Comprehensive project health metrics and insights
 
 All future development should use the testing infrastructure to validate changes and ensure compatibility.
 

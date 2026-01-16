@@ -18,6 +18,7 @@ import {
   isUpdateTaskArgs,
   isTaskNameArgs as isDeleteTaskArgs,
   isTaskNameArgs as isCompleteTaskArgs,
+  isQuickAddTaskArgs,
   isGetProjectsArgs,
   isGetSectionsArgs,
   isCreateProjectArgs,
@@ -48,6 +49,7 @@ import {
   handleBulkUpdateTasks,
   handleBulkDeleteTasks,
   handleBulkCompleteTasks,
+  handleQuickAddTask,
 } from "./handlers/task-handlers.js";
 import {
   handleGetProjects,
@@ -108,7 +110,7 @@ function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
 const server = new Server(
   {
     name: "todoist-mcp-server",
-    version: "0.8.1",
+    version: "0.9.0",
   },
   {
     capabilities: {
@@ -179,6 +181,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_task_complete");
         }
         result = await handleCompleteTask(apiClient, args);
+        break;
+
+      case "todoist_task_quick_add":
+        if (!isQuickAddTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_quick_add");
+        }
+        result = await handleQuickAddTask(TODOIST_API_TOKEN, args);
         break;
 
       case "todoist_project_get":
@@ -355,7 +364,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "todoist_test_all_features":
         const featuresResult = await handleTestAllFeatures(
           apiClient,
-          args as { mode?: "basic" | "enhanced" }
+          args as { mode?: "basic" | "enhanced" },
+          TODOIST_API_TOKEN
         );
         result = JSON.stringify(featuresResult, null, 2);
         break;

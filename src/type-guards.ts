@@ -3,6 +3,7 @@ import {
   GetTasksArgs,
   UpdateTaskArgs,
   TaskNameArgs,
+  QuickAddTaskArgs,
   GetSectionsArgs,
   CreateProjectArgs,
   CreateSectionArgs,
@@ -98,6 +99,20 @@ export function isTaskNameArgs(args: unknown): args is TaskNameArgs {
     ("taskName" in obj && typeof obj.taskName === "string");
 
   return hasTaskId || hasTaskName;
+}
+
+export function isQuickAddTaskArgs(args: unknown): args is QuickAddTaskArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "text" in obj &&
+    typeof obj.text === "string" &&
+    obj.text.trim().length > 0 &&
+    (obj.note === undefined || typeof obj.note === "string") &&
+    (obj.reminder === undefined || typeof obj.reminder === "string") &&
+    (obj.auto_reminder === undefined || typeof obj.auto_reminder === "boolean")
+  );
 }
 
 export function isGetProjectsArgs(

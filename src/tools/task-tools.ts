@@ -433,6 +433,47 @@ export const BULK_COMPLETE_TASKS_TOOL: Tool = {
   },
 };
 
+export const QUICK_ADD_TASK_TOOL: Tool = {
+  name: "todoist_task_quick_add",
+  description:
+    "Create a task using natural language parsing like the Todoist app. " +
+    "The text is parsed to extract due dates, projects (#), labels (@), " +
+    "assignees (+), priorities (p1-p4), deadlines ({in 3 days}), and descriptions (//). " +
+    'Example: "Buy groceries tomorrow #Shopping @errands p1 {deadline Friday} //Don\'t forget milk"',
+  inputSchema: {
+    type: "object",
+    properties: {
+      text: {
+        type: "string",
+        description:
+          "The task text with natural language. Can include: " +
+          "due dates (tomorrow, next Monday), " +
+          "project name starting with # (without spaces), " +
+          "label starting with @, " +
+          "assignee starting with +, " +
+          "priority (p1 = urgent, p2, p3, p4 = lowest), " +
+          "deadline between {} (e.g., {in 3 days}), " +
+          "description starting from // until end of text",
+      },
+      note: {
+        type: "string",
+        description: "Additional note to add to the task (optional)",
+      },
+      reminder: {
+        type: "string",
+        description:
+          "Reminder date in free form text like 'tomorrow at 9am' (optional)",
+      },
+      auto_reminder: {
+        type: "boolean",
+        description:
+          "When true, a default reminder is added if the task has a due date with time (optional, default: false)",
+      },
+    },
+    required: ["text"],
+  },
+};
+
 export const TASK_TOOLS = [
   CREATE_TASK_TOOL,
   GET_TASKS_TOOL,
@@ -443,4 +484,5 @@ export const TASK_TOOLS = [
   BULK_UPDATE_TASKS_TOOL,
   BULK_DELETE_TASKS_TOOL,
   BULK_COMPLETE_TASKS_TOOL,
+  QUICK_ADD_TASK_TOOL,
 ];
