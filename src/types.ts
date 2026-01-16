@@ -53,6 +53,20 @@ export interface CreateProjectArgs {
 export interface CreateSectionArgs {
   name: string;
   project_id: string;
+  order?: number;
+}
+
+export interface UpdateSectionArgs {
+  section_id?: string;
+  section_name?: string;
+  project_id?: string;
+  name?: string;
+}
+
+export interface SectionIdentifierArgs {
+  section_id?: string;
+  section_name?: string;
+  project_id?: string;
 }
 
 export interface TodoistTaskData {
