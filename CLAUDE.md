@@ -83,7 +83,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 39 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 43 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 
@@ -126,8 +126,12 @@ The server exposes 39 tools organized by entity type with standardized naming co
 
 **Project Management:**
 
-- `todoist_project_create` - Creates new projects with optional color and favorite status
-- `todoist_project_get` - Lists all projects with their IDs and names
+- `todoist_project_create` - Creates new projects with optional color, description, parent_id, view_style, and favorite status
+- `todoist_project_get` - Lists all projects with hierarchy, descriptions, and status indicators
+- `todoist_project_update` - Updates project properties (name, color, description, view_style, favorite)
+- `todoist_project_delete` - Deletes projects by ID or name
+- `todoist_project_archive` - Archives/unarchives projects with status tracking
+- `todoist_project_collaborators_get` - Retrieves collaborators for shared projects
 
 **Section Management:**
 
@@ -156,6 +160,7 @@ Structured error handling with custom error types:
 - `ValidationError` - Input validation failures
 - `TaskNotFoundError` - Task search failures
 - `LabelNotFoundError` - Label search failures
+- `ProjectNotFoundError` - Project search failures
 - `SubtaskError` - Subtask operation failures
 - `TodoistAPIError` - Todoist API failures
 - `AuthenticationError` - Token validation failures

@@ -217,7 +217,7 @@ Priority: 4 (Normal)
 
 ### Supported Operations
 
-All 39 MCP tools support dry-run mode:
+All 43 MCP tools support dry-run mode:
 
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
@@ -233,7 +233,7 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 39 tools organized by entity type:
+The server provides 43 tools organized by entity type:
 
 ### Task Management
 
@@ -276,8 +276,12 @@ The server provides 39 tools organized by entity type:
 
 ### Project Management
 
-- **Todoist Project Create**: Create new projects with optional color and favorite status
-- **Todoist Project Get**: List all projects with their IDs and names
+- **Todoist Project Create**: Create new projects with optional color, description, parent_id, view_style, and favorite status
+- **Todoist Project Get**: List all projects with hierarchy, descriptions, and status indicators
+- **Todoist Project Update**: Update project properties (name, color, description, view_style, favorite)
+- **Todoist Project Delete**: Delete projects by ID or name
+- **Todoist Project Archive**: Archive/unarchive projects with status tracking
+- **Todoist Project Collaborators Get**: Retrieve collaborators for shared projects
 
 ### Section Management
 

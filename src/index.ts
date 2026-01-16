@@ -23,6 +23,10 @@ import {
   isGetProjectsArgs,
   isGetSectionsArgs,
   isCreateProjectArgs,
+  isUpdateProjectArgs,
+  isProjectNameArgs,
+  isArchiveProjectArgs,
+  isGetProjectCollaboratorsArgs,
   isCreateSectionArgs,
   isUpdateSectionArgs,
   isSectionIdentifierArgs,
@@ -67,6 +71,10 @@ import {
   handleGetProjects,
   handleGetSections,
   handleCreateProject,
+  handleUpdateProject,
+  handleDeleteProject,
+  handleArchiveProject,
+  handleGetProjectCollaborators,
   handleCreateSection,
   handleUpdateSection,
   handleDeleteSection,
@@ -238,6 +246,36 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_project_create");
         }
         result = await handleCreateProject(apiClient, args);
+        break;
+
+      case "todoist_project_update":
+        if (!isUpdateProjectArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_update");
+        }
+        result = await handleUpdateProject(apiClient, args);
+        break;
+
+      case "todoist_project_delete":
+        if (!isProjectNameArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_delete");
+        }
+        result = await handleDeleteProject(apiClient, args);
+        break;
+
+      case "todoist_project_archive":
+        if (!isArchiveProjectArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_archive");
+        }
+        result = await handleArchiveProject(apiClient, args);
+        break;
+
+      case "todoist_project_collaborators_get":
+        if (!isGetProjectCollaboratorsArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_project_collaborators_get"
+          );
+        }
+        result = await handleGetProjectCollaborators(apiClient, args);
         break;
 
       case "todoist_section_create":
