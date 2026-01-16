@@ -40,6 +40,29 @@ export interface TaskNameArgs {
   task_id?: string;
 }
 
+export interface QuickAddTaskArgs {
+  text: string;
+  note?: string;
+  reminder?: string;
+  auto_reminder?: boolean;
+}
+
+export interface QuickAddTaskResult {
+  id: string;
+  content: string;
+  description?: string;
+  project_id?: string;
+  project_name?: string;
+  section_id?: string;
+  parent_id?: string;
+  labels?: string[];
+  priority?: number;
+  due?: TodoistTaskDueData | null;
+  deadline?: { date: string } | null;
+  assignee_id?: string;
+  url?: string;
+}
+
 export interface GetSectionsArgs {
   project_id?: string;
 }

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2025-01-15
+
+### Added
+- **Quick Add Task (Phase 5)**: New `todoist_task_quick_add` tool for natural language task creation
+  - Parses text like the official Todoist app with support for:
+    - Due dates in free form text (e.g., "tomorrow", "next Monday", "Jan 23")
+    - Project names with `#` prefix (e.g., "#Shopping")
+    - Labels with `@` prefix (e.g., "@errands")
+    - Assignees with `+` prefix (e.g., "+John")
+    - Priority levels (p1 = urgent, p2, p3, p4 = lowest)
+    - Deadlines in curly braces (e.g., "{in 3 days}")
+    - Descriptions starting with `//` (e.g., "//Don't forget milk")
+  - Supports optional `note` parameter for additional task notes
+  - Supports optional `reminder` parameter for natural language reminders
+  - Supports optional `auto_reminder` flag for automatic reminders on tasks with time
+  - Example: `"Buy groceries tomorrow #Shopping @errands p1 {deadline Friday} //Don't forget milk"`
+  - Full dry-run mode support for safe testing
+  - Comprehensive test suite with 5 integration tests
+
+### Technical Implementation
+- Direct integration with Todoist Quick Add API (`POST /api/v1/tasks/quick`)
+- Uses native `fetch` for HTTP requests since SDK doesn't expose Quick Add endpoint
+- Added `QuickAddTaskArgs` and `QuickAddTaskResult` type definitions
+- Added `isQuickAddTaskArgs` type guard for input validation
+- Enhanced test suite in `test-handlers-enhanced/quick-add-tests.ts`
+- Tool count increased from 28 to 29
+
 ## [0.8.9] - 2025-11-25
 
 ### Fixed
