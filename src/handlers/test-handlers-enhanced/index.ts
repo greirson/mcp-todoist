@@ -7,6 +7,7 @@ import { testBulkOperations } from "./bulk-tests.js";
 import { testQuickAddOperations } from "./quick-add-tests.js";
 import { testDurationAndReopenOperations } from "./duration-reopen-tests.js";
 import { testSectionOperations } from "./section-tests.js";
+import { testProjectOperations } from "./project-tests.js";
 import { TestSuite, ComprehensiveTestReport } from "./types.js";
 
 export async function handleTestAllFeaturesEnhanced(
@@ -23,6 +24,7 @@ export async function handleTestAllFeaturesEnhanced(
   suites.push(await testSectionOperations(todoistClient));
   suites.push(await testBulkOperations(todoistClient));
   suites.push(await testDurationAndReopenOperations(todoistClient));
+  suites.push(await testProjectOperations(todoistClient));
 
   // Run quick add tests if API token is provided
   if (apiToken) {
@@ -67,3 +69,4 @@ export { testSectionOperations } from "./section-tests.js";
 export { testBulkOperations } from "./bulk-tests.js";
 export { testQuickAddOperations } from "./quick-add-tests.js";
 export { testDurationAndReopenOperations } from "./duration-reopen-tests.js";
+export { testProjectOperations } from "./project-tests.js";

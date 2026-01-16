@@ -223,7 +223,7 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 31 tools organized by entity type:
+The server provides 35 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support including duration
@@ -259,8 +259,12 @@ The server provides 31 tools organized by entity type:
 - **Todoist Label Stats**: Get detailed usage statistics for all labels
 
 ### Project Management
-- **Todoist Project Create**: Create new projects with optional color and favorite status
-- **Todoist Project Get**: List all projects with their IDs and names
+- **Todoist Project Create**: Create new projects with sub-project hierarchy, description, and view style (list/board)
+- **Todoist Project Get**: List all projects with hierarchy info, descriptions, and status indicators
+- **Todoist Project Update**: Update project name, color, description, favorite status, or view style
+- **Todoist Project Delete**: Delete projects (and all contained tasks/sub-projects)
+- **Todoist Project Archive**: Archive or unarchive projects for organization
+- **Todoist Project Collaborators Get**: Retrieve collaborators for shared projects
 
 ### Section Management
 - **Todoist Section Create**: Create sections within projects with optional ordering
@@ -297,9 +301,14 @@ The server provides 31 tools organized by entity type:
 ### Project & Section Setup
 ```
 "Show me all my projects"
-"Create a new project called 'Work Tasks'"
+"Create a new project called 'Work Tasks' with description 'Main work project'"
+"Create a sub-project 'Q1 Goals' under the Work Tasks project"
+"Update the Work Tasks project to use board view"
+"Archive the old project 'Completed Q4'"
+"Show collaborators on my Team project"
 "Create a section called 'In Progress' in project 12345"
 "Show me sections in the Work Tasks project"
+"Delete the 'Old Project' project"
 ```
 
 ### Task Creation & Management

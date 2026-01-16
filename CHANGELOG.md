@@ -40,6 +40,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Example: `"Buy groceries tomorrow #Shopping @errands p1 {deadline Friday} //Don't forget milk"`
   - Full dry-run mode support for safe testing
   - Comprehensive test suite with 5 integration tests
+- **Phase 6: Full Project Management** - Complete CRUD operations for projects
+  - **todoist_project_update**: Update project name, color, description, favorite status, or view style
+  - **todoist_project_delete**: Delete projects (and all contained tasks/sub-projects)
+  - **todoist_project_archive**: Archive or unarchive projects for organization
+  - **todoist_project_collaborators_get**: Retrieve collaborators for shared projects
+  - **Enhanced Project Creation**: Added `parent_id`, `description`, `view_style` parameters
+  - **Enhanced Project Display**: Shows hierarchy, descriptions, archive/shared/favorite status
+  - **Project Test Suite**: Comprehensive tests in `src/handlers/test-handlers-enhanced/project-tests.ts`
 - **Full Section Management (Phase 7)**: Complete CRUD operations for sections
   - **todoist_section_update**: Update section names with support for both ID and name-based lookup
   - **todoist_section_delete**: Delete sections (and all contained tasks) by ID or name search
@@ -54,10 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Section deletion with cleanup
 
 ### Changed
-- **Tool Count**: Increased from 28 to 31 tools (task reopen + quick add + section update + section delete)
-- **Type System**: Extended with `DurationUnit`, `TaskDuration`, `ReopenTaskArgs`, `QuickAddTaskArgs`, `QuickAddTaskResult`, `UpdateSectionArgs`, `DeleteSectionArgs` types
+- **Tool Count**: Increased from 28 to 35 tools (task reopen + quick add + 4 project tools + section update + section delete)
+- **Type System**: Extended with `DurationUnit`, `TaskDuration`, `ReopenTaskArgs`, `QuickAddTaskArgs`, `QuickAddTaskResult`, `UpdateSectionArgs`, `DeleteSectionArgs`, `UpdateProjectArgs`, `ProjectNameArgs`, `GetProjectCollaboratorsArgs` types
 - **Task Tools**: CREATE, UPDATE, BULK_CREATE, and BULK_UPDATE now support duration parameters
-- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations, Quick Add tests, and Section tests (5 suites, 28+ tests)
+- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations, Quick Add tests, Section tests, and Project tests (6 suites, 35+ tests)
 
 ## [0.8.9] - 2025-11-25
 

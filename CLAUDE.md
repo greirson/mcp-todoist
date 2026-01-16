@@ -64,6 +64,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `label-tests.ts` - Label operation tests (5 tests)
   - `bulk-tests.ts` - Bulk operation tests (4 tests)
   - `duration-reopen-tests.ts` - Duration and reopen operation tests (5 tests)
+  - `project-tests.ts` - Project CRUD operation tests (9 tests)
   - `index.ts` - Test orchestrator and exports
 
 #### Utility Modules
@@ -74,8 +75,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-
-The server exposes 31 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 35 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support (including duration)
@@ -111,8 +111,12 @@ The server exposes 31 tools organized by entity type with standardized naming co
 - `todoist_label_stats` - Provides detailed usage statistics and analytics
 
 **Project Management:**
-- `todoist_project_create` - Creates new projects with optional color and favorite status
-- `todoist_project_get` - Lists all projects with their IDs and names
+- `todoist_project_create` - Creates projects with full attribute support (color, parent_id, description, view_style, favorite)
+- `todoist_project_get` - Lists all projects with hierarchy, descriptions, and status indicators
+- `todoist_project_update` - Updates project properties (name, color, description, view_style, favorite status)
+- `todoist_project_delete` - Deletes projects by ID or name
+- `todoist_project_archive` - Archives or unarchives projects
+- `todoist_project_collaborators_get` - Retrieves collaborators for shared projects
 
 **Section Management:**
 - `todoist_section_create` - Creates sections within projects with optional ordering
@@ -130,6 +134,7 @@ The server exposes 31 tools organized by entity type with standardized naming co
 Structured error handling with custom error types:
 - `ValidationError` - Input validation failures
 - `TaskNotFoundError` - Task search failures
+- `ProjectNotFoundError` - Project search failures
 - `LabelNotFoundError` - Label search failures
 - `SubtaskError` - Subtask operation failures
 - `TodoistAPIError` - Todoist API failures
@@ -186,8 +191,7 @@ Complete simulation framework for safe testing and validation:
 - **Mock Response Generation**: Returns realistic mock data with generated IDs for mutation operations
 - **Detailed Logging**: Clear `[DRY-RUN]` prefixes show exactly what operations would perform
 - **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
-
-- **Comprehensive Coverage**: All 29 MCP tools support dry-run mode with full validation
+- **Comprehensive Coverage**: All 35 MCP tools support dry-run mode with full validation
 - **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
 
 ### Data Flow Pattern
@@ -234,7 +238,7 @@ The codebase includes comprehensive testing capabilities:
 - `todoist_test_performance` - Benchmarks API response times with configurable iterations
 
 **Enhanced Testing Infrastructure:**
-- **Comprehensive CRUD Testing**: 18 tests across 4 suites (Task, Subtask, Label, Bulk Operations)
+- **Comprehensive CRUD Testing**: 27 tests across 5 suites (Task, Subtask, Label, Bulk Operations, Project Operations)
 - **Automatic Test Data Management**: Generates unique test data with timestamps
 - **Complete Cleanup**: Removes all test data after testing to prevent workspace pollution
 - **Detailed Reporting**: Response times, success/failure metrics, and error details
@@ -280,8 +284,7 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Dry-Run Mode**: Enable with `DRYRUN=true` environment variable for safe testing and validation
   - Uses real API data for validation while simulating mutations
-
-  - All 29 MCP tools support dry-run mode with comprehensive logging
+  - All 35 MCP tools support dry-run mode with comprehensive logging
   - Perfect for testing automations, learning the API, and safe experimentation
 - **Task Search**: Update/delete/complete operations support both:
   - **Task ID**: Direct lookup by ID (more reliable, takes precedence)
@@ -324,7 +327,7 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
 - ✅ **Dry-Run Mode Implementation**: Complete simulation framework for safe testing and validation
   - ✅ **DryRunWrapper Architecture**: Created `src/utils/dry-run-wrapper.ts` for operation simulation
   - ✅ **Environment Configuration**: Enabled via `DRYRUN=true` environment variable
-  - ✅ **Comprehensive Tool Support**: All 30 MCP tools support dry-run mode with full validation
+  - ✅ **Comprehensive Tool Support**: All 35 MCP tools support dry-run mode with full validation
   - ✅ **Real Data Validation**: Uses actual API calls to validate while simulating mutations
   - ✅ **Factory Pattern Integration**: `createTodoistClient()` automatically handles dry-run wrapping
   - ✅ **Test Coverage**: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`
@@ -333,24 +336,31 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - ✅ **Task Reopen Tool**: New `todoist_task_reopen` tool to restore completed tasks
   - ✅ **Duration Validation**: Added `validateDuration()`, `validateDurationUnit()`, `validateDurationPair()` functions
   - ✅ **Handler Updates**: Updated task create, update, and bulk handlers with duration support
-  - ✅ **New MCP Tool**: Added task reopen tool (total: 30 tools)
+  - ✅ **New MCP Tool**: Added task reopen tool
   - ✅ **Test Coverage**: Unit tests for duration validation and integration tests for duration/reopen
 - ✅ **Phase 5**: Quick Add & Natural Language (v0.9.0) - Natural language task creation
   - ✅ **Quick Add Handler**: Created `handleQuickAddTask` in `src/handlers/task-handlers.ts`
   - ✅ **Direct API Integration**: Uses Todoist Quick Add API via native fetch
-  - ✅ **New MCP Tool**: Added `todoist_task_quick_add` tool (total: 30 tools)
+  - ✅ **New MCP Tool**: Added `todoist_task_quick_add` tool
   - ✅ **Natural Language Parsing**: Supports dates, #projects, @labels, +assignees, priorities, {deadlines}, //descriptions
   - ✅ **Comprehensive Testing**: Added `quick-add-tests.ts` with 5 integration tests
-
-- **Phase 7**: Full Section Management (v0.9.0) - Complete CRUD operations for sections
-  - **Section Update**: New `todoist_section_update` tool with name-based and ID-based lookup
-  - **Section Delete**: New `todoist_section_delete` tool with cascade deletion of contained tasks
-  - **Section Ordering**: Added `order` parameter to `todoist_section_create` tool
-  - **Enhanced Testing**: Created `src/handlers/test-handlers-enhanced/section-tests.ts` with 5 section tests
-  - **New MCP Tools**: Added 2 section management tools (total: 30 tools)
+- ✅ **Phase 6**: Full Project Management (v0.10.0) - Complete CRUD operations for projects
+  - ✅ **New Project Tools**: Added 4 new tools (todoist_project_update, todoist_project_delete, todoist_project_archive, todoist_project_collaborators_get)
+  - ✅ **Enhanced Project Create**: Added parent_id, description, view_style parameters for sub-projects and rich metadata
+  - ✅ **Project Search**: Support for finding projects by ID or name (case-insensitive partial matching)
+  - ✅ **Archive Support**: Archive and unarchive projects with full status tracking
+  - ✅ **Collaborator Access**: Retrieve collaborators for shared projects
+  - ✅ **Comprehensive Testing**: Added project test suite in src/handlers/test-handlers-enhanced/project-tests.ts
+  - ✅ **Total Tools**: 35 MCP tools (31 + 4 new project management tools)
+- ✅ **Phase 7**: Full Section Management (v0.9.0) - Complete CRUD operations for sections
+  - ✅ **Section Update**: New `todoist_section_update` tool with name-based and ID-based lookup
+  - ✅ **Section Delete**: New `todoist_section_delete` tool with cascade deletion of contained tasks
+  - ✅ **Section Ordering**: Added `order` parameter to `todoist_section_create` tool
+  - ✅ **Enhanced Testing**: Created `src/handlers/test-handlers-enhanced/section-tests.ts` with 5 section tests
+  - ✅ **New MCP Tools**: Added 2 section management tools
 
 **Planned Future Phases:**
-- **Phase 6**: Duplicate Detection - Smart task deduplication using similarity algorithms
+- **Phase 8**: Duplicate Detection - Smart task deduplication using similarity algorithms
 **ALWAYS update CHANGELOG.md for every significant change:**
 - Add new entries following [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format
 - Use semantic versioning for version numbers
