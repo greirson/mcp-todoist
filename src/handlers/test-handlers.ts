@@ -268,14 +268,15 @@ function formatTestResults(
 
 export async function handleTestAllFeatures(
   todoistClient: TodoistApi,
-  args?: { mode?: "basic" | "enhanced" }
+  args?: { mode?: "basic" | "enhanced" },
+  apiToken?: string
 ): Promise<ComprehensiveTestResult | unknown> {
   // Use enhanced testing if requested
   if (args?.mode === "enhanced") {
     const { handleTestAllFeaturesEnhanced } = await import(
       "./test-handlers-enhanced/index.js"
     );
-    return handleTestAllFeaturesEnhanced(todoistClient);
+    return handleTestAllFeaturesEnhanced(todoistClient, apiToken);
   }
 
   // Default to basic testing

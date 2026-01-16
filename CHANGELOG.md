@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Pagination support with `limit` (max 200) and `offset` parameters
   - Optional notes/comments annotation with `annotate_notes` parameter
   - Returns task content, completion date, project name, and note count
+- **Quick Add Task (Phase 5)**: New `todoist_task_quick_add` tool for natural language task creation
+  - Parses text like the official Todoist app with support for:
+    - Due dates in free form text (e.g., "tomorrow", "next Monday", "Jan 23")
+    - Project names with `#` prefix (e.g., "#Shopping")
+    - Labels with `@` prefix (e.g., "@errands")
+    - Assignees with `+` prefix (e.g., "+John")
+    - Priority levels (p1 = urgent, p2, p3, p4 = lowest)
+    - Deadlines in curly braces (e.g., "{in 3 days}")
+    - Descriptions starting with `//` (e.g., "//Don't forget milk")
+  - Supports optional `note`, `reminder`, and `auto_reminder` parameters
+  - Full dry-run mode support for safe testing
 
 ### Fixed
 
@@ -26,14 +37,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Technical Implementation
 
 - **Sync API Integration**: Uses Todoist Sync API v9 endpoint `/sync/v9/completed/get_all`
-- **Type Definitions**: Added `GetCompletedTasksArgs`, `CompletedTask`, `CompletedTasksResponse` interfaces
-- **Type Guards**: Added `isGetCompletedTasksArgs` validation function
-- **Dry-Run Support**: Completed tasks retrieval supports dry-run mode for safe testing
-- **Export**: Added `GET_COMPLETED_TASKS_TOOL` to tool exports for backwards compatibility
+- **Quick Add API Integration**: Direct integration with `POST /api/v1/tasks/quick`
+- **Type Definitions**: Added `GetCompletedTasksArgs`, `CompletedTask`, `CompletedTasksResponse`, `QuickAddTaskArgs`, `QuickAddTaskResult` interfaces
+- **Type Guards**: Added `isGetCompletedTasksArgs` and `isQuickAddTaskArgs` validation functions
 
 ### Changed
 
-- Total MCP tools increased from 36 to 37
+- Total MCP tools increased from 36 to 38
 
 ## [0.10.0] - 2026-01-16
 
@@ -127,7 +137,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Testing:
     - `jest`: 30.0.5 -> 30.2.0
 - All tests pass with updated dependencies
-- No breaking changes or deprecated API calls detected
 
 ## [0.8.9] - 2025-11-25
 
