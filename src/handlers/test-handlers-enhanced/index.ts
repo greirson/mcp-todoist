@@ -4,8 +4,12 @@ import { testTaskOperations } from "./task-tests.js";
 import { testSubtaskOperations } from "./subtask-tests.js";
 import { testLabelOperations } from "./label-tests.js";
 import { testBulkOperations } from "./bulk-tests.js";
+<<<<<<< HEAD
 import { testQuickAddOperations } from "./quick-add-tests.js";
 import { testDurationAndReopenOperations } from "./duration-reopen-tests.js";
+=======
+import { testSectionOperations } from "./section-tests.js";
+>>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
 import { TestSuite, ComprehensiveTestReport } from "./types.js";
 
 export async function handleTestAllFeaturesEnhanced(
@@ -19,6 +23,7 @@ export async function handleTestAllFeaturesEnhanced(
   suites.push(await testTaskOperations(todoistClient));
   suites.push(await testSubtaskOperations(todoistClient));
   suites.push(await testLabelOperations(todoistClient));
+  suites.push(await testSectionOperations(todoistClient));
   suites.push(await testBulkOperations(todoistClient));
   suites.push(await testDurationAndReopenOperations(todoistClient));
 
@@ -61,6 +66,7 @@ export type {
 export { testTaskOperations } from "./task-tests.js";
 export { testSubtaskOperations } from "./subtask-tests.js";
 export { testLabelOperations } from "./label-tests.js";
+export { testSectionOperations } from "./section-tests.js";
 export { testBulkOperations } from "./bulk-tests.js";
 export { testQuickAddOperations } from "./quick-add-tests.js";
 export { testDurationAndReopenOperations } from "./duration-reopen-tests.js";

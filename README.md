@@ -223,7 +223,11 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
+<<<<<<< HEAD
 The server provides 29 tools organized by entity type:
+=======
+The server provides 30 tools organized by entity type:
+>>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support including duration
@@ -263,8 +267,10 @@ The server provides 29 tools organized by entity type:
 - **Todoist Project Get**: List all projects with their IDs and names
 
 ### Section Management
-- **Todoist Section Create**: Create sections within projects
+- **Todoist Section Create**: Create sections within projects with optional ordering
 - **Todoist Section Get**: List sections within projects
+- **Todoist Section Update**: Update section names (by ID or partial name search)
+- **Todoist Section Delete**: Delete sections and all contained tasks (by ID or partial name search)
 
 ### Testing & Validation
 - **Todoist Test Connection**: Validate API token and test connectivity

@@ -74,7 +74,11 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
+<<<<<<< HEAD
 The server exposes 29 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+=======
+The server exposes 30 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+>>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support (including duration)
@@ -114,8 +118,10 @@ The server exposes 29 tools organized by entity type with standardized naming co
 - `todoist_project_get` - Lists all projects with their IDs and names
 
 **Section Management:**
-- `todoist_section_create` - Creates sections within projects
+- `todoist_section_create` - Creates sections within projects with optional ordering
 - `todoist_section_get` - Lists sections within projects
+- `todoist_section_update` - Updates section names by ID or name search
+- `todoist_section_delete` - Deletes sections and all contained tasks by ID or name search
 
 **Testing Infrastructure:**
 - `todoist_test_connection` - Quick API token validation and connection test
@@ -183,7 +189,11 @@ Complete simulation framework for safe testing and validation:
 - **Mock Response Generation**: Returns realistic mock data with generated IDs for mutation operations
 - **Detailed Logging**: Clear `[DRY-RUN]` prefixes show exactly what operations would perform
 - **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
+<<<<<<< HEAD
 - **Comprehensive Coverage**: All 29 MCP tools support dry-run mode with full validation
+=======
+- **Comprehensive Coverage**: All 30 MCP tools support dry-run mode with full validation
+>>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
 - **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
 
 ### Data Flow Pattern
@@ -276,7 +286,11 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Dry-Run Mode**: Enable with `DRYRUN=true` environment variable for safe testing and validation
   - Uses real API data for validation while simulating mutations
+<<<<<<< HEAD
   - All 29 MCP tools support dry-run mode with comprehensive logging
+=======
+  - All 30 MCP tools support dry-run mode with comprehensive logging
+>>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
   - Perfect for testing automations, learning the API, and safe experimentation
 - **Task Search**: Update/delete/complete operations support both:
   - **Task ID**: Direct lookup by ID (more reliable, takes precedence)
@@ -336,6 +350,13 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - ✅ **New MCP Tool**: Added `todoist_task_quick_add` tool (total: 30 tools)
   - ✅ **Natural Language Parsing**: Supports dates, #projects, @labels, +assignees, priorities, {deadlines}, //descriptions
   - ✅ **Comprehensive Testing**: Added `quick-add-tests.ts` with 5 integration tests
+
+- **Phase 7**: Full Section Management (v0.9.0) - Complete CRUD operations for sections
+  - **Section Update**: New `todoist_section_update` tool with name-based and ID-based lookup
+  - **Section Delete**: New `todoist_section_delete` tool with cascade deletion of contained tasks
+  - **Section Ordering**: Added `order` parameter to `todoist_section_create` tool
+  - **Enhanced Testing**: Created `src/handlers/test-handlers-enhanced/section-tests.ts` with 5 section tests
+  - **New MCP Tools**: Added 2 section management tools (total: 30 tools)
 
 **Planned Future Phases:**
 - **Phase 6**: Duplicate Detection - Smart task deduplication using similarity algorithms
