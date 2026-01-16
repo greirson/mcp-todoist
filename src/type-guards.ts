@@ -6,6 +6,9 @@ import {
   QuickAddTaskArgs,
   GetSectionsArgs,
   CreateProjectArgs,
+  UpdateProjectArgs,
+  ProjectNameArgs,
+  GetProjectCollaboratorsArgs,
   CreateSectionArgs,
   UpdateSectionArgs,
   SectionIdentifierArgs,
@@ -134,6 +137,97 @@ export function isCreateProjectArgs(args: unknown): args is CreateProjectArgs {
     "name" in args &&
     typeof (args as { name: string }).name === "string"
   );
+}
+
+export function isUpdateProjectArgs(args: unknown): args is UpdateProjectArgs {
+  if (typeof args !== "object" || args === null) {
+    return false;
+  }
+
+  const obj = args as Record<string, unknown>;
+
+  // Must have either project_id or project_name
+  const hasProjectId =
+    ("project_id" in obj && typeof obj.project_id === "string") ||
+    ("projectId" in obj && typeof obj.projectId === "string");
+  const hasProjectName =
+    ("project_name" in obj && typeof obj.project_name === "string") ||
+    ("projectName" in obj && typeof obj.projectName === "string");
+
+  if (!hasProjectId && !hasProjectName) {
+    return false;
+  }
+
+  // Check optional fields
+  return (
+    (obj.name === undefined || typeof obj.name === "string") &&
+    (obj.color === undefined || typeof obj.color === "string") &&
+    (obj.is_favorite === undefined || typeof obj.is_favorite === "boolean") &&
+    (obj.description === undefined || typeof obj.description === "string") &&
+    (obj.view_style === undefined || typeof obj.view_style === "string")
+  );
+}
+
+export function isProjectNameArgs(args: unknown): args is ProjectNameArgs {
+  if (typeof args !== "object" || args === null) {
+    return false;
+  }
+
+  const obj = args as Record<string, unknown>;
+
+  // Must have either project_id or project_name
+  const hasProjectId =
+    ("project_id" in obj && typeof obj.project_id === "string") ||
+    ("projectId" in obj && typeof obj.projectId === "string");
+  const hasProjectName =
+    ("project_name" in obj && typeof obj.project_name === "string") ||
+    ("projectName" in obj && typeof obj.projectName === "string");
+
+  return hasProjectId || hasProjectName;
+}
+
+export function isArchiveProjectArgs(
+  args: unknown
+): args is ProjectNameArgs & { archive?: boolean } {
+  if (typeof args !== "object" || args === null) {
+    return false;
+  }
+
+  const obj = args as Record<string, unknown>;
+
+  // Must have either project_id or project_name
+  const hasProjectId =
+    ("project_id" in obj && typeof obj.project_id === "string") ||
+    ("projectId" in obj && typeof obj.projectId === "string");
+  const hasProjectName =
+    ("project_name" in obj && typeof obj.project_name === "string") ||
+    ("projectName" in obj && typeof obj.projectName === "string");
+
+  if (!hasProjectId && !hasProjectName) {
+    return false;
+  }
+
+  return obj.archive === undefined || typeof obj.archive === "boolean";
+}
+
+export function isGetProjectCollaboratorsArgs(
+  args: unknown
+): args is GetProjectCollaboratorsArgs {
+  if (typeof args !== "object" || args === null) {
+    return false;
+  }
+
+  const obj = args as Record<string, unknown>;
+
+  // Must have either project_id or project_name
+  const hasProjectId =
+    ("project_id" in obj && typeof obj.project_id === "string") ||
+    ("projectId" in obj && typeof obj.projectId === "string");
+  const hasProjectName =
+    ("project_name" in obj && typeof obj.project_name === "string") ||
+    ("projectName" in obj && typeof obj.projectName === "string");
+
+  return hasProjectId || hasProjectName;
 }
 
 export function isCreateSectionArgs(args: unknown): args is CreateSectionArgs {

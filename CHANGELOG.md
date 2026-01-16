@@ -40,6 +40,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Example: `"Buy groceries tomorrow #Shopping @errands p1 {deadline Friday} //Don't forget milk"`
   - Full dry-run mode support for safe testing
   - Comprehensive test suite with 5 integration tests
+- **Phase 6: Full Project Management** - Complete CRUD operations for projects
+  - **todoist_project_update**: Update project name, color, description, favorite status, or view style
+  - **todoist_project_delete**: Delete projects (and all contained tasks/sub-projects)
+  - **todoist_project_archive**: Archive or unarchive projects for organization
+  - **todoist_project_collaborators_get**: Retrieve collaborators for shared projects
+  - **Enhanced Project Creation**: Added `parent_id`, `description`, `view_style` parameters
+  - **Enhanced Project Display**: Shows hierarchy, descriptions, archive/shared/favorite status
+  - **Project Test Suite**: Comprehensive tests in `src/handlers/test-handlers-enhanced/project-tests.ts`
 - **Full Section Management (Phase 7)**: Complete CRUD operations for sections
   - **todoist_section_update**: Update section names with support for both ID and name-based lookup
   - **todoist_section_delete**: Delete sections (and all contained tasks) by ID or name search
@@ -54,10 +62,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Section deletion with cleanup
 
 ### Changed
-- **Tool Count**: Increased from 28 to 31 tools (task reopen + quick add + section update + section delete)
-- **Type System**: Extended with `DurationUnit`, `TaskDuration`, `ReopenTaskArgs`, `QuickAddTaskArgs`, `QuickAddTaskResult`, `UpdateSectionArgs`, `DeleteSectionArgs` types
+- **Tool Count**: Increased from 28 to 35 tools (task reopen + quick add + 4 project tools + section update + section delete)
+- **Type System**: Extended with `DurationUnit`, `TaskDuration`, `ReopenTaskArgs`, `QuickAddTaskArgs`, `QuickAddTaskResult`, `UpdateSectionArgs`, `DeleteSectionArgs`, `UpdateProjectArgs`, `ProjectNameArgs`, `GetProjectCollaboratorsArgs` types
 - **Task Tools**: CREATE, UPDATE, BULK_CREATE, and BULK_UPDATE now support duration parameters
-- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations, Quick Add tests, and Section tests (5 suites, 28+ tests)
+- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations, Quick Add tests, Section tests, and Project tests (7 suites, 35+ tests)
+- **Dependency Updates**: Updated all dependencies to latest versions
+  - Core dependencies:
+    - `@doist/todoist-api-typescript`: 5.1.1 -> 5.5.1 (new Todoist API features)
+    - `@modelcontextprotocol/sdk`: 1.17.1 -> 1.18.2 (MCP protocol improvements)
+  - TypeScript tooling:
+    - `typescript`: 5.7.2 -> 5.9.3
+    - `@types/node`: 22.10.1 -> 24.6.1
+  - Linting:
+    - `@typescript-eslint/eslint-plugin`: 8.32.1 -> 8.48.0
+    - `@typescript-eslint/parser`: 8.32.1 -> 8.48.0
+  - Testing:
+    - `jest`: 30.0.5 -> 30.2.0
+- All tests pass with updated dependencies
+- No breaking changes or deprecated API calls detected
 
 ## [0.8.9] - 2025-11-25
 
