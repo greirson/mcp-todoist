@@ -223,11 +223,7 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-<<<<<<< HEAD
-The server provides 29 tools organized by entity type:
-=======
-The server provides 30 tools organized by entity type:
->>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
+The server provides 31 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support including duration

@@ -4,12 +4,9 @@ import { testTaskOperations } from "./task-tests.js";
 import { testSubtaskOperations } from "./subtask-tests.js";
 import { testLabelOperations } from "./label-tests.js";
 import { testBulkOperations } from "./bulk-tests.js";
-<<<<<<< HEAD
 import { testQuickAddOperations } from "./quick-add-tests.js";
 import { testDurationAndReopenOperations } from "./duration-reopen-tests.js";
-=======
 import { testSectionOperations } from "./section-tests.js";
->>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
 import { TestSuite, ComprehensiveTestReport } from "./types.js";
 
 export async function handleTestAllFeaturesEnhanced(

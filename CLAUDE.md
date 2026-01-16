@@ -74,11 +74,8 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-<<<<<<< HEAD
-The server exposes 29 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
-=======
-The server exposes 30 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
->>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
+
+The server exposes 31 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support (including duration)
@@ -189,11 +186,8 @@ Complete simulation framework for safe testing and validation:
 - **Mock Response Generation**: Returns realistic mock data with generated IDs for mutation operations
 - **Detailed Logging**: Clear `[DRY-RUN]` prefixes show exactly what operations would perform
 - **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
-<<<<<<< HEAD
+
 - **Comprehensive Coverage**: All 29 MCP tools support dry-run mode with full validation
-=======
-- **Comprehensive Coverage**: All 30 MCP tools support dry-run mode with full validation
->>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
 - **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
 
 ### Data Flow Pattern
@@ -286,11 +280,8 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Dry-Run Mode**: Enable with `DRYRUN=true` environment variable for safe testing and validation
   - Uses real API data for validation while simulating mutations
-<<<<<<< HEAD
+
   - All 29 MCP tools support dry-run mode with comprehensive logging
-=======
-  - All 30 MCP tools support dry-run mode with comprehensive logging
->>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
   - Perfect for testing automations, learning the API, and safe experimentation
 - **Task Search**: Update/delete/complete operations support both:
   - **Task ID**: Direct lookup by ID (more reliable, takes precedence)

@@ -5,8 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-<<<<<<< HEAD
-## [0.9.0] - 2026-01-16
+## [0.10.0] - 2026-01-16
 
 ### Added
 - **Phase 4: Duration & Task Enhancements**: Complete task duration support and reopen capability
@@ -41,16 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Example: `"Buy groceries tomorrow #Shopping @errands p1 {deadline Friday} //Don't forget milk"`
   - Full dry-run mode support for safe testing
   - Comprehensive test suite with 5 integration tests
-
-### Changed
-- **Tool Count**: Increased from 28 to 30 tools (task reopen + quick add)
-- **Type System**: Extended with `DurationUnit`, `TaskDuration`, `ReopenTaskArgs`, `QuickAddTaskArgs`, `QuickAddTaskResult` types
-- **Task Tools**: CREATE, UPDATE, BULK_CREATE, and BULK_UPDATE now support duration parameters
-- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations and Quick Add tests
-=======
-## [0.9.0] - 2026-01-15
-
-### Added
 - **Full Section Management (Phase 7)**: Complete CRUD operations for sections
   - **todoist_section_update**: Update section names with support for both ID and name-based lookup
   - **todoist_section_delete**: Delete sections (and all contained tasks) by ID or name search
@@ -65,30 +54,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Section deletion with cleanup
 
 ### Changed
-- Total MCP tools increased from 28 to 30
-- Enhanced testing infrastructure: 5 test suites (Task, Subtask, Label, Section, Bulk Operations) with 23+ tests
->>>>>>> 4870694 (feat: add full section management CRUD operations (Phase 7) (#53))
-- **Dependency Updates**: Updated all dependencies to latest versions
-  - Core dependencies:
-    - `@doist/todoist-api-typescript`: 5.1.1 -> 5.5.1 (new Todoist API features)
-    - `@modelcontextprotocol/sdk`: 1.17.1 -> 1.18.2 (MCP protocol improvements)
-  - TypeScript tooling:
-    - `typescript`: 5.7.2 -> 5.9.3
-    - `@types/node`: 22.10.1 -> 24.6.1
-  - Linting:
-    - `@typescript-eslint/eslint-plugin`: 8.32.1 -> 8.48.0
-    - `@typescript-eslint/parser`: 8.32.1 -> 8.48.0
-  - Testing:
-    - `jest`: 30.0.5 -> 30.2.0
-- All tests pass with updated dependencies
+- **Tool Count**: Increased from 28 to 31 tools (task reopen + quick add + section update + section delete)
+- **Type System**: Extended with `DurationUnit`, `TaskDuration`, `ReopenTaskArgs`, `QuickAddTaskArgs`, `QuickAddTaskResult`, `UpdateSectionArgs`, `DeleteSectionArgs` types
+- **Task Tools**: CREATE, UPDATE, BULK_CREATE, and BULK_UPDATE now support duration parameters
+- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations, Quick Add tests, and Section tests (5 suites, 28+ tests)
 
-### Technical Implementation
-- **Duration API Integration**: Uses Todoist SDK's `duration` and `durationUnit` parameters
-- **Validation Layer**: New `validateDuration()`, `validateDurationUnit()`, and `validateDurationPair()` functions
-- **Handler Updates**: All relevant task handlers updated to process duration parameters
-- **Dry-Run Support**: Duration and reopen operations fully supported in dry-run mode
-- **Quick Add API**: Direct integration with Todoist Quick Add API (`POST /api/v1/tasks/quick`)
-- Added `isQuickAddTaskArgs` type guard for input validation
 ## [0.8.9] - 2025-11-25
 
 ### Fixed
