@@ -5,9 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.8.10] - 2026-01-15
+## [0.9.0] - 2026-01-15
+
+### Added
+- **Full Section Management (Phase 7)**: Complete CRUD operations for sections
+  - **todoist_section_update**: Update section names with support for both ID and name-based lookup
+  - **todoist_section_delete**: Delete sections (and all contained tasks) by ID or name search
+  - **Section ordering**: Added `order` parameter to `todoist_section_create` for controlling section position
+  - **Name-based operations**: Both update and delete support case-insensitive partial name matching with optional project filtering
+  - **Ambiguity handling**: Clear error messages when multiple sections match a search term
+- **Section Test Suite**: Comprehensive tests in `src/handlers/test-handlers-enhanced/section-tests.ts` covering:
+  - Section creation with ordering
+  - Section retrieval by project
+  - Section update by ID
+  - Section update by name
+  - Section deletion with cleanup
 
 ### Changed
+- Total MCP tools increased from 28 to 30
+- Enhanced testing infrastructure: 5 test suites (Task, Subtask, Label, Section, Bulk Operations) with 23+ tests
 - **Dependency Updates**: Updated all dependencies to latest versions
   - Core dependencies:
     - `@doist/todoist-api-typescript`: 5.1.1 -> 5.5.1 (new Todoist API features)
