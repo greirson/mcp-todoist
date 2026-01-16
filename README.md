@@ -47,7 +47,7 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 * **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
 * **Hierarchical Subtasks**: Create subtasks, convert tasks to subtasks, promote subtasks, and view task hierarchies with completion tracking
 * **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
-* **Comment System**: Add comments to tasks and retrieve comments with attachment support
+* **Full Comment Management**: Complete CRUD operations for task and project comments with attachment support
 * **Label Management**: Full CRUD operations for labels with usage statistics and analytics
 * **Project & Section Organization**: Create and manage projects and sections
 * **Dry-Run Mode**: Test automations and operations without making real changes
@@ -209,7 +209,7 @@ Priority: 4 (Normal)
 
 ### Supported Operations
 
-All 28 MCP tools support dry-run mode:
+All 32 MCP tools support dry-run mode:
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
 - Bulk operations across multiple tasks
@@ -223,7 +223,7 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 30 tools organized by entity type:
+The server provides 32 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support
@@ -246,8 +246,10 @@ The server provides 30 tools organized by entity type:
 - **Todoist Tasks Bulk Complete**: Complete multiple tasks based on search criteria with timezone-aware due comparisons
 
 ### Comment Management
-- **Todoist Comment Create**: Add comments to tasks with optional file attachments
+- **Todoist Comment Create**: Add comments to tasks or projects with optional file attachments
 - **Todoist Comment Get**: Retrieve comments for tasks or projects
+- **Todoist Comment Update**: Update existing comment content by ID
+- **Todoist Comment Delete**: Delete comments by ID
 
 ### Label Management
 - **Todoist Label Get**: List all labels with their IDs and colors
@@ -338,6 +340,9 @@ The server provides 30 tools organized by entity type:
 "Add comment with attachment to task 67890"
 "Show all comments for task 'Team Meeting'"
 "Get comments for project 12345"
+"Update comment 123456 to say 'Updated status: Ready for review'"
+"Delete comment 123456"
+"Add a project-level comment to project 12345"
 ```
 
 ### Label Management

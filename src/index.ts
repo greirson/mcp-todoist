@@ -29,6 +29,8 @@ import {
   isBulkTaskFilterArgs,
   isCreateCommentArgs,
   isGetCommentsArgs,
+  isUpdateCommentArgs,
+  isDeleteCommentArgs,
   isGetLabelsArgs,
   isCreateLabelArgs,
   isUpdateLabelArgs,
@@ -62,6 +64,8 @@ import {
 import {
   handleCreateComment,
   handleGetComments,
+  handleUpdateComment,
+  handleDeleteComment,
 } from "./handlers/comment-handlers.js";
 import {
   handleTestConnection,
@@ -267,6 +271,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_comment_get");
         }
         result = await handleGetComments(apiClient, args);
+        break;
+
+      case "todoist_comment_update":
+        if (!isUpdateCommentArgs(args)) {
+          throw new Error("Invalid arguments for todoist_comment_update");
+        }
+        result = await handleUpdateComment(apiClient, args);
+        break;
+
+      case "todoist_comment_delete":
+        if (!isDeleteCommentArgs(args)) {
+          throw new Error("Invalid arguments for todoist_comment_delete");
+        }
+        result = await handleDeleteComment(apiClient, args);
         break;
 
       case "todoist_label_get":
