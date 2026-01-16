@@ -22,6 +22,8 @@ import {
   isGetSectionsArgs,
   isCreateProjectArgs,
   isCreateSectionArgs,
+  isUpdateSectionArgs,
+  isSectionIdentifierArgs,
   isBulkCreateTasksArgs,
   isBulkUpdateTasksArgs,
   isBulkTaskFilterArgs,
@@ -54,6 +56,8 @@ import {
   handleGetSections,
   handleCreateProject,
   handleCreateSection,
+  handleUpdateSection,
+  handleDeleteSection,
 } from "./handlers/project-handlers.js";
 import {
   handleCreateComment,
@@ -108,7 +112,7 @@ function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
 const server = new Server(
   {
     name: "todoist-mcp-server",
-    version: "0.8.1",
+    version: "0.9.0",
   },
   {
     capabilities: {
@@ -207,6 +211,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_section_create");
         }
         result = await handleCreateSection(apiClient, args);
+        break;
+
+      case "todoist_section_update":
+        if (!isUpdateSectionArgs(args)) {
+          throw new Error("Invalid arguments for todoist_section_update");
+        }
+        result = await handleUpdateSection(apiClient, args);
+        break;
+
+      case "todoist_section_delete":
+        if (!isSectionIdentifierArgs(args)) {
+          throw new Error("Invalid arguments for todoist_section_delete");
+        }
+        result = await handleDeleteSection(apiClient, args);
         break;
 
       case "todoist_tasks_bulk_create":
