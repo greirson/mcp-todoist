@@ -8,6 +8,7 @@ import { testSectionOperations } from "./section-tests.js";
 import { testCommentOperations } from "./comment-tests.js";
 import { testReminderOperations } from "./reminder-tests.js";
 import { testQuickAddOperations } from "./quick-add-tests.js";
+import { testDurationAndReopenOperations } from "./duration-reopen-tests.js";
 import { TestSuite, ComprehensiveTestReport } from "./types.js";
 
 export async function handleTestAllFeaturesEnhanced(
@@ -25,6 +26,7 @@ export async function handleTestAllFeaturesEnhanced(
   suites.push(await testBulkOperations(todoistClient));
   suites.push(await testCommentOperations(todoistClient));
   suites.push(await testReminderOperations(todoistClient));
+  suites.push(await testDurationAndReopenOperations(todoistClient));
 
   // Run quick add tests if API token is provided
   if (apiToken) {
@@ -70,3 +72,4 @@ export { testBulkOperations } from "./bulk-tests.js";
 export { testCommentOperations } from "./comment-tests.js";
 export { testReminderOperations } from "./reminder-tests.js";
 export { testQuickAddOperations } from "./quick-add-tests.js";
+export { testDurationAndReopenOperations } from "./duration-reopen-tests.js";

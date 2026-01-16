@@ -70,6 +70,8 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `label-tests.ts` - Label operation tests (5 tests)
   - `bulk-tests.ts` - Bulk operation tests (4 tests)
   - `reminder-tests.ts` - Reminder operation tests (5 tests)
+  - `duration-reopen-tests.ts` - Duration and task reopen tests
+  - `quick-add-tests.ts` - Quick add natural language tests
   - `index.ts` - Test orchestrator and exports
 
 #### Utility Modules
@@ -81,15 +83,16 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 38 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 39 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 
-- `todoist_task_create` - Creates new tasks with full attribute support
+- `todoist_task_create` - Creates new tasks with full attribute support including duration
 - `todoist_task_get` - Retrieves and filters tasks (with caching)
-- `todoist_task_update` - Updates existing tasks found by name search
+- `todoist_task_update` - Updates existing tasks found by name search with duration support
 - `todoist_task_delete` - Deletes tasks found by name search
 - `todoist_task_complete` - Marks tasks as complete found by name search
+- `todoist_task_reopen` - Restores completed tasks found by name search
 - `todoist_completed_tasks_get` - Retrieves completed tasks via Sync API with date filtering and pagination
 - `todoist_task_quick_add` - Natural language task creation with inline parsing for dates, projects, labels, priorities
 

@@ -34,7 +34,9 @@ import {
   validateTaskIdentifier,
   validateBulkSearchCriteria,
   VALIDATION_LIMITS,
+  validateDurationPair,
 } from "../validation.js";
+import type { DurationUnit } from "../types.js";
 import {
   resolveProjectIdentifier,
   extractArrayFromResponse,
@@ -140,6 +142,7 @@ export async function handleCreateTask(
     validateLabels(args.labels);
     validateProjectId(args.project_id);
     validateSectionId(args.section_id);
+    validateDurationPair(args.duration, args.duration_unit);
 
     const taskData: TodoistTaskData = {
       content: sanitizedContent,
@@ -168,7 +171,15 @@ export async function handleCreateTask(
       taskData.sectionId = args.section_id;
     }
 
-    const task = await todoistClient.addTask(taskData);
+    // Add duration support
+    if (args.duration !== undefined) {
+      taskData.duration = args.duration;
+      taskData.durationUnit = (args.duration_unit || "minute") as DurationUnit;
+    }
+
+    // Cast to any to work around SDK's RequireAllOrNone constraint on duration/durationUnit
+    // We've validated the pair in validateDurationPair() so this is safe
+    const task = await todoistClient.addTask(taskData as any);
 
     // Clear cache after creating task
     taskCache.clear();
@@ -180,6 +191,13 @@ export async function handleCreateTask(
     const isDryRun = (task as any).__dryRun === true;
     const prefix = isDryRun ? "[DRY-RUN] " : "";
 
+    // Format duration for display
+    const durationDisplay = task.duration
+      ? `\nDuration: ${task.duration.amount} ${task.duration.unit}${task.duration.amount !== 1 ? "s" : ""}`
+      : args.duration
+        ? `\nDuration: ${args.duration} ${args.duration_unit || "minute"}${args.duration !== 1 ? "s" : ""}`
+        : "";
+
     return `${prefix}Task created:\nID: ${task.id}\nTitle: ${task.content}${
       task.description ? `\nDescription: ${task.description}` : ""
     }${dueDetails ? `\nDue: ${dueDetails}` : ""}${
@@ -190,7 +208,7 @@ export async function handleCreateTask(
         : ""
     }${args.deadline_date ? `\nDeadline: ${args.deadline_date}` : ""}${
       args.project_id ? `\nProject ID: ${args.project_id}` : ""
-    }${args.section_id ? `\nSection ID: ${args.section_id}` : ""}`;
+    }${args.section_id ? `\nSection ID: ${args.section_id}` : ""}${durationDisplay}`;
   });
 }
 
@@ -393,6 +411,7 @@ export async function handleUpdateTask(
   // Validate that at least one identifier is provided
   validateTaskIdentifier(taskId, taskName);
   validateLabels(args.labels);
+  validateDurationPair(args.duration, args.duration_unit);
 
   // Clear cache since we're updating
   taskCache.clear();
@@ -415,10 +434,20 @@ export async function handleUpdateTask(
     updateData.labels = Array.isArray(args.labels) ? args.labels : [];
   }
 
+  // Add duration support
+  if (args.duration !== undefined) {
+    updateData.duration = args.duration;
+    updateData.durationUnit = (args.duration_unit || "minute") as DurationUnit;
+  }
+
   let latestTask = matchingTask;
 
   if (Object.keys(updateData).length > 0) {
-    latestTask = await todoistClient.updateTask(matchingTask.id, updateData);
+    // Cast to any to work around SDK's RequireAllOrNone constraint on duration/durationUnit
+    latestTask = await todoistClient.updateTask(
+      matchingTask.id,
+      updateData as any
+    );
   }
 
   if (requestedProjectId && requestedProjectId !== latestTask.projectId) {
@@ -461,13 +490,19 @@ export async function handleUpdateTask(
       }`
     : "";
 
+  // Format duration for display
+  const durationProvided = args.duration !== undefined;
+  const durationLine = durationProvided
+    ? `\nNew Duration: ${args.duration} ${args.duration_unit || "minute"}${args.duration !== 1 ? "s" : ""}`
+    : "";
+
   return `${prefix}Task "${matchingTask.content}" updated:\nNew Title: ${
     latestTask.content
   }${
     latestTask.description ? `\nNew Description: ${latestTask.description}` : ""
   }${updatedDueDetails ? `\nNew Due Date: ${updatedDueDetails}` : ""}${
     displayUpdatedPriority ? `\nNew Priority: ${displayUpdatedPriority}` : ""
-  }${projectLine}${sectionLine}${labelsLine}`;
+  }${projectLine}${sectionLine}${labelsLine}${durationLine}`;
 }
 
 export async function handleDeleteTask(
@@ -516,6 +551,30 @@ export async function handleCompleteTask(
   const prefix = isDryRun ? "[DRY-RUN] " : "";
 
   return `${prefix}Successfully completed task: "${matchingTask.content}"`;
+}
+
+export async function handleReopenTask(
+  todoistClient: TodoistApi,
+  args: any
+): Promise<string> {
+  // Handle both snake_case and camelCase
+  const { taskId, taskName } = extractTaskIdentifiers(args);
+
+  // Validate that at least one identifier is provided
+  validateTaskIdentifier(taskId, taskName);
+
+  // Clear cache since we're reopening
+  taskCache.clear();
+
+  const matchingTask = await findTaskByIdOrName(todoistClient, args);
+
+  await todoistClient.reopenTask(matchingTask.id);
+
+  // Check if we're in dry-run mode
+  const isDryRun = process.env.DRYRUN === "true";
+  const prefix = isDryRun ? "[DRY-RUN] " : "";
+
+  return `${prefix}Successfully reopened task: "${matchingTask.content}"`;
 }
 
 function filterTasksByCriteria(
@@ -578,6 +637,7 @@ export async function handleBulkCreateTasks(
         validateLabels(taskArgs.labels);
         validateProjectId(taskArgs.project_id);
         validateSectionId(taskArgs.section_id);
+        validateDurationPair(taskArgs.duration, taskArgs.duration_unit);
 
         const taskData: TodoistTaskData = {
           content: taskArgs.content,
@@ -598,7 +658,15 @@ export async function handleBulkCreateTasks(
         if (taskArgs.project_id) taskData.projectId = taskArgs.project_id;
         if (taskArgs.section_id) taskData.sectionId = taskArgs.section_id;
 
-        const task = await todoistClient.addTask(taskData);
+        // Add duration support
+        if (taskArgs.duration !== undefined) {
+          taskData.duration = taskArgs.duration;
+          taskData.durationUnit = (taskArgs.duration_unit ||
+            "minute") as DurationUnit;
+        }
+
+        // Cast to any to work around SDK's RequireAllOrNone constraint on duration/durationUnit
+        const task = await todoistClient.addTask(taskData as any);
         createdTasks.push(task);
       } catch (error) {
         const errorMessage =
@@ -712,6 +780,7 @@ export async function handleBulkUpdateTasks(
     const errors: string[] = [];
 
     validateLabels(args.updates.labels);
+    validateDurationPair(args.updates.duration, args.updates.duration_unit);
 
     const updateData: Partial<TodoistTaskData> = {};
     if (args.updates.content) updateData.content = args.updates.content;
@@ -728,6 +797,13 @@ export async function handleBulkUpdateTasks(
       updateData.labels = Array.isArray(args.updates.labels)
         ? args.updates.labels
         : [];
+    }
+
+    // Add duration support for bulk updates
+    if (args.updates.duration !== undefined) {
+      updateData.duration = args.updates.duration;
+      updateData.durationUnit = (args.updates.duration_unit ||
+        "minute") as DurationUnit;
     }
 
     let moveProjectId: string | undefined;
@@ -751,7 +827,11 @@ export async function handleBulkUpdateTasks(
         let latestTask = task;
 
         if (hasUpdateFields) {
-          latestTask = await todoistClient.updateTask(task.id, updateData);
+          // Cast to any to work around SDK's RequireAllOrNone constraint on duration/durationUnit
+          latestTask = await todoistClient.updateTask(
+            task.id,
+            updateData as any
+          );
         }
 
         if (moveProjectId && moveProjectId !== latestTask.projectId) {

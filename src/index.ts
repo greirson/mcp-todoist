@@ -19,6 +19,7 @@ import {
   isTaskNameArgs as isDeleteTaskArgs,
   isTaskNameArgs as isCompleteTaskArgs,
   isQuickAddTaskArgs,
+  isTaskNameArgs as isReopenTaskArgs,
   isGetProjectsArgs,
   isGetSectionsArgs,
   isCreateProjectArgs,
@@ -54,6 +55,7 @@ import {
   handleUpdateTask,
   handleDeleteTask,
   handleCompleteTask,
+  handleReopenTask,
   handleBulkCreateTasks,
   handleBulkUpdateTasks,
   handleBulkDeleteTasks,
@@ -208,6 +210,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_task_quick_add");
         }
         result = await handleQuickAddTask(TODOIST_API_TOKEN, args);
+        break;
+
+      case "todoist_task_reopen":
+        if (!isReopenTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_reopen");
+        }
+        result = await handleReopenTask(apiClient, args);
         break;
 
       case "todoist_project_get":
