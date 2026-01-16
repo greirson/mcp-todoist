@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-01-15
+
+### Added
+- **Phase 8: Full Comment Management**: Complete CRUD operations for comments
+  - `todoist_comment_update` - Update existing comment content by ID
+  - `todoist_comment_delete` - Delete comments by ID
+  - **Project Comments**: Extended `todoist_comment_create` to support project-level comments via `project_id` parameter
+  - **Enhanced Testing**: Added comprehensive comment management test suite (6 tests)
+    - Create task for testing, create comment, get comments, update comment, delete comment, cleanup
+- **Tool Count**: Increased from 28 to 30 total MCP tools
+
+### Changed
+- **Comment Tool Descriptions**: Updated to reflect support for both task and project comments
+- **Type System**: Added `UpdateCommentArgs` and `DeleteCommentArgs` interfaces
+- **Type Guards**: Added `isUpdateCommentArgs()` and `isDeleteCommentArgs()` validation functions
+- **Test Infrastructure**: Enhanced test suite now includes comment management operations (5 suites, 24+ tests)
+
+### Technical Implementation
+- **Handler Functions**: Added `handleUpdateComment()` and `handleDeleteComment()` in `comment-handlers.ts`
+- **Dry-Run Support**: Comment update and delete operations already supported by existing DryRunWrapper
+- **Cache Integration**: Comment operations properly invalidate cache on mutations
+
 ## [0.8.9] - 2025-11-25
 
 ### Fixed

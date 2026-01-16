@@ -2,6 +2,8 @@ import { TodoistApi } from "@doist/todoist-api-typescript";
 import {
   CreateCommentArgs,
   GetCommentsArgs,
+  UpdateCommentArgs,
+  DeleteCommentArgs,
   TodoistComment,
   TodoistTask,
   CommentResponse,
@@ -21,6 +23,18 @@ const commentCache = new SimpleCache<TodoistComment[]>(30000);
 
 // Using shared utilities from api-helpers.ts
 
+// Extended interface to support project comments
+interface ExtendedCommentCreationData {
+  content: string;
+  taskId?: string;
+  projectId?: string;
+  attachment?: {
+    fileName: string;
+    fileUrl: string;
+    fileType: string;
+  };
+}
+
 export async function handleCreateComment(
   todoistClient: TodoistApi,
   args: CreateCommentArgs
@@ -29,11 +43,17 @@ export async function handleCreateComment(
     // Validate and sanitize content
     const sanitizedContent = validateCommentContent(args.content);
 
-    let taskId: string;
+    const commentData: ExtendedCommentCreationData = {
+      content: sanitizedContent,
+    };
 
-    // If task_id is provided, use it directly
-    if (args.task_id) {
-      taskId = args.task_id;
+    // Determine if this is a project comment or task comment
+    if (args.project_id) {
+      // Project-level comment
+      commentData.projectId = args.project_id;
+    } else if (args.task_id) {
+      // Task comment by ID
+      commentData.taskId = args.task_id;
     } else if (args.task_name) {
       // Search for task by name
       const result = await todoistClient.getTasks();
@@ -46,15 +66,12 @@ export async function handleCreateComment(
         ErrorHandler.handleTaskNotFound(args.task_name!);
       }
 
-      taskId = matchingTask.id;
+      commentData.taskId = matchingTask.id;
     } else {
-      throw new Error("Either task_id or task_name must be provided");
+      throw new Error(
+        "Either task_id, task_name, or project_id must be provided"
+      );
     }
-
-    const commentData: CommentCreationData = {
-      content: sanitizedContent,
-      taskId: taskId,
-    };
 
     if (args.attachment) {
       commentData.attachment = {
@@ -64,7 +81,9 @@ export async function handleCreateComment(
       };
     }
 
-    const comment = await todoistClient.addComment(commentData);
+    const comment = await todoistClient.addComment(
+      commentData as CommentCreationData
+    );
 
     // Clear cache after creating comment
     commentCache.clear();
@@ -72,7 +91,8 @@ export async function handleCreateComment(
     // Use defensive typing for comment response
     const commentResponse = comment as CommentResponse;
 
-    return `Comment added to task:\nContent: ${commentResponse.content}${
+    const targetType = args.project_id ? "project" : "task";
+    return `Comment added to ${targetType}:\nContent: ${commentResponse.content}${
       commentResponse.attachment
         ? `\nAttachment: ${commentResponse.attachment.fileName} (${commentResponse.attachment.fileType})`
         : ""
@@ -175,5 +195,57 @@ export async function handleGetComments(
       .join("\n\n");
 
     return `Found ${comments.length} comment${comments.length > 1 ? "s" : ""}:\n\n${commentList}`;
+  });
+}
+
+export async function handleUpdateComment(
+  todoistClient: TodoistApi,
+  args: UpdateCommentArgs
+): Promise<string> {
+  return ErrorHandler.wrapAsync("update comment", async () => {
+    // Validate and sanitize content
+    const sanitizedContent = validateCommentContent(args.content);
+
+    // Update the comment using the TypeScript SDK
+    const updatedComment = await todoistClient.updateComment(args.comment_id, {
+      content: sanitizedContent,
+    });
+
+    // Clear cache after updating comment
+    commentCache.clear();
+
+    // Use defensive typing for comment response
+    const commentResponse = updatedComment as CommentResponse;
+
+    return `Comment updated successfully:\nID: ${args.comment_id}\nNew content: ${commentResponse.content}\nUpdated at: ${new Date().toISOString()}`;
+  });
+}
+
+export async function handleDeleteComment(
+  todoistClient: TodoistApi,
+  args: DeleteCommentArgs
+): Promise<string> {
+  return ErrorHandler.wrapAsync("delete comment", async () => {
+    // First get the comment to display what was deleted
+    let commentContent = "Unknown";
+    try {
+      const existingComment = await todoistClient.getComment(args.comment_id);
+      commentContent =
+        (existingComment as CommentResponse).content || "Unknown";
+    } catch {
+      // Comment might not exist or we can't retrieve it
+    }
+
+    // Delete the comment
+    const success = await todoistClient.deleteComment(args.comment_id);
+
+    // Clear cache after deleting comment
+    commentCache.clear();
+
+    if (success) {
+      return `Comment deleted successfully:\nID: ${args.comment_id}\nContent: ${commentContent}`;
+    } else {
+      throw new Error(`Failed to delete comment with ID: ${args.comment_id}`);
+    }
   });
 }

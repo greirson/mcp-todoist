@@ -42,7 +42,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `task-tools.ts` - Task management tools (CREATE, READ, UPDATE, DELETE, COMPLETE + bulk operations)
   - `subtask-tools.ts` - Subtask management tools (hierarchical task operations)
   - `project-tools.ts` - Project and section management tools
-  - `comment-tools.ts` - Comment creation and retrieval tools
+  - `comment-tools.ts` - Comment CRUD tools (create, read, update, delete)
   - `label-tools.ts` - Label CRUD and statistics tools
   - `test-tools.ts` - Testing and validation tools
   - `index.ts` - Centralized exports with backward compatibility
@@ -52,7 +52,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `task-handlers.ts` - Task CRUD operations and bulk operations
   - `subtask-handlers.ts` - Hierarchical task management and parent-child relationships
   - `project-handlers.ts` - Project and section operations
-  - `comment-handlers.ts` - Comment creation and retrieval operations
+  - `comment-handlers.ts` - Comment CRUD operations (create, get, update, delete)
   - `label-handlers.ts` - Label CRUD operations and usage statistics
   - `test-handlers.ts` - Testing infrastructure for API validation and performance monitoring
 
@@ -63,6 +63,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `subtask-tests.ts` - Subtask management tests (4 tests)
   - `label-tests.ts` - Label operation tests (5 tests)
   - `bulk-tests.ts` - Bulk operation tests (4 tests)
+  - `comment-tests.ts` - Comment CRUD operation tests (6 tests)
   - `index.ts` - Test orchestrator and exports
 
 #### Utility Modules
@@ -73,7 +74,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 28 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 30 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support
@@ -96,8 +97,10 @@ The server exposes 28 tools organized by entity type with standardized naming co
 - `todoist_tasks_bulk_complete` - Completes multiple tasks based on search criteria
 
 **Comment Management:**
-- `todoist_comment_create` - Adds comments to tasks with optional file attachments
+- `todoist_comment_create` - Adds comments to tasks or projects with optional file attachments
 - `todoist_comment_get` - Retrieves comments for tasks or projects
+- `todoist_comment_update` - Updates existing comment content by ID
+- `todoist_comment_delete` - Deletes comments by ID
 
 **Label Management:**
 - `todoist_label_get` - Lists all labels with IDs, names, and colors
@@ -180,7 +183,7 @@ Complete simulation framework for safe testing and validation:
 - **Mock Response Generation**: Returns realistic mock data with generated IDs for mutation operations
 - **Detailed Logging**: Clear `[DRY-RUN]` prefixes show exactly what operations would perform
 - **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
-- **Comprehensive Coverage**: All 28 MCP tools support dry-run mode with full validation
+- **Comprehensive Coverage**: All 30 MCP tools support dry-run mode with full validation
 - **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
 
 ### Data Flow Pattern
@@ -273,7 +276,7 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Dry-Run Mode**: Enable with `DRYRUN=true` environment variable for safe testing and validation
   - Uses real API data for validation while simulating mutations
-  - All 28 MCP tools support dry-run mode with comprehensive logging
+  - All 30 MCP tools support dry-run mode with comprehensive logging
   - Perfect for testing automations, learning the API, and safe experimentation
 - **Task Search**: Update/delete/complete operations support both:
   - **Task ID**: Direct lookup by ID (more reliable, takes precedence)
@@ -310,13 +313,13 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
 - ✅ **Phase 3**: Subtask Management (v0.8.0) - Hierarchical task management with parent-child relationships
   - ✅ **Subtask Handlers**: Created `src/handlers/subtask-handlers.ts` with full CRUD operations for hierarchical tasks
   - ✅ **Enhanced Testing**: Built `src/handlers/test-handlers-enhanced.ts` with comprehensive CRUD testing and automatic cleanup
-  - ✅ **New MCP Tools**: Added 5 subtask management tools (total: 28 tools)
+  - ✅ **New MCP Tools**: Added 5 subtask management tools (total: 30 tools)
   - ✅ **Type System Enhancement**: Extended type definitions for subtask operations and hierarchy management
   - ✅ **API Compatibility**: Implemented workarounds for Todoist API limitations using delete & recreate patterns
 - ✅ **Dry-Run Mode Implementation**: Complete simulation framework for safe testing and validation
   - ✅ **DryRunWrapper Architecture**: Created `src/utils/dry-run-wrapper.ts` for operation simulation
   - ✅ **Environment Configuration**: Enabled via `DRYRUN=true` environment variable
-  - ✅ **Comprehensive Tool Support**: All 28 MCP tools support dry-run mode with full validation
+  - ✅ **Comprehensive Tool Support**: All 30 MCP tools support dry-run mode with full validation
   - ✅ **Real Data Validation**: Uses actual API calls to validate while simulating mutations
   - ✅ **Factory Pattern Integration**: `createTodoistClient()` automatically handles dry-run wrapping
   - ✅ **Test Coverage**: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`

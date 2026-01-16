@@ -152,6 +152,7 @@ export interface BulkTaskFilterArgs {
 export interface CreateCommentArgs {
   task_id?: string;
   task_name?: string;
+  project_id?: string;
   content: string;
   attachment?: {
     file_name: string;
@@ -164,6 +165,15 @@ export interface GetCommentsArgs {
   task_id?: string;
   task_name?: string;
   project_id?: string;
+}
+
+export interface UpdateCommentArgs {
+  comment_id: string;
+  content: string;
+}
+
+export interface DeleteCommentArgs {
+  comment_id: string;
 }
 
 export interface TodoistCommentData {
