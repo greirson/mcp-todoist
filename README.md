@@ -47,8 +47,9 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 * **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
 * **Hierarchical Subtasks**: Create subtasks, convert tasks to subtasks, promote subtasks, and view task hierarchies with completion tracking
 * **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
-* **Full Comment Management**: Complete CRUD operations for task and project comments with attachment support
+* **Comment System**: Add comments to tasks and retrieve comments with attachment support
 * **Label Management**: Full CRUD operations for labels with usage statistics and analytics
+* **Reminder Management**: Create, update, and delete reminders (relative, absolute, location-based) via Sync API
 * **Project & Section Organization**: Create and manage projects and sections
 * **Dry-Run Mode**: Test automations and operations without making real changes
 * **Enhanced Testing**: Basic API validation and comprehensive CRUD testing with automatic cleanup
@@ -215,6 +216,7 @@ All 32 MCP tools support dry-run mode:
 - Bulk operations across multiple tasks
 - Project and section creation
 - Label management operations
+- Reminder CRUD operations
 - Comment creation
 
 ### Disabling Dry-Run Mode
@@ -223,7 +225,7 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 32 tools organized by entity type:
+The server provides 34 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support
@@ -246,10 +248,8 @@ The server provides 32 tools organized by entity type:
 - **Todoist Tasks Bulk Complete**: Complete multiple tasks based on search criteria with timezone-aware due comparisons
 
 ### Comment Management
-- **Todoist Comment Create**: Add comments to tasks or projects with optional file attachments
+- **Todoist Comment Create**: Add comments to tasks with optional file attachments
 - **Todoist Comment Get**: Retrieve comments for tasks or projects
-- **Todoist Comment Update**: Update existing comment content by ID
-- **Todoist Comment Delete**: Delete comments by ID
 
 ### Label Management
 - **Todoist Label Get**: List all labels with their IDs and colors
@@ -267,6 +267,12 @@ The server provides 32 tools organized by entity type:
 - **Todoist Section Get**: List sections within projects
 - **Todoist Section Update**: Update section names (by ID or partial name search)
 - **Todoist Section Delete**: Delete sections and all contained tasks (by ID or partial name search)
+
+### Reminder Management (Requires Pro/Business)
+- **Todoist Reminder Get**: List all reminders, optionally filtered by task
+- **Todoist Reminder Create**: Create reminders (relative, absolute, or location-based)
+- **Todoist Reminder Update**: Update existing reminder settings
+- **Todoist Reminder Delete**: Remove reminders from tasks
 
 ### Testing & Validation
 - **Todoist Test Connection**: Validate API token and test connectivity
@@ -340,9 +346,6 @@ The server provides 32 tools organized by entity type:
 "Add comment with attachment to task 67890"
 "Show all comments for task 'Team Meeting'"
 "Get comments for project 12345"
-"Update comment 123456 to say 'Updated status: Ready for review'"
-"Delete comment 123456"
-"Add a project-level comment to project 12345"
 ```
 
 ### Label Management
@@ -352,6 +355,16 @@ The server provides 32 tools organized by entity type:
 "Update the 'Work' label to be blue and mark as favorite"
 "Delete the unused 'Old Project' label"
 "Get usage statistics for all my labels"
+```
+
+### Reminder Management (Pro/Business)
+```
+"Show me all my reminders"
+"Get reminders for task 'Team Meeting'"
+"Create a reminder for task 'Review PR' 30 minutes before due"
+"Create an absolute reminder for task 12345 at 2024-12-25T09:00:00Z"
+"Update reminder 67890 to trigger at 10:00 instead"
+"Delete reminder 67890"
 ```
 
 ### Task Discovery
@@ -482,6 +495,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
   - `project-tools.ts` - Project/section management (4 tools)
   - `comment-tools.ts` - Comment operations (2 tools)
   - `label-tools.ts` - Label management (5 tools)
+  - `reminder-tools.ts` - Reminder operations (4 tools)
   - `test-tools.ts` - Testing and validation (3 tools)
   - `index.ts` - Centralized exports
 
@@ -492,6 +506,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
   - `project-handlers.ts` - Project and section operations
   - `comment-handlers.ts` - Comment creation and retrieval
   - `label-handlers.ts` - Label CRUD and statistics
+  - `reminder-handlers.ts` - Reminder CRUD via Sync API
   - `test-handlers.ts` - API testing infrastructure
   - `test-handlers-enhanced/` - Comprehensive CRUD testing framework
 
