@@ -41,7 +41,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 - **`src/tools/`**: Domain-specific MCP tool definitions (refactored from single 863-line file):
   - `task-tools.ts` - Task management tools (CREATE, READ, UPDATE, DELETE, COMPLETE, REOPEN + bulk operations with duration support)
   - `subtask-tools.ts` - Subtask management tools (hierarchical task operations)
-  - `project-tools.ts` - Project and section management tools
+  - `project-tools.ts` - Project, section, and collaborator management tools
   - `comment-tools.ts` - Comment creation and retrieval tools
   - `label-tools.ts` - Label CRUD and statistics tools
   - `test-tools.ts` - Testing and validation tools
@@ -51,7 +51,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 - **`src/handlers/`**: Domain-separated business logic:
   - `task-handlers.ts` - Task CRUD operations and bulk operations
   - `subtask-handlers.ts` - Hierarchical task management and parent-child relationships
-  - `project-handlers.ts` - Project and section operations
+  - `project-handlers.ts` - Project, section, and collaborator operations
   - `comment-handlers.ts` - Comment creation and retrieval operations
   - `label-handlers.ts` - Label CRUD operations and usage statistics
   - `test-handlers.ts` - Testing infrastructure for API validation and performance monitoring
@@ -65,6 +65,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `bulk-tests.ts` - Bulk operation tests (4 tests)
   - `duration-reopen-tests.ts` - Duration and reopen operation tests (5 tests)
   - `project-tests.ts` - Project CRUD operation tests (9 tests)
+  - `collaboration-tests.ts` - Collaboration and task assignment tests (4 tests)
   - `index.ts` - Test orchestrator and exports
 
 #### Utility Modules
@@ -75,7 +76,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 35 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 36 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 - `todoist_task_create` - Creates new tasks with full attribute support (including duration)
@@ -117,6 +118,7 @@ The server exposes 35 tools organized by entity type with standardized naming co
 - `todoist_project_delete` - Deletes projects by ID or name
 - `todoist_project_archive` - Archives or unarchives projects
 - `todoist_project_collaborators_get` - Retrieves collaborators for shared projects
+- `todoist_collaborators_get` - Lists collaborators in shared projects for task assignment
 
 **Section Management:**
 - `todoist_section_create` - Creates sections within projects with optional ordering
@@ -179,6 +181,20 @@ Hierarchical task management with parent-child relationships:
 - **Cache Integration**: Subtask operations integrated with 30-second TTL caching system
 - **Search Strategy**: Supports both task ID and name-based parent/child identification
 
+### Task Assignment & Collaboration
+
+Support for shared project workflows and task assignment:
+
+- **Assignee Support**: Tasks can be assigned to collaborators in shared projects using `assignee_id`
+- **Assignment Display**: Task responses show `responsibleUid` (assigned to) and `assignedByUid` (assigned by)
+- **Collaborator Discovery**: `todoist_collaborators_get` tool retrieves project collaborators with IDs, names, and emails
+- **API Field Mapping**:
+  - Input: `assignee_id` - User ID to assign the task to
+  - Output: `responsibleUid` - The user responsible for the task
+  - Output: `assignedByUid` - Who assigned the task (read-only)
+- **Shared Project Requirement**: Task assignment only works in shared projects with collaborators
+- **Test Coverage**: Collaboration test suite validates assignment workflows and handles personal projects gracefully
+
 ### Dry-Run Mode Architecture
 
 Complete simulation framework for safe testing and validation:
@@ -191,7 +207,7 @@ Complete simulation framework for safe testing and validation:
 - **Mock Response Generation**: Returns realistic mock data with generated IDs for mutation operations
 - **Detailed Logging**: Clear `[DRY-RUN]` prefixes show exactly what operations would perform
 - **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
-- **Comprehensive Coverage**: All 35 MCP tools support dry-run mode with full validation
+- **Comprehensive Coverage**: All 36 MCP tools support dry-run mode with full validation
 - **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
 
 ### Data Flow Pattern
@@ -284,7 +300,7 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Dry-Run Mode**: Enable with `DRYRUN=true` environment variable for safe testing and validation
   - Uses real API data for validation while simulating mutations
-  - All 35 MCP tools support dry-run mode with comprehensive logging
+  - All 36 MCP tools support dry-run mode with comprehensive logging
   - Perfect for testing automations, learning the API, and safe experimentation
 - **Task Search**: Update/delete/complete operations support both:
   - **Task ID**: Direct lookup by ID (more reliable, takes precedence)
@@ -358,7 +374,12 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - ✅ **Section Ordering**: Added `order` parameter to `todoist_section_create` tool
   - ✅ **Enhanced Testing**: Created `src/handlers/test-handlers-enhanced/section-tests.ts` with 5 section tests
   - ✅ **New MCP Tools**: Added 2 section management tools
-
+- ✅ **Phase 9**: Task Assignment & Collaboration (v0.10.1) - Shared project workflows
+  - ✅ **Task Assignment**: Added `assignee_id` parameter to task creation and update tools
+  - ✅ **Assignment Display**: Task responses show assignment information (responsibleUid, assignedByUid)
+  - ✅ **New MCP Tool**: Added `todoist_collaborators_get` tool for shared project collaborator retrieval
+  - ✅ **Comprehensive Testing**: Added collaboration test suite in src/handlers/test-handlers-enhanced/collaboration-tests.ts
+  - ✅ **Total Tools**: 36 MCP tools (35 + 1 new collaborator tool)
 
 **Planned Future Phases:**
 - **Phase 8**: Duplicate Detection - Smart task deduplication using similarity algorithms

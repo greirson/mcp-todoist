@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2026-01-16
+
+### Added
+- **Phase 9: Task Assignment & Collaboration**: Support for shared project workflows
+  - **Task Assignment**: Added `assignee_id` parameter to task creation and update tools
+    - `todoist_task_create` - Assign tasks to collaborators when creating
+    - `todoist_task_update` - Reassign tasks to different collaborators
+    - `todoist_tasks_bulk_create` - Assign tasks during bulk creation
+    - `todoist_tasks_bulk_update` - Bulk reassign tasks based on search criteria
+  - **Assignment Display**: Task responses now show assignment information
+    - `Assigned To (User ID)` - Shows the responsible user for the task
+    - `Assigned By (User ID)` - Shows who assigned the task (read-only)
+  - **New MCP Tool**: `todoist_collaborators_get` - Retrieve collaborators for shared projects
+    - Lists all collaborators with their IDs, names, and email addresses
+    - Use collaborator IDs with `assignee_id` when creating or updating tasks
+  - **Collaboration Test Suite**: New test module for assignment workflows
+    - Tests project retrieval, collaborator listing, and task assignment
+    - Gracefully handles personal projects (no collaborators) with appropriate skipping
+
+### Technical Implementation
+- **Type System Extensions**: Added `TodoistCollaborator` and `GetCollaboratorsArgs` interfaces
+- **Task Type Updates**: Extended `TodoistTask` with `assigneeId`, `assignedByUid`, `responsibleUid` fields
+- **API Helpers**: Updated `formatTaskForDisplay()` to show assignment information
+- **Type Guards**: Added `isGetCollaboratorsArgs()` for runtime validation
+- **Tool Count**: Increased from 35 to 36 tools with new collaborator retrieval capability
+
+### Example Usage
+```
+"Get collaborators for project X"
+"Create task 'Team task' assigned to user Y"
+"Update task 'Review PR' and assign to collaborator Z"
+"Show me who is assigned to my tasks in the Work project"
+```
+
 ## [0.10.0] - 2026-01-16
 
 ### Added
