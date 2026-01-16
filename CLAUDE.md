@@ -359,12 +359,6 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - ✅ **Enhanced Testing**: Created `src/handlers/test-handlers-enhanced/section-tests.ts` with 5 section tests
   - ✅ **New MCP Tools**: Added 2 section management tools
 
-- **Phase 7**: Full Section Management (v0.9.0) - Complete CRUD operations for sections
-  - **Section Update**: New `todoist_section_update` tool with name-based and ID-based lookup
-  - **Section Delete**: New `todoist_section_delete` tool with cascade deletion of contained tasks
-  - **Section Ordering**: Added `order` parameter to `todoist_section_create` tool
-  - **Enhanced Testing**: Created `src/handlers/test-handlers-enhanced/section-tests.ts` with 5 section tests
-  - **New MCP Tools**: Added 2 section management tools (total: 30 tools)
 
 **Planned Future Phases:**
 - **Phase 8**: Duplicate Detection - Smart task deduplication using similarity algorithms
