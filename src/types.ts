@@ -559,6 +559,50 @@ export interface DeleteReminderArgs {
   reminder_id: string;
 }
 
+// Filter operation interfaces (Sync API)
+export interface TodoistFilter {
+  id: string;
+  name: string;
+  query: string;
+  color?: string;
+  item_order?: number;
+  is_deleted?: boolean;
+  is_favorite?: boolean;
+  is_frozen?: boolean;
+}
+
+export interface CreateFilterArgs {
+  name: string;
+  query: string;
+  color?: string;
+  item_order?: number;
+  is_favorite?: boolean;
+}
+
+export interface UpdateFilterArgs {
+  filter_id?: string;
+  filter_name?: string;
+  name?: string;
+  query?: string;
+  color?: string;
+  item_order?: number;
+  is_favorite?: boolean;
+}
+
+export interface FilterNameArgs {
+  filter_id?: string;
+  filter_name?: string;
+}
+
+// Sync API response interfaces
+export interface SyncApiResponse {
+  sync_token?: string;
+  full_sync?: boolean;
+  filters?: TodoistFilter[];
+  sync_status?: Record<string, string | { error_code: number; error: string }>;
+  temp_id_mapping?: Record<string, string>;
+}
+
 export interface SyncCommand {
   type: string;
   uuid: string;
