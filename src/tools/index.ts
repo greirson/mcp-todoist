@@ -51,6 +51,7 @@ export {
   CREATE_SECTION_TOOL,
   UPDATE_SECTION_TOOL,
   DELETE_SECTION_TOOL,
+  GET_COLLABORATORS_TOOL,
 } from "./project-tools.js";
 
 export { CREATE_COMMENT_TOOL, GET_COMMENTS_TOOL } from "./comment-tools.js";

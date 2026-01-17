@@ -259,6 +259,23 @@ export const DELETE_SECTION_TOOL: Tool = {
   },
 };
 
+export const GET_COLLABORATORS_TOOL: Tool = {
+  name: "todoist_collaborators_get",
+  description:
+    "Get a list of collaborators for a shared project. Returns user IDs, names, and emails that can be used for task assignment with assignee_id.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      project_id: {
+        type: "string",
+        description:
+          "Project ID to get collaborators for (required, project must be shared)",
+      },
+    },
+    required: ["project_id"],
+  },
+};
+
 export const PROJECT_TOOLS = [
   GET_PROJECTS_TOOL,
   GET_SECTIONS_TOOL,
@@ -270,4 +287,5 @@ export const PROJECT_TOOLS = [
   CREATE_SECTION_TOOL,
   UPDATE_SECTION_TOOL,
   DELETE_SECTION_TOOL,
+  GET_COLLABORATORS_TOOL,
 ];

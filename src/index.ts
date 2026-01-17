@@ -30,6 +30,7 @@ import {
   isCreateSectionArgs,
   isUpdateSectionArgs,
   isSectionIdentifierArgs,
+  isGetCollaboratorsArgs,
   isBulkCreateTasksArgs,
   isBulkUpdateTasksArgs,
   isBulkTaskFilterArgs,
@@ -78,6 +79,7 @@ import {
   handleCreateSection,
   handleUpdateSection,
   handleDeleteSection,
+  handleGetCollaborators,
 } from "./handlers/project-handlers.js";
 import {
   handleCreateComment,
@@ -297,6 +299,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_section_delete");
         }
         result = await handleDeleteSection(apiClient, args);
+        break;
+
+      case "todoist_collaborators_get":
+        if (!isGetCollaboratorsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_collaborators_get");
+        }
+        result = await handleGetCollaborators(apiClient, args);
         break;
 
       case "todoist_tasks_bulk_create":
