@@ -4,6 +4,7 @@ import { SUBTASK_TOOLS } from "./subtask-tools.js";
 import { PROJECT_TOOLS } from "./project-tools.js";
 import { COMMENT_TOOLS } from "./comment-tools.js";
 import { LABEL_TOOLS } from "./label-tools.js";
+import { FILTER_TOOLS } from "./filter-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tool categories
@@ -12,6 +13,7 @@ export { SUBTASK_TOOLS } from "./subtask-tools.js";
 export { PROJECT_TOOLS } from "./project-tools.js";
 export { COMMENT_TOOLS } from "./comment-tools.js";
 export { LABEL_TOOLS } from "./label-tools.js";
+export { FILTER_TOOLS } from "./filter-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -67,12 +69,20 @@ export {
   TEST_PERFORMANCE_TOOL,
 } from "./test-tools.js";
 
+export {
+  GET_FILTERS_TOOL,
+  CREATE_FILTER_TOOL,
+  UPDATE_FILTER_TOOL,
+  DELETE_FILTER_TOOL,
+} from "./filter-tools.js";
+
 // Combined array of all tools in the same order as the original
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
   ...PROJECT_TOOLS,
   ...COMMENT_TOOLS,
   ...LABEL_TOOLS,
+  ...FILTER_TOOLS,
   ...SUBTASK_TOOLS,
   ...TEST_TOOLS,
 ];
