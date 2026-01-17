@@ -4,6 +4,7 @@ import { SUBTASK_TOOLS } from "./subtask-tools.js";
 import { PROJECT_TOOLS } from "./project-tools.js";
 import { COMMENT_TOOLS } from "./comment-tools.js";
 import { LABEL_TOOLS } from "./label-tools.js";
+import { REMINDER_TOOLS } from "./reminder-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tool categories
@@ -12,6 +13,7 @@ export { SUBTASK_TOOLS } from "./subtask-tools.js";
 export { PROJECT_TOOLS } from "./project-tools.js";
 export { COMMENT_TOOLS } from "./comment-tools.js";
 export { LABEL_TOOLS } from "./label-tools.js";
+export { REMINDER_TOOLS } from "./reminder-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -60,6 +62,13 @@ export {
   TEST_PERFORMANCE_TOOL,
 } from "./test-tools.js";
 
+export {
+  GET_REMINDERS_TOOL,
+  CREATE_REMINDER_TOOL,
+  UPDATE_REMINDER_TOOL,
+  DELETE_REMINDER_TOOL,
+} from "./reminder-tools.js";
+
 // Combined array of all tools in the same order as the original
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
@@ -67,5 +76,6 @@ export const ALL_TOOLS = [
   ...COMMENT_TOOLS,
   ...LABEL_TOOLS,
   ...SUBTASK_TOOLS,
+  ...REMINDER_TOOLS,
   ...TEST_TOOLS,
 ];

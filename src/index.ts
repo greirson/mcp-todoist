@@ -41,6 +41,10 @@ import {
   isConvertToSubtaskArgs,
   isPromoteSubtaskArgs,
   isGetTaskHierarchyArgs,
+  isGetRemindersArgs,
+  isCreateReminderArgs,
+  isUpdateReminderArgs,
+  isDeleteReminderArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -86,6 +90,12 @@ import {
   handlePromoteSubtask,
   handleGetTaskHierarchy,
 } from "./handlers/subtask-handlers.js";
+import {
+  handleGetReminders,
+  handleCreateReminder,
+  handleUpdateReminder,
+  handleDeleteReminder,
+} from "./handlers/reminder-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -116,7 +126,7 @@ function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
 const server = new Server(
   {
     name: "todoist-mcp-server",
-    version: "0.9.0",
+    version: "0.10.0",
   },
   {
     capabilities: {
@@ -381,6 +391,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         const hierarchy = await handleGetTaskHierarchy(apiClient, args);
         result = formatTaskHierarchy(hierarchy);
+        break;
+
+      case "todoist_reminder_get":
+        if (!isGetRemindersArgs(args)) {
+          throw new Error("Invalid arguments for todoist_reminder_get");
+        }
+        result = await handleGetReminders(apiClient, args);
+        break;
+
+      case "todoist_reminder_create":
+        if (!isCreateReminderArgs(args)) {
+          throw new Error("Invalid arguments for todoist_reminder_create");
+        }
+        result = await handleCreateReminder(apiClient, args);
+        break;
+
+      case "todoist_reminder_update":
+        if (!isUpdateReminderArgs(args)) {
+          throw new Error("Invalid arguments for todoist_reminder_update");
+        }
+        result = await handleUpdateReminder(args);
+        break;
+
+      case "todoist_reminder_delete":
+        if (!isDeleteReminderArgs(args)) {
+          throw new Error("Invalid arguments for todoist_reminder_delete");
+        }
+        result = await handleDeleteReminder(args);
         break;
 
       case "todoist_test_connection":
