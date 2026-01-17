@@ -12,6 +12,7 @@ import {
   CreateSectionArgs,
   UpdateSectionArgs,
   SectionIdentifierArgs,
+  GetCollaboratorsArgs,
   BulkCreateTasksArgs,
   BulkUpdateTasksArgs,
   BulkTaskFilterArgs,
@@ -289,6 +290,17 @@ export function isSectionIdentifierArgs(
   }
 
   return obj.project_id === undefined || typeof obj.project_id === "string";
+}
+
+export function isGetCollaboratorsArgs(
+  args: unknown
+): args is GetCollaboratorsArgs {
+  return (
+    typeof args === "object" &&
+    args !== null &&
+    "project_id" in args &&
+    typeof (args as { project_id: string }).project_id === "string"
+  );
 }
 
 export function isBulkCreateTasksArgs(
