@@ -23,6 +23,18 @@ export interface CreateTaskArgs {
   parent_id?: string;
   duration?: number;
   duration_unit?: DurationUnit;
+  assignee_id?: string;
+}
+
+// Collaborator interfaces
+export interface TodoistCollaborator {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface GetCollaboratorsArgs {
+  project_id: string;
 }
 
 export interface GetTasksArgs {
@@ -50,6 +62,7 @@ export interface UpdateTaskArgs {
   labels?: string[];
   duration?: number;
   duration_unit?: DurationUnit;
+  assignee_id?: string;
 }
 
 export interface ReopenTaskArgs {

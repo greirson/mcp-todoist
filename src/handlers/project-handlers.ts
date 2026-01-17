@@ -8,6 +8,7 @@ import {
   CreateSectionArgs,
   UpdateSectionArgs,
   SectionIdentifierArgs,
+  GetCollaboratorsArgs,
   TodoistProjectData,
   TodoistProject,
   TodoistSection,
@@ -468,4 +469,27 @@ export async function handleDeleteSection(
   cacheManager.clearAll();
 
   return `Section deleted:\nName: ${section.name}\nID: ${section.id}\nProject ID: ${section.projectId}\n\nNote: All tasks in this section have also been deleted.`;
+}
+
+export async function handleGetCollaborators(
+  todoistClient: TodoistApi,
+  args: GetCollaboratorsArgs
+): Promise<string> {
+  const result = await todoistClient.getProjectCollaborators(args.project_id);
+
+  // Handle the API response format with 'results' property
+  const collaborators = extractArrayFromResponse<TodoistCollaborator>(result);
+
+  if (collaborators.length === 0) {
+    return `No collaborators found for project ${args.project_id}.\n\nNote: Only shared projects have collaborators. If this is a personal project, it won't have any collaborators listed.`;
+  }
+
+  const collaboratorList = collaborators
+    .map(
+      (collab: TodoistCollaborator) =>
+        `- ${collab.name} (ID: ${collab.id}, Email: ${collab.email})`
+    )
+    .join("\n");
+
+  return `Collaborators for project ${args.project_id}:\n${collaboratorList}\n\nUse these User IDs with assignee_id when creating or updating tasks to assign them to collaborators.`;
 }

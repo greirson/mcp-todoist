@@ -115,11 +115,17 @@ export function formatTaskForDisplay(task: {
   deadline?: { date: string } | null;
   priority?: number;
   labels?: string[];
+  assigneeId?: string | null;
+  assignedByUid?: string | null;
+  responsibleUid?: string | null;
 }): string {
   const displayPriority = fromApiPriority(task.priority);
   const dueDetails = formatDueDetails(
     task.due as TodoistTaskDueData | null | undefined
   );
+  // Show assignment info (responsibleUid is the Todoist API field for assigned user)
+  const assigneeDisplay = task.responsibleUid || task.assigneeId;
+  const assignedByDisplay = task.assignedByUid;
   return `- ${task.content}${task.id ? ` (ID: ${task.id})` : ""}${
     task.description ? `\n  Description: ${task.description}` : ""
   }${dueDetails ? `\n  Due: ${dueDetails}` : ""}${
@@ -128,6 +134,8 @@ export function formatTaskForDisplay(task: {
     task.labels && task.labels.length > 0
       ? `\n  Labels: ${task.labels.join(", ")}`
       : ""
+  }${assigneeDisplay ? `\n  Assigned To (User ID): ${assigneeDisplay}` : ""}${
+    assignedByDisplay ? `\n  Assigned By (User ID): ${assignedByDisplay}` : ""
   }`;
 }
 

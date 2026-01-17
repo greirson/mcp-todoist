@@ -45,6 +45,7 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 ## Features
 
 * **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
+* **Task Assignment & Collaboration**: Assign tasks to collaborators in shared projects and view assignment info
 * **Hierarchical Subtasks**: Create subtasks, convert tasks to subtasks, promote subtasks, and view task hierarchies with completion tracking
 * **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
 * **Comment System**: Add comments to tasks and retrieve comments with attachment support
@@ -209,7 +210,7 @@ Priority: 4 (Normal)
 
 ### Supported Operations
 
-All 29 MCP tools support dry-run mode:
+All 36 MCP tools support dry-run mode:
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
 - Bulk operations across multiple tasks
@@ -223,7 +224,7 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 35 tools organized by entity type:
+The server provides 36 tools organized by entity type:
 
 ### Task Management
 - **Todoist Task Create**: Create new tasks with full attribute support including duration
@@ -265,6 +266,7 @@ The server provides 35 tools organized by entity type:
 - **Todoist Project Delete**: Delete projects (and all contained tasks/sub-projects)
 - **Todoist Project Archive**: Archive or unarchive projects for organization
 - **Todoist Project Collaborators Get**: Retrieve collaborators for shared projects
+- **Todoist Collaborators Get**: List collaborators in shared projects for task assignment
 
 ### Section Management
 - **Todoist Section Create**: Create sections within projects with optional ordering
@@ -349,6 +351,15 @@ The Quick Add tool parses natural language text like the Todoist app, supporting
 - **Priority**: `p1` (urgent), `p2`, `p3`, `p4` (lowest)
 - **Deadlines**: `{in 3 days}` or `{March 15}`
 - **Descriptions**: `//your description here` (must be at the end)
+
+### Task Assignment & Collaboration
+```
+"Get collaborators for project 12345"
+"Create task 'Team task' in project 12345 assigned to user 98765"
+"Update task 'Review PR' and assign to collaborator 12345"
+"Show me who is assigned to my tasks in the Work project"
+```
+
 
 ### Subtask Management
 ```
@@ -509,7 +520,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
 - **`src/tools/`**: Domain-specific MCP tool definitions organized by functionality:
   - `task-tools.ts` - Task management (10 tools)
   - `subtask-tools.ts` - Subtask operations (5 tools)
-  - `project-tools.ts` - Project/section management (4 tools)
+  - `project-tools.ts` - Project/section/collaboration management (5 tools)
   - `comment-tools.ts` - Comment operations (2 tools)
   - `label-tools.ts` - Label management (5 tools)
   - `test-tools.ts` - Testing and validation (3 tools)
