@@ -84,6 +84,28 @@ export class SubtaskError extends TodoistMCPError {
   }
 }
 
+export class FilterNotFoundError extends TodoistMCPError {
+  constructor(filterIdentifier: string) {
+    super(
+      `Could not find filter "${filterIdentifier}"`,
+      "FILTER_NOT_FOUND",
+      404
+    );
+    this.name = "FilterNotFoundError";
+  }
+}
+
+export class FilterFrozenError extends TodoistMCPError {
+  constructor(filterName: string) {
+    super(
+      `Filter "${filterName}" is frozen (from a cancelled subscription) and cannot be modified`,
+      "FILTER_FROZEN",
+      403
+    );
+    this.name = "FilterFrozenError";
+  }
+}
+
 export function handleError(error: unknown): { message: string; code: string } {
   if (error instanceof TodoistMCPError) {
     return {
