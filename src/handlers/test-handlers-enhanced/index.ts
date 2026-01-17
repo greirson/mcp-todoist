@@ -6,6 +6,7 @@ import { testLabelOperations } from "./label-tests.js";
 import { testBulkOperations } from "./bulk-tests.js";
 import { testSectionOperations } from "./section-tests.js";
 import { testCommentOperations } from "./comment-tests.js";
+import { testReminderOperations } from "./reminder-tests.js";
 import { TestSuite, ComprehensiveTestReport } from "./types.js";
 
 export async function handleTestAllFeaturesEnhanced(
@@ -21,6 +22,7 @@ export async function handleTestAllFeaturesEnhanced(
   suites.push(await testSectionOperations(todoistClient));
   suites.push(await testBulkOperations(todoistClient));
   suites.push(await testCommentOperations(todoistClient));
+  suites.push(await testReminderOperations(todoistClient));
 
   // Calculate totals
   const totalTests = suites.reduce((sum, suite) => sum + suite.tests.length, 0);
@@ -59,3 +61,4 @@ export { testLabelOperations } from "./label-tests.js";
 export { testSectionOperations } from "./section-tests.js";
 export { testBulkOperations } from "./bulk-tests.js";
 export { testCommentOperations } from "./comment-tests.js";
+export { testReminderOperations } from "./reminder-tests.js";
