@@ -99,7 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Tool Count**: Increased from 28 to 35 tools (task reopen + quick add + 4 project tools + section update + section delete)
 - **Type System**: Extended with `DurationUnit`, `TaskDuration`, `ReopenTaskArgs`, `QuickAddTaskArgs`, `QuickAddTaskResult`, `UpdateSectionArgs`, `DeleteSectionArgs`, `UpdateProjectArgs`, `ProjectNameArgs`, `GetProjectCollaboratorsArgs` types
 - **Task Tools**: CREATE, UPDATE, BULK_CREATE, and BULK_UPDATE now support duration parameters
-- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations, Quick Add tests, Section tests, and Project tests (7 suites, 35+ tests)
+- **Enhanced Testing**: Test suite now includes Duration & Reopen Operations, Quick Add tests, Section tests, Project tests, and Collaboration tests (7 suites, 40+ tests)
 - **Dependency Updates**: Updated all dependencies to latest versions
   - Core dependencies:
     - `@doist/todoist-api-typescript`: 5.1.1 -> 5.5.1 (new Todoist API features)

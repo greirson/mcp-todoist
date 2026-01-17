@@ -343,7 +343,7 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
 - ✅ **Dry-Run Mode Implementation**: Complete simulation framework for safe testing and validation
   - ✅ **DryRunWrapper Architecture**: Created `src/utils/dry-run-wrapper.ts` for operation simulation
   - ✅ **Environment Configuration**: Enabled via `DRYRUN=true` environment variable
-  - Comprehensive Tool Support: All 35 MCP tools support dry-run mode with full validation
+  - Comprehensive Tool Support: All 36 MCP tools support dry-run mode with full validation
   - ✅ **Real Data Validation**: Uses actual API calls to validate while simulating mutations
   - ✅ **Factory Pattern Integration**: `createTodoistClient()` automatically handles dry-run wrapping
   - ✅ **Test Coverage**: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`
@@ -380,6 +380,13 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - ✅ **New MCP Tool**: Added `todoist_collaborators_get` tool for shared project collaborator retrieval
   - ✅ **Comprehensive Testing**: Added collaboration test suite in src/handlers/test-handlers-enhanced/collaboration-tests.ts
   - ✅ **Total Tools**: 36 MCP tools (35 + 1 new collaborator tool)
+
+- **Phase 7**: Full Section Management (v0.9.0) - Complete CRUD operations for sections
+  - **Section Update**: New `todoist_section_update` tool with name-based and ID-based lookup
+  - **Section Delete**: New `todoist_section_delete` tool with cascade deletion of contained tasks
+  - **Section Ordering**: Added `order` parameter to `todoist_section_create` tool
+  - **Enhanced Testing**: Created `src/handlers/test-handlers-enhanced/section-tests.ts` with 5 section tests
+  - **New MCP Tools**: Added 2 section management tools (total: 30 tools)
 
 **Planned Future Phases:**
 - **Phase 8**: Duplicate Detection - Smart task deduplication using similarity algorithms
