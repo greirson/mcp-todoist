@@ -24,6 +24,9 @@ export interface CreateTaskArgs {
   duration?: number;
   duration_unit?: DurationUnit;
   assignee_id?: string;
+  child_order?: number;
+  day_order?: number;
+  is_collapsed?: boolean;
 }
 
 // Collaborator interfaces
@@ -63,6 +66,9 @@ export interface UpdateTaskArgs {
   duration?: number;
   duration_unit?: DurationUnit;
   assignee_id?: string;
+  child_order?: number;
+  day_order?: number;
+  is_collapsed?: boolean;
 }
 
 export interface ReopenTaskArgs {

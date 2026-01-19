@@ -58,6 +58,21 @@ export const CREATE_TASK_TOOL: Tool = {
           "Duration unit: 'minute' or 'day'. Defaults to 'minute' if duration is provided (optional)",
         enum: ["minute", "day"],
       },
+      child_order: {
+        type: "number",
+        description:
+          "Position of the task among its siblings (for ordering within parent or project) (optional)",
+      },
+      day_order: {
+        type: "number",
+        description:
+          "Position of the task in Today view (only works for tasks due today) (optional)",
+      },
+      is_collapsed: {
+        type: "boolean",
+        description:
+          "Whether the task's subtasks should be collapsed/hidden in the UI (optional)",
+      },
     },
     required: ["content"],
   },
@@ -187,6 +202,18 @@ export const UPDATE_TASK_TOOL: Tool = {
         description:
           "Duration unit: 'minute' or 'day'. Defaults to 'minute' if duration is provided (optional)",
         enum: ["minute", "day"],
+      },
+      child_order: {
+        type: "number",
+        description: "New position of the task among its siblings (optional)",
+      },
+      day_order: {
+        type: "number",
+        description: "New position of the task in Today view (optional)",
+      },
+      is_collapsed: {
+        type: "boolean",
+        description: "Whether to collapse/hide the task's subtasks (optional)",
       },
     },
     required: [],

@@ -37,7 +37,7 @@ import {
   isCreateCommentArgs,
   isGetCommentsArgs,
   isUpdateCommentArgs,
-  isDeleteCommentArgs,
+  isCommentIdArgs,
   isGetLabelsArgs,
   isCreateLabelArgs,
   isUpdateLabelArgs,
@@ -48,15 +48,14 @@ import {
   isConvertToSubtaskArgs,
   isPromoteSubtaskArgs,
   isGetTaskHierarchyArgs,
-  isGetRemindersArgs,
-  isCreateReminderArgs,
-  isUpdateReminderArgs,
-  isDeleteReminderArgs,
-  isGetCompletedTasksArgs,
   isGetFiltersArgs,
   isCreateFilterArgs,
   isUpdateFilterArgs,
   isFilterNameArgs,
+  isGetRemindersArgs,
+  isCreateReminderArgs,
+  isUpdateReminderArgs,
+  isReminderIdArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -69,7 +68,6 @@ import {
   handleBulkUpdateTasks,
   handleBulkDeleteTasks,
   handleBulkCompleteTasks,
-  handleGetCompletedTasks,
   handleQuickAddTask,
 } from "./handlers/task-handlers.js";
 import {
@@ -111,17 +109,17 @@ import {
   handleGetTaskHierarchy,
 } from "./handlers/subtask-handlers.js";
 import {
-  handleGetReminders,
-  handleCreateReminder,
-  handleUpdateReminder,
-  handleDeleteReminder,
-} from "./handlers/reminder-handlers.js";
-import {
   handleGetFilters,
   handleCreateFilter,
   handleUpdateFilter,
   handleDeleteFilter,
 } from "./handlers/filter-handlers.js";
+import {
+  handleGetReminders,
+  handleCreateReminder,
+  handleUpdateReminder,
+  handleDeleteReminder,
+} from "./handlers/reminder-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -152,7 +150,7 @@ function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
 const server = new Server(
   {
     name: "todoist-mcp-server",
-    version: "0.11.0",
+    version: "0.10.5",
   },
   {
     capabilities: {
@@ -346,13 +344,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         result = await handleBulkCompleteTasks(apiClient, args);
         break;
 
-      case "todoist_completed_tasks_get":
-        if (!isGetCompletedTasksArgs(args)) {
-          throw new Error("Invalid arguments for todoist_completed_tasks_get");
-        }
-        result = await handleGetCompletedTasks(apiClient, args);
-        break;
-
       case "todoist_comment_create":
         if (!isCreateCommentArgs(args)) {
           throw new Error("Invalid arguments for todoist_comment_create");
@@ -375,7 +366,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         break;
 
       case "todoist_comment_delete":
-        if (!isDeleteCommentArgs(args)) {
+        if (!isCommentIdArgs(args)) {
           throw new Error("Invalid arguments for todoist_comment_delete");
         }
         result = await handleDeleteComment(apiClient, args);
@@ -477,34 +468,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         result = formatTaskHierarchy(hierarchy);
         break;
 
-      case "todoist_reminder_get":
-        if (!isGetRemindersArgs(args)) {
-          throw new Error("Invalid arguments for todoist_reminder_get");
-        }
-        result = await handleGetReminders(apiClient, args);
-        break;
-
-      case "todoist_reminder_create":
-        if (!isCreateReminderArgs(args)) {
-          throw new Error("Invalid arguments for todoist_reminder_create");
-        }
-        result = await handleCreateReminder(apiClient, args);
-        break;
-
-      case "todoist_reminder_update":
-        if (!isUpdateReminderArgs(args)) {
-          throw new Error("Invalid arguments for todoist_reminder_update");
-        }
-        result = await handleUpdateReminder(args);
-        break;
-
-      case "todoist_reminder_delete":
-        if (!isDeleteReminderArgs(args)) {
-          throw new Error("Invalid arguments for todoist_reminder_delete");
-        }
-        result = await handleDeleteReminder(args);
-        break;
-
       case "todoist_filter_get":
         if (!isGetFiltersArgs(args)) {
           throw new Error("Invalid arguments for todoist_filter_get");
@@ -531,6 +494,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_filter_delete");
         }
         result = await handleDeleteFilter(args);
+        break;
+
+      case "todoist_reminder_get":
+        if (!isGetRemindersArgs(args)) {
+          throw new Error("Invalid arguments for todoist_reminder_get");
+        }
+        result = await handleGetReminders(apiClient, args);
+        break;
+
+      case "todoist_reminder_create":
+        if (!isCreateReminderArgs(args)) {
+          throw new Error("Invalid arguments for todoist_reminder_create");
+        }
+        result = await handleCreateReminder(apiClient, args);
+        break;
+
+      case "todoist_reminder_update":
+        if (!isUpdateReminderArgs(args)) {
+          throw new Error("Invalid arguments for todoist_reminder_update");
+        }
+        result = await handleUpdateReminder(args);
+        break;
+
+      case "todoist_reminder_delete":
+        if (!isReminderIdArgs(args)) {
+          throw new Error("Invalid arguments for todoist_reminder_delete");
+        }
+        result = await handleDeleteReminder(args);
         break;
 
       case "todoist_test_connection":
