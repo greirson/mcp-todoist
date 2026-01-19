@@ -36,6 +36,8 @@ import {
   CreateFilterArgs,
   UpdateFilterArgs,
   FilterNameArgs,
+  FindDuplicatesArgs,
+  MergeDuplicatesArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -715,4 +717,36 @@ export function isFilterNameArgs(args: unknown): args is FilterNameArgs {
     "filter_name" in obj && typeof obj.filter_name === "string";
 
   return hasFilterId || hasFilterName;
+}
+
+// Duplicate detection type guards (Phase 13)
+export function isFindDuplicatesArgs(
+  args: unknown
+): args is FindDuplicatesArgs {
+  if (typeof args !== "object" || args === null) return true;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.threshold === undefined || typeof obj.threshold === "number") &&
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.include_completed === undefined ||
+      typeof obj.include_completed === "boolean")
+  );
+}
+
+export function isMergeDuplicatesArgs(
+  args: unknown
+): args is MergeDuplicatesArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "keep_task_id" in obj &&
+    typeof obj.keep_task_id === "string" &&
+    "duplicate_task_ids" in obj &&
+    Array.isArray(obj.duplicate_task_ids) &&
+    obj.duplicate_task_ids.every((id: unknown) => typeof id === "string") &&
+    "action" in obj &&
+    (obj.action === "complete" || obj.action === "delete")
+  );
 }

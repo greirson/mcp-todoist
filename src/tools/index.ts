@@ -6,6 +6,7 @@ import { COMMENT_TOOLS } from "./comment-tools.js";
 import { LABEL_TOOLS } from "./label-tools.js";
 import { REMINDER_TOOLS } from "./reminder-tools.js";
 import { FILTER_TOOLS } from "./filter-tools.js";
+import { DUPLICATE_TOOLS } from "./duplicate-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tool categories
@@ -16,6 +17,7 @@ export { COMMENT_TOOLS } from "./comment-tools.js";
 export { LABEL_TOOLS } from "./label-tools.js";
 export { REMINDER_TOOLS } from "./reminder-tools.js";
 export { FILTER_TOOLS } from "./filter-tools.js";
+export { DUPLICATE_TOOLS } from "./duplicate-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -86,6 +88,11 @@ export {
   DELETE_FILTER_TOOL,
 } from "./filter-tools.js";
 
+export {
+  FIND_DUPLICATES_TOOL,
+  MERGE_DUPLICATES_TOOL,
+} from "./duplicate-tools.js";
+
 // Combined array of all tools in the same order as the original
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
@@ -95,5 +102,6 @@ export const ALL_TOOLS = [
   ...FILTER_TOOLS,
   ...SUBTASK_TOOLS,
   ...REMINDER_TOOLS,
+  ...DUPLICATE_TOOLS,
   ...TEST_TOOLS,
 ];

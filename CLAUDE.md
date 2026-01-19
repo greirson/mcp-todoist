@@ -84,7 +84,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 46 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 48 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 
@@ -156,6 +156,11 @@ The server exposes 46 tools organized by entity type with standardized naming co
 - `todoist_reminder_create` - Creates absolute or relative reminders for tasks
 - `todoist_reminder_update` - Updates reminder timing by ID
 - `todoist_reminder_delete` - Removes reminders by ID
+
+**Duplicate Detection:**
+
+- `todoist_duplicates_find` - Finds similar/duplicate tasks using Levenshtein distance algorithm with configurable threshold
+- `todoist_duplicates_merge` - Merges duplicate tasks by keeping one and completing/deleting others
 
 **Testing Infrastructure:**
 
@@ -461,10 +466,15 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - [x] **Subtask Visibility**: Added `is_collapsed` parameter to control subtask visibility
   - [x] **No New Tools**: Parameters added to existing `todoist_task_create` and `todoist_task_update` tools
   - [x] **Handler Updates**: Updated task create and update handlers with new parameter support
+- [x] **Phase 13**: Duplicate Detection (v0.10.6) - Smart task deduplication using similarity algorithms
+  - [x] **Duplicate Handlers**: Created `src/handlers/duplicate-handlers.ts` with Levenshtein distance algorithm
+  - [x] **New MCP Tools**: Added 2 duplicate tools (total: 48 tools)
+    - `todoist_duplicates_find` - Find similar tasks with configurable threshold (0-100%)
+    - `todoist_duplicates_merge` - Merge duplicates by keeping one and completing/deleting others
+  - [x] **Type System**: Added `FindDuplicatesArgs`, `MergeDuplicatesArgs`, `DuplicateGroup`, `DuplicateTask` interfaces
+  - [x] **Type Guards**: Added `isFindDuplicatesArgs()`, `isMergeDuplicatesArgs()`
 
-**Planned Future Phases:**
-
-- **Phase 13**: Duplicate Detection - Smart task deduplication using similarity algorithms
+**All planned phases complete.** Feature development is now complete.
 
 **ALWAYS update CHANGELOG.md for every significant change:**
 

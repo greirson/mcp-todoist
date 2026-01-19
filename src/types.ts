@@ -628,7 +628,6 @@ export type RemindersResponse =
   | TodoistReminder[]
   | { reminders?: TodoistReminder[] };
 
-// Completed tasks interfaces (Sync API)
 export interface GetCompletedTasksArgs {
   project_id?: string;
   since?: string;
@@ -653,4 +652,33 @@ export interface CompletedTasksResponse {
   items: CompletedTask[];
   projects: Record<string, TodoistProject>;
   sections: Record<string, TodoistSection>;
+}
+
+export interface FindDuplicatesArgs {
+  threshold?: number;
+  project_id?: string;
+  include_completed?: boolean;
+}
+
+export interface DuplicateGroup {
+  similarity: number;
+  tasks: DuplicateTask[];
+}
+
+export interface DuplicateTask {
+  id: string;
+  content: string;
+  description?: string;
+  projectId?: string;
+  projectName?: string;
+  due?: string;
+  priority?: number;
+  labels?: string[];
+  isCompleted?: boolean;
+}
+
+export interface MergeDuplicatesArgs {
+  keep_task_id: string;
+  duplicate_task_ids: string[];
+  action: "complete" | "delete";
 }

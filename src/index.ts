@@ -56,6 +56,8 @@ import {
   isCreateReminderArgs,
   isUpdateReminderArgs,
   isReminderIdArgs,
+  isFindDuplicatesArgs,
+  isMergeDuplicatesArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -120,6 +122,10 @@ import {
   handleUpdateReminder,
   handleDeleteReminder,
 } from "./handlers/reminder-handlers.js";
+import {
+  handleFindDuplicates,
+  handleMergeDuplicates,
+} from "./handlers/duplicate-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -150,7 +156,7 @@ function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
 const server = new Server(
   {
     name: "todoist-mcp-server",
-    version: "0.10.5",
+    version: "0.10.6",
   },
   {
     capabilities: {
@@ -522,6 +528,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_reminder_delete");
         }
         result = await handleDeleteReminder(args);
+        break;
+
+      case "todoist_duplicates_find":
+        if (!isFindDuplicatesArgs(args)) {
+          throw new Error("Invalid arguments for todoist_duplicates_find");
+        }
+        result = await handleFindDuplicates(apiClient, args);
+        break;
+
+      case "todoist_duplicates_merge":
+        if (!isMergeDuplicatesArgs(args)) {
+          throw new Error("Invalid arguments for todoist_duplicates_merge");
+        }
+        result = await handleMergeDuplicates(apiClient, args);
         break;
 
       case "todoist_test_connection":
