@@ -177,6 +177,20 @@ export async function handleCreateTask(
       taskData.durationUnit = (args.duration_unit || "minute") as DurationUnit;
     }
 
+    // Add advanced task ordering/visibility options
+    if (args.child_order !== undefined) {
+      (taskData as unknown as Record<string, unknown>).childOrder =
+        args.child_order;
+    }
+    if (args.day_order !== undefined) {
+      (taskData as unknown as Record<string, unknown>).dayOrder =
+        args.day_order;
+    }
+    if (args.is_collapsed !== undefined) {
+      (taskData as unknown as Record<string, unknown>).isCollapsed =
+        args.is_collapsed;
+    }
+
     // Cast to any to work around SDK's RequireAllOrNone constraint on duration/durationUnit
     // We've validated the pair in validateDurationPair() so this is safe
     const task = await todoistClient.addTask(taskData as any);
@@ -438,6 +452,20 @@ export async function handleUpdateTask(
   if (args.duration !== undefined) {
     updateData.duration = args.duration;
     updateData.durationUnit = (args.duration_unit || "minute") as DurationUnit;
+  }
+
+  // Add advanced task ordering/visibility options
+  if (args.child_order !== undefined) {
+    (updateData as unknown as Record<string, unknown>).childOrder =
+      args.child_order;
+  }
+  if (args.day_order !== undefined) {
+    (updateData as unknown as Record<string, unknown>).dayOrder =
+      args.day_order;
+  }
+  if (args.is_collapsed !== undefined) {
+    (updateData as unknown as Record<string, unknown>).isCollapsed =
+      args.is_collapsed;
   }
 
   let latestTask = matchingTask;
