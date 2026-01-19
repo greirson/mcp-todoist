@@ -41,12 +41,12 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 #### Modular Tool Organization
 
 - **`src/tools/`**: Domain-specific MCP tool definitions (refactored from single 863-line file):
-  - `task-tools.ts` - Task management tools (CREATE, READ, UPDATE, DELETE, COMPLETE + bulk operations)
+  - `task-tools.ts` - Task management tools (CREATE, READ, UPDATE, DELETE, COMPLETE, REOPEN + bulk operations with duration support)
   - `subtask-tools.ts` - Subtask management tools (hierarchical task operations)
-  - `project-tools.ts` - Project and section management tools
+  - `project-tools.ts` - Project, section, and collaborator management tools
   - `comment-tools.ts` - Comment creation and retrieval tools
   - `label-tools.ts` - Label CRUD and statistics tools
-  - `reminder-tools.ts` - Reminder CRUD tools (uses Sync API)
+  - `filter-tools.ts` - Filter management tools (Sync API, requires Pro/Business plan)
   - `test-tools.ts` - Testing and validation tools
   - `index.ts` - Centralized exports with backward compatibility
 
@@ -55,10 +55,10 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 - **`src/handlers/`**: Domain-separated business logic:
   - `task-handlers.ts` - Task CRUD operations and bulk operations
   - `subtask-handlers.ts` - Hierarchical task management and parent-child relationships
-  - `project-handlers.ts` - Project and section operations
+  - `project-handlers.ts` - Project, section, and collaborator operations
   - `comment-handlers.ts` - Comment creation and retrieval operations
   - `label-handlers.ts` - Label CRUD operations and usage statistics
-  - `reminder-handlers.ts` - Reminder CRUD operations via Sync API
+  - `filter-handlers.ts` - Filter CRUD operations via Todoist Sync API
   - `test-handlers.ts` - Testing infrastructure for API validation and performance monitoring
 
 #### Enhanced Testing Framework
@@ -68,10 +68,11 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `task-tests.ts` - Task CRUD operation tests (5 tests)
   - `subtask-tests.ts` - Subtask management tests (4 tests)
   - `label-tests.ts` - Label operation tests (5 tests)
+  - `filter-tests.ts` - Filter operation tests (5 tests)
   - `bulk-tests.ts` - Bulk operation tests (4 tests)
-  - `reminder-tests.ts` - Reminder operation tests (5 tests)
-  - `duration-reopen-tests.ts` - Duration and task reopen tests
-  - `quick-add-tests.ts` - Quick add natural language tests
+  - `duration-reopen-tests.ts` - Duration and reopen operation tests (5 tests)
+  - `project-tests.ts` - Project CRUD operation tests (9 tests)
+  - `collaboration-tests.ts` - Collaboration and task assignment tests (4 tests)
   - `index.ts` - Test orchestrator and exports
 
 #### Utility Modules
@@ -83,17 +84,16 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 48 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 46 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 
-- `todoist_task_create` - Creates new tasks with full attribute support including duration
+- `todoist_task_create` - Creates new tasks with full attribute support (including duration)
 - `todoist_task_get` - Retrieves and filters tasks (with caching)
-- `todoist_task_update` - Updates existing tasks found by name search with duration support
+- `todoist_task_update` - Updates existing tasks found by name search (including duration)
 - `todoist_task_delete` - Deletes tasks found by name search
 - `todoist_task_complete` - Marks tasks as complete found by name search
-- `todoist_task_reopen` - Restores completed tasks found by name search
-- `todoist_completed_tasks_get` - Retrieves completed tasks via Sync API with date filtering and pagination
+- `todoist_task_reopen` - Reopens completed tasks found by ID or name search
 - `todoist_task_quick_add` - Natural language task creation with inline parsing for dates, projects, labels, priorities
 
 **Subtask Management:**
@@ -115,6 +115,8 @@ The server exposes 48 tools organized by entity type with standardized naming co
 
 - `todoist_comment_create` - Adds comments to tasks with optional file attachments
 - `todoist_comment_get` - Retrieves comments for tasks or projects
+- `todoist_comment_update` - Updates existing comment content
+- `todoist_comment_delete` - Deletes comments by ID
 
 **Label Management:**
 
@@ -126,12 +128,13 @@ The server exposes 48 tools organized by entity type with standardized naming co
 
 **Project Management:**
 
-- `todoist_project_create` - Creates new projects with optional color, description, parent_id, view_style, and favorite status
+- `todoist_project_create` - Creates projects with full attribute support (color, parent_id, description, view_style, favorite)
 - `todoist_project_get` - Lists all projects with hierarchy, descriptions, and status indicators
-- `todoist_project_update` - Updates project properties (name, color, description, view_style, favorite)
+- `todoist_project_update` - Updates project properties (name, color, description, view_style, favorite status)
 - `todoist_project_delete` - Deletes projects by ID or name
-- `todoist_project_archive` - Archives/unarchives projects with status tracking
+- `todoist_project_archive` - Archives or unarchives projects
 - `todoist_project_collaborators_get` - Retrieves collaborators for shared projects
+- `todoist_collaborators_get` - Lists collaborators in shared projects for task assignment
 
 **Section Management:**
 
@@ -140,19 +143,19 @@ The server exposes 48 tools organized by entity type with standardized naming co
 - `todoist_section_update` - Updates section names by ID or name search
 - `todoist_section_delete` - Deletes sections and all contained tasks by ID or name search
 
-**Reminder Management (requires Todoist Pro/Business):**
-
-- `todoist_reminder_get` - Lists all reminders, optionally filtered by task
-- `todoist_reminder_create` - Creates reminders (relative, absolute, or location-based)
-- `todoist_reminder_update` - Updates existing reminders
-- `todoist_reminder_delete` - Deletes reminders
-
-**Filter Management:**
+**Filter Management (Sync API, requires Pro/Business plan):**
 
 - `todoist_filter_get` - Lists all custom filters with queries and settings
-- `todoist_filter_create` - Creates filters using Todoist query syntax
+- `todoist_filter_create` - Creates new filters using Todoist query syntax
 - `todoist_filter_update` - Updates existing filters by ID or name
-- `todoist_filter_delete` - Deletes filters by ID or name
+- `todoist_filter_delete` - Removes filters by ID or name
+
+**Reminder Management (Sync API, requires Pro/Business plan):**
+
+- `todoist_reminder_get` - Lists all reminders with optional task filtering
+- `todoist_reminder_create` - Creates absolute or relative reminders for tasks
+- `todoist_reminder_update` - Updates reminder timing by ID
+- `todoist_reminder_delete` - Removes reminders by ID
 
 **Testing Infrastructure:**
 
@@ -166,8 +169,11 @@ Structured error handling with custom error types:
 
 - `ValidationError` - Input validation failures
 - `TaskNotFoundError` - Task search failures
-- `LabelNotFoundError` - Label search failures
 - `ProjectNotFoundError` - Project search failures
+- `LabelNotFoundError` - Label search failures
+- `FilterNotFoundError` - Filter search failures
+- `FilterFrozenError` - Frozen filter modification attempts (cancelled subscriptions)
+- `ReminderNotFoundError` - Reminder search failures
 - `SubtaskError` - Subtask operation failures
 - `TodoistAPIError` - Todoist API failures
 - `AuthenticationError` - Token validation failures
@@ -211,20 +217,19 @@ Hierarchical task management with parent-child relationships:
 - **Cache Integration**: Subtask operations integrated with 30-second TTL caching system
 - **Search Strategy**: Supports both task ID and name-based parent/child identification
 
-### Reminder Management Architecture
+### Task Assignment & Collaboration
 
-Full CRUD operations for task reminders via Todoist Sync API:
+Support for shared project workflows and task assignment:
 
-- **Sync API Integration**: Uses Todoist Sync API v9 directly (REST API does not support reminders)
-- **Reminder Types**: Supports three reminder types:
-  - `relative`: Minutes before task due date (requires task with due time)
-  - `absolute`: Specific date/time in ISO 8601 format
-  - `location`: Geofenced reminders with lat/long and trigger conditions
-- **Premium Requirement**: Reminders require Todoist Pro or Business plan
-- **UUID Generation**: Each command uses unique UUIDs for tracking
-- **Cache Integration**: 30-second TTL cache for reminder queries
-- **Task Resolution**: Supports both task ID and task name lookup for attaching reminders
-- **Error Handling**: Graceful handling of premium tier restrictions
+- **Assignee Support**: Tasks can be assigned to collaborators in shared projects using `assignee_id`
+- **Assignment Display**: Task responses show `responsibleUid` (assigned to) and `assignedByUid` (assigned by)
+- **Collaborator Discovery**: `todoist_collaborators_get` tool retrieves project collaborators with IDs, names, and emails
+- **API Field Mapping**:
+  - Input: `assignee_id` - User ID to assign the task to
+  - Output: `responsibleUid` - The user responsible for the task
+  - Output: `assignedByUid` - Who assigned the task (read-only)
+- **Shared Project Requirement**: Task assignment only works in shared projects with collaborators
+- **Test Coverage**: Collaboration test suite validates assignment workflows and handles personal projects gracefully
 
 ### Dry-Run Mode Architecture
 
@@ -238,7 +243,7 @@ Complete simulation framework for safe testing and validation:
 - **Mock Response Generation**: Returns realistic mock data with generated IDs for mutation operations
 - **Detailed Logging**: Clear `[DRY-RUN]` prefixes show exactly what operations would perform
 - **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
-- **Comprehensive Coverage**: All 34 MCP tools support dry-run mode with full validation
+- **Comprehensive Coverage**: All 46 MCP tools support dry-run mode with full validation
 - **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
 
 ### Data Flow Pattern
@@ -290,7 +295,7 @@ The codebase includes comprehensive testing capabilities:
 
 **Enhanced Testing Infrastructure:**
 
-- **Comprehensive CRUD Testing**: 18 tests across 4 suites (Task, Subtask, Label, Bulk Operations)
+- **Comprehensive CRUD Testing**: 27 tests across 5 suites (Task, Subtask, Label, Bulk Operations, Project Operations)
 - **Automatic Test Data Management**: Generates unique test data with timestamps
 - **Complete Cleanup**: Removes all test data after testing to prevent workspace pollution
 - **Detailed Reporting**: Response times, success/failure metrics, and error details
@@ -338,7 +343,7 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Dry-Run Mode**: Enable with `DRYRUN=true` environment variable for safe testing and validation
   - Uses real API data for validation while simulating mutations
-  - All 34 MCP tools support dry-run mode with comprehensive logging
+  - All 46 MCP tools support dry-run mode with comprehensive logging
   - Perfect for testing automations, learning the API, and safe experimentation
 - **Task Search**: Update/delete/complete operations support both:
   - **Task ID**: Direct lookup by ID (more reliable, takes precedence)
@@ -375,55 +380,91 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - ✅ **Refactored All Handlers**: Updated all handlers to use shared utilities and standardized patterns
 - ✅ **Phase 3**: Subtask Management (v0.8.0) - Hierarchical task management with parent-child relationships
   - ✅ **Subtask Handlers**: Created `src/handlers/subtask-handlers.ts` with full CRUD operations for hierarchical tasks
-  - ✅ **Enhanced Testing**: Built `src/handlers/test-handlers-enhanced.ts` with comprehensive CRUD testing and automatic cleanup
-  - ✅ **New MCP Tools**: Added 5 subtask management tools
-  - ✅ **Type System Enhancement**: Extended type definitions for subtask operations and hierarchy management
-  - ✅ **API Compatibility**: Implemented workarounds for Todoist API limitations using delete & recreate patterns
-- Dry-Run Mode Implementation: Complete simulation framework for safe testing and validation
-  - DryRunWrapper Architecture: Created `src/utils/dry-run-wrapper.ts` for operation simulation
-  - Environment Configuration: Enabled via `DRYRUN=true` environment variable
-  - Comprehensive Tool Support: All 38 MCP tools support dry-run mode with full validation
-  - Real Data Validation: Uses actual API calls to validate while simulating mutations
-  - Factory Pattern Integration: `createTodoistClient()` automatically handles dry-run wrapping
-  - Test Coverage: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`
-- Phase 5: Quick Add & Natural Language (v0.11.0) - Natural language task creation
-  - Quick Add Handler: Created `handleQuickAddTask` in `src/handlers/task-handlers.ts`
-  - Direct API Integration: Uses Todoist Quick Add API (`POST /api/v1/tasks/quick`) via native fetch
-  - New MCP Tool: Added `todoist_task_quick_add` tool
-  - Natural Language Parsing: Supports dates, #projects, @labels, +assignees, priorities (p1-p4), {deadlines}, //descriptions
-  - Optional Parameters: Supports `note`, `reminder`, and `auto_reminder` parameters
-  - Dry-Run Support: Full simulation with parsed component display
-  - Comprehensive Testing: Added `quick-add-tests.ts` with 5 integration tests
+  - [x] **Enhanced Testing**: Built `src/handlers/test-handlers-enhanced.ts` with comprehensive CRUD testing and automatic cleanup
+  - [x] **New MCP Tools**: Added 5 subtask management tools (total: 28 tools)
+  - [x] **Type System Enhancement**: Extended type definitions for subtask operations and hierarchy management
+  - [x] **API Compatibility**: Implemented workarounds for Todoist API limitations using delete & recreate patterns
+- [x] **Dry-Run Mode Implementation**: Complete simulation framework for safe testing and validation
+  - [x] **DryRunWrapper Architecture**: Created `src/utils/dry-run-wrapper.ts` for operation simulation
+  - [x] **Environment Configuration**: Enabled via `DRYRUN=true` environment variable
+  - [x] **Comprehensive Tool Support**: All 46 MCP tools support dry-run mode with full validation
+  - [x] **Real Data Validation**: Uses actual API calls to validate while simulating mutations
+  - [x] **Factory Pattern Integration**: `createTodoistClient()` automatically handles dry-run wrapping
+  - [x] **Test Coverage**: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`
+- [x] **Phase 4**: Duration & Task Enhancements (v0.9.0) - Task duration support and reopen capability
+  - [x] **Duration Support**: Added `duration` and `duration_unit` parameters for time blocking workflows
+  - [x] **Task Reopen Tool**: New `todoist_task_reopen` tool to restore completed tasks
+  - [x] **Duration Validation**: Added `validateDuration()`, `validateDurationUnit()`, `validateDurationPair()` functions
+  - [x] **Handler Updates**: Updated task create, update, and bulk handlers with duration support
+  - [x] **New MCP Tool**: Added task reopen tool
+  - [x] **Test Coverage**: Unit tests for duration validation and integration tests for duration/reopen
+- [x] **Phase 5**: Quick Add & Natural Language (v0.9.0) - Natural language task creation
+  - [x] **Quick Add Handler**: Created `handleQuickAddTask` in `src/handlers/task-handlers.ts`
+  - [x] **Direct API Integration**: Uses Todoist Quick Add API via native fetch
+  - [x] **New MCP Tool**: Added `todoist_task_quick_add` tool
+  - [x] **Natural Language Parsing**: Supports dates, #projects, @labels, +assignees, priorities, {deadlines}, //descriptions
+  - [x] **Comprehensive Testing**: Added `quick-add-tests.ts` with 5 integration tests
+- [x] **Phase 6**: Full Project Management (v0.10.0) - Complete CRUD operations for projects
+  - [x] **New Project Tools**: Added 4 new tools (todoist_project_update, todoist_project_delete, todoist_project_archive, todoist_project_collaborators_get)
+  - [x] **Enhanced Project Create**: Added parent_id, description, view_style parameters for sub-projects and rich metadata
+  - [x] **Project Search**: Support for finding projects by ID or name (case-insensitive partial matching)
+  - [x] **Archive Support**: Archive and unarchive projects with full status tracking
+  - [x] **Collaborator Access**: Retrieve collaborators for shared projects
+  - [x] **Comprehensive Testing**: Added project test suite in src/handlers/test-handlers-enhanced/project-tests.ts
+  - [x] **Total Tools**: 35 MCP tools (31 + 4 new project management tools)
+- [x] **Phase 7**: Full Section Management (v0.9.0) - Complete CRUD operations for sections
+  - [x] **Section Update**: New `todoist_section_update` tool with name-based and ID-based lookup
+  - [x] **Section Delete**: New `todoist_section_delete` tool with cascade deletion of contained tasks
+  - [x] **Section Ordering**: Added `order` parameter to `todoist_section_create` tool
+  - [x] **Enhanced Testing**: Created `src/handlers/test-handlers-enhanced/section-tests.ts` with 5 section tests
+  - [x] **New MCP Tools**: Added 2 section management tools
+- [x] **Phase 9**: Task Assignment & Collaboration (v0.10.1) - Shared project workflows
+  - [x] **Task Assignment**: Added `assignee_id` parameter to task creation and update tools
+  - [x] **Assignment Display**: Task responses show assignment information (responsibleUid, assignedByUid)
+  - [x] **New MCP Tool**: Added `todoist_collaborators_get` tool for shared project collaborator retrieval
+  - [x] **Comprehensive Testing**: Added collaboration test suite in src/handlers/test-handlers-enhanced/collaboration-tests.ts
+  - [x] **Total Tools**: 36 MCP tools (35 + 1 new collaborator tool)
+- [x] **Phase 11**: Filter Management (v0.10.2) - Custom filter CRUD operations via Sync API
+  - [x] **Filter Handlers**: Created `src/handlers/filter-handlers.ts` with Todoist Sync API integration
+  - [x] **Filter Tools**: Created `src/tools/filter-tools.ts` with 4 filter management tools
+  - [x] **New MCP Tools**: Added 4 filter tools (total: 40 tools)
+    - `todoist_filter_get` - List all custom filters
+    - `todoist_filter_create` - Create filters with query syntax
+    - `todoist_filter_update` - Update filters by ID or name
+    - `todoist_filter_delete` - Delete filters by ID or name
+  - [x] **Sync API Integration**: Direct integration with Todoist Sync API v1 for filter operations
+  - [x] **Pro/Business Plan Support**: Graceful handling of plan restrictions
+  - [x] **Enhanced Testing**: Filter test suite in `src/handlers/test-handlers-enhanced/filter-tests.ts`
 
-- Phase 10: Reminder Management (v0.10.0) - Full reminder CRUD via Sync API
-  - Reminder Handlers: Created src/handlers/reminder-handlers.ts with Sync API integration
-  - New MCP Tools: Added 4 reminder management tools (total: 36 tools)
-  - Reminder Types: Supports relative, absolute, and location-based reminders
-  - Test Coverage: Comprehensive test suite in src/handlers/test-handlers-enhanced/reminder-tests.ts
-
-- **Phase 7**: Full Section Management (v0.9.0) - Complete CRUD operations for sections
-  - **Section Update**: New `todoist_section_update` tool with name-based and ID-based lookup
-  - **Section Delete**: New `todoist_section_delete` tool with cascade deletion of contained tasks
-  - **Section Ordering**: Added `order` parameter to `todoist_section_create` tool
-  - **Enhanced Testing**: Created `src/handlers/test-handlers-enhanced/section-tests.ts` with 5 section tests
-  - **New MCP Tools**: Added 2 section management tools (total: 36 tools)
+- [x] **Phase 8**: Full Comment Management (v0.10.3) - Complete CRUD operations for comments
+  - [x] **Comment Handlers**: Added `handleUpdateComment()` and `handleDeleteComment()` in `src/handlers/comment-handlers.ts`
+  - [x] **New MCP Tools**: Added 2 comment tools (total: 42 tools)
+    - `todoist_comment_update` - Update existing comment content
+    - `todoist_comment_delete` - Delete comments by ID
+  - [x] **Type System**: Added `UpdateCommentArgs`, `CommentIdArgs` interfaces
+  - [x] **Error Handling**: Added `CommentNotFoundError` class
+  - [x] **Type Guards**: Added `isUpdateCommentArgs()` and `isCommentIdArgs()` functions
+- [x] **Phase 10**: Reminder Management (v0.10.4) - Complete CRUD operations for reminders via Sync API
+  - [x] **Reminder Handlers**: Created `src/handlers/reminder-handlers.ts` with Todoist Sync API integration
+  - [x] **Reminder Tools**: Created `src/tools/reminder-tools.ts` with 4 reminder management tools
+  - [x] **New MCP Tools**: Added 4 reminder tools (total: 46 tools)
+    - `todoist_reminder_get` - List reminders (all or by task)
+    - `todoist_reminder_create` - Create absolute or relative reminders
+    - `todoist_reminder_update` - Update reminder timing
+    - `todoist_reminder_delete` - Delete reminders by ID
+  - [x] **Type System**: Added `TodoistReminder`, `CreateReminderArgs`, `UpdateReminderArgs`, `ReminderIdArgs`, `GetRemindersArgs` interfaces
+  - [x] **Error Handling**: Added `ReminderNotFoundError` class
+  - [x] **Type Guards**: Added reminder-related type guards
+  - [x] **Pro/Business Plan Support**: Graceful handling of plan restrictions
+- [x] **Phase 12**: Advanced Task Features (v0.10.5) - Task ordering and visibility
+  - [x] **Task Ordering Parameters**: Added `child_order` (position among siblings) and `day_order` (position in Today view)
+  - [x] **Subtask Visibility**: Added `is_collapsed` parameter to control subtask visibility
+  - [x] **No New Tools**: Parameters added to existing `todoist_task_create` and `todoist_task_update` tools
+  - [x] **Handler Updates**: Updated task create and update handlers with new parameter support
 
 **Planned Future Phases:**
 
-- **Phase 4**: Duplicate Detection - Smart task deduplication using similarity algorithms
-- **Phase 6**: Project Analytics - Comprehensive project health metrics and insights
-
-All future development should use the testing infrastructure to validate changes and ensure compatibility.
-
-## Documentation Maintenance Requirements
-
-**CRITICAL: Always keep documentation files updated when making changes to the codebase.**
-
-### Required Documentation Updates
-
-When making ANY changes to the codebase, you MUST update the following files:
-
-#### 1. CHANGELOG.md Updates
+- **Phase 13**: Duplicate Detection - Smart task deduplication using similarity algorithms
 
 **ALWAYS update CHANGELOG.md for every significant change:**
 
