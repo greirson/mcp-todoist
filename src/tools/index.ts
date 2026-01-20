@@ -1,4 +1,3 @@
-// Centralized exports for all MCP tools organized by domain
 import { TASK_TOOLS } from "./task-tools.js";
 import { SUBTASK_TOOLS } from "./subtask-tools.js";
 import { PROJECT_TOOLS } from "./project-tools.js";
@@ -7,9 +6,9 @@ import { LABEL_TOOLS } from "./label-tools.js";
 import { REMINDER_TOOLS } from "./reminder-tools.js";
 import { FILTER_TOOLS } from "./filter-tools.js";
 import { DUPLICATE_TOOLS } from "./duplicate-tools.js";
+import { ACTIVITY_TOOLS } from "./activity-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
-// Export individual tool categories
 export { TASK_TOOLS } from "./task-tools.js";
 export { SUBTASK_TOOLS } from "./subtask-tools.js";
 export { PROJECT_TOOLS } from "./project-tools.js";
@@ -18,6 +17,7 @@ export { LABEL_TOOLS } from "./label-tools.js";
 export { REMINDER_TOOLS } from "./reminder-tools.js";
 export { FILTER_TOOLS } from "./filter-tools.js";
 export { DUPLICATE_TOOLS } from "./duplicate-tools.js";
+export { ACTIVITY_TOOLS } from "./activity-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -93,7 +93,12 @@ export {
   MERGE_DUPLICATES_TOOL,
 } from "./duplicate-tools.js";
 
-// Combined array of all tools in the same order as the original
+export {
+  GET_ACTIVITY_TOOL,
+  GET_ACTIVITY_BY_PROJECT_TOOL,
+  GET_ACTIVITY_BY_DATE_RANGE_TOOL,
+} from "./activity-tools.js";
+
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
   ...PROJECT_TOOLS,
@@ -103,5 +108,6 @@ export const ALL_TOOLS = [
   ...SUBTASK_TOOLS,
   ...REMINDER_TOOLS,
   ...DUPLICATE_TOOLS,
+  ...ACTIVITY_TOOLS,
   ...TEST_TOOLS,
 ];

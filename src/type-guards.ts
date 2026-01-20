@@ -38,6 +38,11 @@ import {
   FilterNameArgs,
   FindDuplicatesArgs,
   MergeDuplicatesArgs,
+  GetActivityArgs,
+  GetActivityByProjectArgs,
+  GetActivityByDateRangeArgs,
+  ActivityObjectType,
+  ActivityEventType,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -753,3 +758,106 @@ export function isMergeDuplicatesArgs(
 
 export const isCommentIdArgs = isDeleteCommentArgs;
 export const isReminderIdArgs = isDeleteReminderArgs;
+
+const VALID_ACTIVITY_OBJECT_TYPES: ActivityObjectType[] = [
+  "item",
+  "note",
+  "project",
+  "section",
+  "label",
+  "filter",
+  "reminder",
+];
+
+const VALID_ACTIVITY_EVENT_TYPES: ActivityEventType[] = [
+  "added",
+  "updated",
+  "deleted",
+  "completed",
+  "uncompleted",
+  "archived",
+  "unarchived",
+  "shared",
+  "left",
+];
+
+export function isGetActivityArgs(args: unknown): args is GetActivityArgs {
+  if (typeof args !== "object" || args === null) return true;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.object_type === undefined ||
+      (typeof obj.object_type === "string" &&
+        VALID_ACTIVITY_OBJECT_TYPES.includes(
+          obj.object_type as ActivityObjectType
+        ))) &&
+    (obj.object_id === undefined || typeof obj.object_id === "string") &&
+    (obj.event_type === undefined ||
+      (typeof obj.event_type === "string" &&
+        VALID_ACTIVITY_EVENT_TYPES.includes(
+          obj.event_type as ActivityEventType
+        ))) &&
+    (obj.parent_project_id === undefined ||
+      typeof obj.parent_project_id === "string") &&
+    (obj.parent_item_id === undefined ||
+      typeof obj.parent_item_id === "string") &&
+    (obj.initiator_id === undefined || typeof obj.initiator_id === "string") &&
+    (obj.since === undefined || typeof obj.since === "string") &&
+    (obj.until === undefined || typeof obj.until === "string") &&
+    (obj.limit === undefined || typeof obj.limit === "number") &&
+    (obj.offset === undefined || typeof obj.offset === "number")
+  );
+}
+
+export function isGetActivityByProjectArgs(
+  args: unknown
+): args is GetActivityByProjectArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "project_id" in obj &&
+    typeof obj.project_id === "string" &&
+    (obj.event_type === undefined ||
+      (typeof obj.event_type === "string" &&
+        VALID_ACTIVITY_EVENT_TYPES.includes(
+          obj.event_type as ActivityEventType
+        ))) &&
+    (obj.object_type === undefined ||
+      (typeof obj.object_type === "string" &&
+        VALID_ACTIVITY_OBJECT_TYPES.includes(
+          obj.object_type as ActivityObjectType
+        ))) &&
+    (obj.since === undefined || typeof obj.since === "string") &&
+    (obj.until === undefined || typeof obj.until === "string") &&
+    (obj.limit === undefined || typeof obj.limit === "number") &&
+    (obj.offset === undefined || typeof obj.offset === "number")
+  );
+}
+
+export function isGetActivityByDateRangeArgs(
+  args: unknown
+): args is GetActivityByDateRangeArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "since" in obj &&
+    typeof obj.since === "string" &&
+    "until" in obj &&
+    typeof obj.until === "string" &&
+    (obj.object_type === undefined ||
+      (typeof obj.object_type === "string" &&
+        VALID_ACTIVITY_OBJECT_TYPES.includes(
+          obj.object_type as ActivityObjectType
+        ))) &&
+    (obj.event_type === undefined ||
+      (typeof obj.event_type === "string" &&
+        VALID_ACTIVITY_EVENT_TYPES.includes(
+          obj.event_type as ActivityEventType
+        ))) &&
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.limit === undefined || typeof obj.limit === "number") &&
+    (obj.offset === undefined || typeof obj.offset === "number")
+  );
+}

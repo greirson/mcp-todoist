@@ -58,6 +58,9 @@ import {
   isReminderIdArgs,
   isFindDuplicatesArgs,
   isMergeDuplicatesArgs,
+  isGetActivityArgs,
+  isGetActivityByProjectArgs,
+  isGetActivityByDateRangeArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -126,6 +129,11 @@ import {
   handleFindDuplicates,
   handleMergeDuplicates,
 } from "./handlers/duplicate-handlers.js";
+import {
+  handleGetActivity,
+  handleGetActivityByProject,
+  handleGetActivityByDateRange,
+} from "./handlers/activity-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -156,7 +164,7 @@ function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
 const server = new Server(
   {
     name: "todoist-mcp-server",
-    version: "0.10.6",
+    version: "0.11.0",
   },
   {
     capabilities: {
@@ -542,6 +550,29 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_duplicates_merge");
         }
         result = await handleMergeDuplicates(apiClient, args);
+        break;
+
+      case "todoist_activity_get":
+        if (!isGetActivityArgs(args)) {
+          throw new Error("Invalid arguments for todoist_activity_get");
+        }
+        result = await handleGetActivity(args);
+        break;
+
+      case "todoist_activity_by_project":
+        if (!isGetActivityByProjectArgs(args)) {
+          throw new Error("Invalid arguments for todoist_activity_by_project");
+        }
+        result = await handleGetActivityByProject(args);
+        break;
+
+      case "todoist_activity_by_date_range":
+        if (!isGetActivityByDateRangeArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_activity_by_date_range"
+          );
+        }
+        result = await handleGetActivityByDateRange(args);
         break;
 
       case "todoist_test_connection":
