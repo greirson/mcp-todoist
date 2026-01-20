@@ -750,3 +750,6 @@ export function isMergeDuplicatesArgs(
     (obj.action === "complete" || obj.action === "delete")
   );
 }
+
+export const isCommentIdArgs = isDeleteCommentArgs;
+export const isReminderIdArgs = isDeleteReminderArgs;
