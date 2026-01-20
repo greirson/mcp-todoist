@@ -755,3 +755,30 @@ export interface ActivityResponse {
   events: ActivityLogEvent[];
   count: number;
 }
+
+export interface MoveTaskArgs {
+  task_id?: string;
+  task_name?: string;
+  project_id?: string;
+  section_id?: string;
+  parent_id?: string;
+}
+
+export interface ReorderTaskArgs {
+  task_id?: string;
+  task_name?: string;
+  child_order: number;
+}
+
+export interface BulkReorderTasksArgs {
+  items: { id: string; child_order: number }[];
+}
+
+export interface CloseTaskArgs {
+  task_id?: string;
+  task_name?: string;
+}
+
+export interface UpdateDayOrderArgs {
+  items: { id: string; day_order: number }[];
+}

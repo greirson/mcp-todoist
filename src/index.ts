@@ -61,6 +61,11 @@ import {
   isGetActivityArgs,
   isGetActivityByProjectArgs,
   isGetActivityByDateRangeArgs,
+  isMoveTaskArgs,
+  isReorderTaskArgs,
+  isBulkReorderTasksArgs,
+  isCloseTaskArgs,
+  isUpdateDayOrderArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -134,6 +139,13 @@ import {
   handleGetActivityByProject,
   handleGetActivityByDateRange,
 } from "./handlers/activity-handlers.js";
+import {
+  handleMoveTask,
+  handleReorderTask,
+  handleBulkReorderTasks,
+  handleCloseTask,
+  handleUpdateDayOrders,
+} from "./handlers/item-operations-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -573,6 +585,43 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           );
         }
         result = await handleGetActivityByDateRange(args);
+        break;
+
+      case "todoist_task_move":
+        if (!isMoveTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_move");
+        }
+        result = await handleMoveTask(apiClient, args);
+        break;
+
+      case "todoist_task_reorder":
+        if (!isReorderTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_reorder");
+        }
+        result = await handleReorderTask(apiClient, args);
+        break;
+
+      case "todoist_tasks_reorder_bulk":
+        if (!isBulkReorderTasksArgs(args)) {
+          throw new Error("Invalid arguments for todoist_tasks_reorder_bulk");
+        }
+        result = await handleBulkReorderTasks(args);
+        break;
+
+      case "todoist_task_close":
+        if (!isCloseTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_close");
+        }
+        result = await handleCloseTask(apiClient, args);
+        break;
+
+      case "todoist_task_day_order_update":
+        if (!isUpdateDayOrderArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_task_day_order_update"
+          );
+        }
+        result = await handleUpdateDayOrders(args);
         break;
 
       case "todoist_test_connection":

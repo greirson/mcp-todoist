@@ -43,6 +43,11 @@ import {
   GetActivityByDateRangeArgs,
   ActivityObjectType,
   ActivityEventType,
+  MoveTaskArgs,
+  ReorderTaskArgs,
+  BulkReorderTasksArgs,
+  CloseTaskArgs,
+  UpdateDayOrderArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -859,5 +864,91 @@ export function isGetActivityByDateRangeArgs(
     (obj.project_id === undefined || typeof obj.project_id === "string") &&
     (obj.limit === undefined || typeof obj.limit === "number") &&
     (obj.offset === undefined || typeof obj.offset === "number")
+  );
+}
+
+export function isMoveTaskArgs(args: unknown): args is MoveTaskArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  const hasTaskIdentifier =
+    (obj.task_id !== undefined && typeof obj.task_id === "string") ||
+    (obj.task_name !== undefined && typeof obj.task_name === "string");
+
+  return (
+    hasTaskIdentifier &&
+    (obj.project_id === undefined || typeof obj.project_id === "string") &&
+    (obj.section_id === undefined || typeof obj.section_id === "string") &&
+    (obj.parent_id === undefined || typeof obj.parent_id === "string")
+  );
+}
+
+export function isReorderTaskArgs(args: unknown): args is ReorderTaskArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  const hasTaskIdentifier =
+    (obj.task_id !== undefined && typeof obj.task_id === "string") ||
+    (obj.task_name !== undefined && typeof obj.task_name === "string");
+
+  return (
+    hasTaskIdentifier &&
+    "child_order" in obj &&
+    typeof obj.child_order === "number" &&
+    obj.child_order >= 0
+  );
+}
+
+export function isBulkReorderTasksArgs(
+  args: unknown
+): args is BulkReorderTasksArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "items" in obj &&
+    Array.isArray(obj.items) &&
+    obj.items.length > 0 &&
+    obj.items.every(
+      (item: unknown) =>
+        typeof item === "object" &&
+        item !== null &&
+        "id" in item &&
+        typeof (item as Record<string, unknown>).id === "string" &&
+        "child_order" in item &&
+        typeof (item as Record<string, unknown>).child_order === "number"
+    )
+  );
+}
+
+export function isCloseTaskArgs(args: unknown): args is CloseTaskArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.task_id !== undefined && typeof obj.task_id === "string") ||
+    (obj.task_name !== undefined && typeof obj.task_name === "string")
+  );
+}
+
+export function isUpdateDayOrderArgs(
+  args: unknown
+): args is UpdateDayOrderArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "items" in obj &&
+    Array.isArray(obj.items) &&
+    obj.items.length > 0 &&
+    obj.items.every(
+      (item: unknown) =>
+        typeof item === "object" &&
+        item !== null &&
+        "id" in item &&
+        typeof (item as Record<string, unknown>).id === "string" &&
+        "day_order" in item &&
+        typeof (item as Record<string, unknown>).day_order === "number"
+    )
   );
 }
