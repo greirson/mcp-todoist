@@ -682,3 +682,76 @@ export interface MergeDuplicatesArgs {
   duplicate_task_ids: string[];
   action: "complete" | "delete";
 }
+
+// Activity log interfaces (Phase 1: Activity Logs)
+// Based on Todoist Sync API activity/get endpoint
+
+export type ActivityEventType =
+  | "added"
+  | "updated"
+  | "deleted"
+  | "completed"
+  | "uncompleted"
+  | "archived"
+  | "unarchived"
+  | "shared"
+  | "left";
+
+export type ActivityObjectType =
+  | "item"
+  | "note"
+  | "project"
+  | "section"
+  | "label"
+  | "filter"
+  | "reminder";
+
+export interface ActivityLogEvent {
+  id: string;
+  object_type: ActivityObjectType;
+  object_id: string;
+  event_type: ActivityEventType;
+  event_date: string;
+  parent_project_id?: string;
+  parent_item_id?: string;
+  initiator_id?: string;
+  extra_data?: Record<string, unknown>;
+}
+
+export interface GetActivityArgs {
+  object_type?: ActivityObjectType;
+  object_id?: string;
+  event_type?: ActivityEventType;
+  parent_project_id?: string;
+  parent_item_id?: string;
+  initiator_id?: string;
+  since?: string;
+  until?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GetActivityByProjectArgs {
+  project_id: string;
+  event_type?: ActivityEventType;
+  object_type?: ActivityObjectType;
+  since?: string;
+  until?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GetActivityByDateRangeArgs {
+  since: string;
+  until: string;
+  object_type?: ActivityObjectType;
+  event_type?: ActivityEventType;
+  project_id?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ActivityResponse {
+  events: ActivityLogEvent[];
+  count: number;
+}

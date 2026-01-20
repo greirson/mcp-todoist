@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Activity Logs (Phase 1)**: Full activity log support via Todoist Sync API for auditing and tracking workspace changes
+  - `todoist_activity_get`: Get activity log with flexible filters (object_type, event_type, project, date range, pagination)
+  - `todoist_activity_by_project`: Get all activity events for a specific project
+  - `todoist_activity_by_date_range`: Get activity events within a date range
+  - Supports filtering by: item (tasks), note (comments), project, section, label, filter, reminder
+  - Event types: added, updated, deleted, completed, uncompleted, archived, unarchived, shared, left
+  - Useful for: audit trails, productivity analysis, change tracking, collaboration monitoring
+
 - **Completed Tasks Retrieval**: New `todoist_completed_tasks_get` tool for fetching completed tasks via Todoist Sync API
   - Filter by project ID
   - Filter by date range using ISO 8601 datetime format (`since`/`until` parameters)
@@ -61,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Total MCP tools increased from 36 to 39 (added task reopen, completed tasks, duration support)
+- Total MCP tools increased from 50 to 53 (added 3 activity log tools)
 - Task CREATE, UPDATE, BULK_CREATE, and BULK_UPDATE now support duration parameters
 - Enhanced testing infrastructure with Duration & Reopen Operations test suite
 
