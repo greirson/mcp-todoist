@@ -217,7 +217,7 @@ Priority: 4 (Normal)
 
 ### Supported Operations
 
-All 43 MCP tools support dry-run mode:
+All 48 MCP tools support dry-run mode:
 
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
@@ -233,7 +233,7 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 43 tools organized by entity type:
+The server provides 48 tools organized by entity type:
 
 ### Task Management
 
@@ -296,6 +296,13 @@ The server provides 43 tools organized by entity type:
 - **Todoist Reminder Create**: Create reminders (relative, absolute, or location-based)
 - **Todoist Reminder Update**: Update existing reminder settings
 - **Todoist Reminder Delete**: Remove reminders from tasks
+
+### Filter Management
+
+- **Todoist Filter Get**: List all custom filters with queries and settings
+- **Todoist Filter Create**: Create filters using Todoist query syntax
+- **Todoist Filter Update**: Update existing filters by ID or name
+- **Todoist Filter Delete**: Remove filters by ID or name
 
 ### Testing & Validation
 
