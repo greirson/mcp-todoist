@@ -83,7 +83,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 43 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 48 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 
@@ -146,6 +146,13 @@ The server exposes 43 tools organized by entity type with standardized naming co
 - `todoist_reminder_create` - Creates reminders (relative, absolute, or location-based)
 - `todoist_reminder_update` - Updates existing reminders
 - `todoist_reminder_delete` - Deletes reminders
+
+**Filter Management:**
+
+- `todoist_filter_get` - Lists all custom filters with queries and settings
+- `todoist_filter_create` - Creates filters using Todoist query syntax
+- `todoist_filter_update` - Updates existing filters by ID or name
+- `todoist_filter_delete` - Deletes filters by ID or name
 
 **Testing Infrastructure:**
 
