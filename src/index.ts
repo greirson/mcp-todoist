@@ -75,6 +75,11 @@ import {
   isGetArchivedProjectsArgs,
   isRenameSharedLabelArgs,
   isRemoveSharedLabelArgs,
+  isDownloadBackupArgs,
+  isGetProjectNotesArgs,
+  isCreateProjectNoteArgs,
+  isUpdateProjectNoteArgs,
+  isDeleteProjectNoteArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -176,6 +181,16 @@ import {
   handleRenameSharedLabel,
   handleRemoveSharedLabel,
 } from "./handlers/shared-label-handlers.js";
+import {
+  handleGetBackups,
+  handleDownloadBackup,
+} from "./handlers/backup-handlers.js";
+import {
+  handleGetProjectNotes,
+  handleCreateProjectNote,
+  handleUpdateProjectNote,
+  handleDeleteProjectNote,
+} from "./handlers/project-notes-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -735,6 +750,45 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_shared_label_remove");
         }
         result = await handleRemoveSharedLabel(args);
+        break;
+
+      case "todoist_backups_get":
+        result = await handleGetBackups();
+        break;
+
+      case "todoist_backup_download":
+        if (!isDownloadBackupArgs(args)) {
+          throw new Error("Invalid arguments for todoist_backup_download");
+        }
+        result = await handleDownloadBackup(args);
+        break;
+
+      case "todoist_project_notes_get":
+        if (!isGetProjectNotesArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_notes_get");
+        }
+        result = await handleGetProjectNotes(args);
+        break;
+
+      case "todoist_project_note_create":
+        if (!isCreateProjectNoteArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_note_create");
+        }
+        result = await handleCreateProjectNote(args);
+        break;
+
+      case "todoist_project_note_update":
+        if (!isUpdateProjectNoteArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_note_update");
+        }
+        result = await handleUpdateProjectNote(args);
+        break;
+
+      case "todoist_project_note_delete":
+        if (!isDeleteProjectNoteArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_note_delete");
+        }
+        result = await handleDeleteProjectNote(args);
         break;
 
       case "todoist_test_connection":

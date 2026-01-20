@@ -888,3 +888,50 @@ export interface RenameSharedLabelArgs {
 export interface RemoveSharedLabelArgs {
   name: string;
 }
+
+// Phase 7: Backups & Project Notes
+
+export interface TodoistBackup {
+  version: string;
+  url: string;
+}
+
+export interface GetBackupsArgs {}
+
+export interface DownloadBackupArgs {
+  version: string;
+}
+
+export interface ProjectNote {
+  id: string;
+  project_id: string;
+  content: string;
+  posted_at: string;
+  posted_uid: string;
+  is_deleted: boolean;
+  file_attachment?: {
+    file_name: string;
+    file_size: number;
+    file_type: string;
+    file_url: string;
+    upload_state: string;
+  };
+}
+
+export interface GetProjectNotesArgs {
+  project_id: string;
+}
+
+export interface CreateProjectNoteArgs {
+  project_id: string;
+  content: string;
+}
+
+export interface UpdateProjectNoteArgs {
+  note_id: string;
+  content: string;
+}
+
+export interface DeleteProjectNoteArgs {
+  note_id: string;
+}

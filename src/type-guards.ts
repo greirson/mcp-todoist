@@ -57,6 +57,11 @@ import {
   GetArchivedProjectsArgs,
   RenameSharedLabelArgs,
   RemoveSharedLabelArgs,
+  DownloadBackupArgs,
+  GetProjectNotesArgs,
+  CreateProjectNoteArgs,
+  UpdateProjectNoteArgs,
+  DeleteProjectNoteArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -1087,4 +1092,49 @@ export function isRemoveSharedLabelArgs(
 
   const obj = args as Record<string, unknown>;
   return typeof obj.name === "string";
+}
+
+export function isDownloadBackupArgs(
+  args: unknown
+): args is DownloadBackupArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return typeof obj.version === "string";
+}
+
+export function isGetProjectNotesArgs(
+  args: unknown
+): args is GetProjectNotesArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return typeof obj.project_id === "string";
+}
+
+export function isCreateProjectNoteArgs(
+  args: unknown
+): args is CreateProjectNoteArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return typeof obj.project_id === "string" && typeof obj.content === "string";
+}
+
+export function isUpdateProjectNoteArgs(
+  args: unknown
+): args is UpdateProjectNoteArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return typeof obj.note_id === "string" && typeof obj.content === "string";
+}
+
+export function isDeleteProjectNoteArgs(
+  args: unknown
+): args is DeleteProjectNoteArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return typeof obj.note_id === "string";
 }

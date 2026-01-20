@@ -12,6 +12,8 @@ import { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
 import { PROJECT_OPERATIONS_TOOLS } from "./project-operations-tools.js";
 import { USER_TOOLS } from "./user-tools.js";
 import { SHARED_LABEL_TOOLS } from "./shared-label-tools.js";
+import { BACKUP_TOOLS } from "./backup-tools.js";
+import { PROJECT_NOTES_TOOLS } from "./project-notes-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
 export { TASK_TOOLS } from "./task-tools.js";
@@ -28,6 +30,8 @@ export { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
 export { PROJECT_OPERATIONS_TOOLS } from "./project-operations-tools.js";
 export { USER_TOOLS } from "./user-tools.js";
 export { SHARED_LABEL_TOOLS } from "./shared-label-tools.js";
+export { BACKUP_TOOLS } from "./backup-tools.js";
+export { PROJECT_NOTES_TOOLS } from "./project-notes-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -142,6 +146,15 @@ export {
   REMOVE_SHARED_LABEL_TOOL,
 } from "./shared-label-tools.js";
 
+export { GET_BACKUPS_TOOL, DOWNLOAD_BACKUP_TOOL } from "./backup-tools.js";
+
+export {
+  GET_PROJECT_NOTES_TOOL,
+  CREATE_PROJECT_NOTE_TOOL,
+  UPDATE_PROJECT_NOTE_TOOL,
+  DELETE_PROJECT_NOTE_TOOL,
+} from "./project-notes-tools.js";
+
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
   ...PROJECT_TOOLS,
@@ -157,5 +170,7 @@ export const ALL_TOOLS = [
   ...PROJECT_OPERATIONS_TOOLS,
   ...USER_TOOLS,
   ...SHARED_LABEL_TOOLS,
+  ...BACKUP_TOOLS,
+  ...PROJECT_NOTES_TOOLS,
   ...TEST_TOOLS,
 ];
