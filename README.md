@@ -1,4 +1,5 @@
 # Todoist MCP Server
+
 [![smithery badge](https://smithery.ai/badge/@greirson/mcp-todoist)](https://smithery.ai/server/@greirson/mcp-todoist)
 
 An MCP (Model Context Protocol) server that connects Claude with Todoist for complete task and project management through natural language.
@@ -25,7 +26,7 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
    }
    ```
 3. Restart Claude Desktop
-4. Ask Claude: *"Show me my Todoist projects"*
+4. Ask Claude: _"Show me my Todoist projects"_
 
 **That's it!** You can now manage your Todoist tasks directly through Claude.
 
@@ -44,22 +45,22 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 
 ## Features
 
-* **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
-* **Hierarchical Subtasks**: Create subtasks, convert tasks to subtasks, promote subtasks, and view task hierarchies with completion tracking
-* **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
-* **Comment System**: Add comments to tasks and retrieve comments with attachment support
-* **Label Management**: Full CRUD operations for labels with usage statistics and analytics
-* **Reminder Management**: Create, update, and delete reminders (relative, absolute, location-based) via Sync API
-* **Project & Section Organization**: Create and manage projects and sections
-* **Dry-Run Mode**: Test automations and operations without making real changes
-* **Enhanced Testing**: Basic API validation and comprehensive CRUD testing with automatic cleanup
-* **Smart Discovery**: List projects and sections to find IDs for organization
-* **Rich Task Attributes**: Support for descriptions, due dates, priorities, labels, deadlines, and project assignment
-* **Natural Language Interface**: Use everyday language to manage your Todoist workspace
-* **Performance Optimized**: 30-second caching for GET operations to reduce API calls
-* **Robust Error Handling**: Structured error responses with custom error types
-* **Input Validation**: Comprehensive validation and sanitization of all inputs
-* **Type Safety**: Full TypeScript implementation with runtime type checking
+- **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
+- **Hierarchical Subtasks**: Create subtasks, convert tasks to subtasks, promote subtasks, and view task hierarchies with completion tracking
+- **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
+- **Comment System**: Add comments to tasks and retrieve comments with attachment support
+- **Label Management**: Full CRUD operations for labels with usage statistics and analytics
+- **Reminder Management**: Create, update, and delete reminders (relative, absolute, location-based) via Sync API
+- **Project & Section Organization**: Create and manage projects and sections
+- **Dry-Run Mode**: Test automations and operations without making real changes
+- **Enhanced Testing**: Basic API validation and comprehensive CRUD testing with automatic cleanup
+- **Smart Discovery**: List projects and sections to find IDs for organization
+- **Rich Task Attributes**: Support for descriptions, due dates, priorities, labels, deadlines, and project assignment
+- **Natural Language Interface**: Use everyday language to manage your Todoist workspace
+- **Performance Optimized**: 30-second caching for GET operations to reduce API calls
+- **Robust Error Handling**: Structured error responses with custom error types
+- **Input Validation**: Comprehensive validation and sanitization of all inputs
+- **Type Safety**: Full TypeScript implementation with runtime type checking
 
 ## Installation & Setup
 
@@ -76,6 +77,7 @@ npx -y @smithery/cli install @greirson/mcp-todoist --client claude
 This is the easiest method as it doesn't require installing anything globally.
 
 #### Step 1: Get Your Todoist API Token
+
 1. Log in to your [Todoist account](https://todoist.com)
 2. Go to **Settings** → **Integrations**
 3. Scroll down to the **Developer** section
@@ -86,9 +88,11 @@ This is the easiest method as it doesn't require installing anything globally.
 Add the server to your Claude Desktop configuration file:
 
 **On macOS/Linux:**
+
 - File location: `~/.config/claude_desktop_config.json`
 
 **On Windows:**
+
 - File location: `%APPDATA%\Claude\claude_desktop_config.json`
 
 Add this configuration:
@@ -114,11 +118,13 @@ Add this configuration:
 If you prefer to install the package globally:
 
 #### Step 1: Install the Package
+
 ```bash
 npm install -g @greirson/mcp-todoist
 ```
 
 #### Step 2: Get Your Todoist API Token
+
 (Same as Option 1, Step 1)
 
 #### Step 3: Configure Claude Desktop
@@ -145,6 +151,7 @@ Close and reopen Claude Desktop to load the new MCP server.
 ### Step 5: Verify Installation
 
 In Claude Desktop, try asking:
+
 ```
 "Show me my Todoist projects"
 ```
@@ -211,6 +218,7 @@ Priority: 4 (Normal)
 ### Supported Operations
 
 All 32 MCP tools support dry-run mode:
+
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
 - Bulk operations across multiple tasks
@@ -225,16 +233,19 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 34 tools organized by entity type:
+The server provides 37 tools organized by entity type:
 
 ### Task Management
+
 - **Todoist Task Create**: Create new tasks with full attribute support
 - **Todoist Task Get**: Retrieve tasks by ID or combine priority, label, natural-language filters, and strict `due_before`/`due_after` windows with timezone-aware due details
 - **Todoist Task Update**: Update existing tasks (found by ID or partial name search)
 - **Todoist Task Complete**: Mark tasks as complete (found by ID or partial name search)
 - **Todoist Task Delete**: Remove tasks (found by ID or partial name search)
+- **Todoist Completed Tasks Get**: Retrieve completed tasks with date range filtering and pagination
 
 ### Subtask Management
+
 - **Todoist Subtask Create**: Create subtasks under parent tasks with full attribute support
 - **Todoist Subtasks Bulk Create**: Create multiple subtasks under a parent task efficiently
 - **Todoist Task Convert to Subtask**: Convert existing tasks to subtasks of another task
@@ -242,16 +253,19 @@ The server provides 34 tools organized by entity type:
 - **Todoist Task Hierarchy Get**: View task hierarchies with subtasks and completion tracking
 
 ### Bulk Task Operations
+
 - **Todoist Tasks Bulk Create**: Create multiple tasks at once for improved efficiency
 - **Todoist Tasks Bulk Update**: Update multiple tasks based on search criteria with the same strict `due_before`/`due_after` filtering used by single-task queries
 - **Todoist Tasks Bulk Delete**: Delete multiple tasks based on search criteria with timezone-aware due comparisons
 - **Todoist Tasks Bulk Complete**: Complete multiple tasks based on search criteria with timezone-aware due comparisons
 
 ### Comment Management
+
 - **Todoist Comment Create**: Add comments to tasks with optional file attachments
 - **Todoist Comment Get**: Retrieve comments for tasks or projects
 
 ### Label Management
+
 - **Todoist Label Get**: List all labels with their IDs and colors
 - **Todoist Label Create**: Create new labels with optional color and ordering
 - **Todoist Label Update**: Update existing labels (name, color, order, favorite status)
@@ -259,22 +273,26 @@ The server provides 34 tools organized by entity type:
 - **Todoist Label Stats**: Get detailed usage statistics for all labels
 
 ### Project Management
+
 - **Todoist Project Create**: Create new projects with optional color and favorite status
 - **Todoist Project Get**: List all projects with their IDs and names
 
 ### Section Management
+
 - **Todoist Section Create**: Create sections within projects with optional ordering
 - **Todoist Section Get**: List sections within projects
 - **Todoist Section Update**: Update section names (by ID or partial name search)
 - **Todoist Section Delete**: Delete sections and all contained tasks (by ID or partial name search)
 
 ### Reminder Management (Requires Pro/Business)
+
 - **Todoist Reminder Get**: List all reminders, optionally filtered by task
 - **Todoist Reminder Create**: Create reminders (relative, absolute, or location-based)
 - **Todoist Reminder Update**: Update existing reminder settings
 - **Todoist Reminder Delete**: Remove reminders from tasks
 
 ### Testing & Validation
+
 - **Todoist Test Connection**: Validate API token and test connectivity
 - **Todoist Test All Features**: Two modes - basic (read-only API tests) and enhanced (full CRUD testing with cleanup)
 - **Todoist Test Performance**: Benchmark API response times with configurable iterations
@@ -284,23 +302,27 @@ The server provides 34 tools organized by entity type:
 ### Common Issues
 
 **"No Todoist projects found" or connection errors:**
+
 - Verify your API token is correct
 - Check that the token is properly set in your claude_desktop_config.json
 - Ensure there are no extra spaces or quotes around your token
 
 **MCP server not loading:**
+
 - Confirm the package is installed globally: `npm list -g @greirson/mcp-todoist`
 - Restart Claude Desktop completely
 - Check the configuration file path is correct for your operating system
 - Try the full path to the `mcp-todoist` binary: `/Users/USERNAME/.npm-global/bin/mcp-todoist`
 
 **Permission errors:**
+
 - On macOS/Linux, you may need to create the config directory: `mkdir -p ~/.config`
 - Ensure Claude Desktop has permission to read the config file
 
 ## Usage Examples
 
 ### Project & Section Setup
+
 ```
 "Show me all my projects"
 "Create a new project called 'Work Tasks'"
@@ -309,6 +331,7 @@ The server provides 34 tools organized by entity type:
 ```
 
 ### Task Creation & Management
+
 ```
 "Create task 'Team Meeting' in project 12345"
 "Add task 'Review PR' due tomorrow with labels ['Code Review', 'Urgent']"
@@ -324,6 +347,7 @@ The server provides 34 tools organized by entity type:
 ```
 
 ### Subtask Management
+
 ```
 "Create subtask 'Prepare agenda' under task 'Team Meeting'"
 "Create multiple subtasks for 'Launch Project': 'Design UI', 'Write tests', 'Deploy'"
@@ -333,6 +357,7 @@ The server provides 34 tools organized by entity type:
 ```
 
 ### Bulk Operations
+
 ```
 "Create multiple tasks for project launch: 'Design mockups', 'Write documentation', 'Set up CI/CD'"
 "Update all high priority tasks to be due next week"
@@ -341,6 +366,7 @@ The server provides 34 tools organized by entity type:
 ```
 
 ### Comment Management
+
 ```
 "Add comment 'This needs urgent attention' to task 'Review PR'"
 "Add comment with attachment to task 67890"
@@ -349,6 +375,7 @@ The server provides 34 tools organized by entity type:
 ```
 
 ### Label Management
+
 ```
 "Show me all my labels"
 "Create a new label called 'Urgent' with red color"
@@ -358,6 +385,7 @@ The server provides 34 tools organized by entity type:
 ```
 
 ### Reminder Management (Pro/Business)
+
 ```
 "Show me all my reminders"
 "Get reminders for task 'Team Meeting'"
@@ -368,6 +396,7 @@ The server provides 34 tools organized by entity type:
 ```
 
 ### Task Discovery
+
 ```
 "Show all my tasks"
 "List high priority tasks due this week"
@@ -375,6 +404,7 @@ The server provides 34 tools organized by entity type:
 ```
 
 ### Testing & Validation
+
 ```
 "Test my Todoist connection"
 "Run basic tests on all Todoist features" // Default: read-only API tests
@@ -384,18 +414,22 @@ The server provides 34 tools organized by entity type:
 ```
 
 ### Dry-Run Testing
+
 When dry-run mode is enabled (DRYRUN=true), use normal commands - they'll automatically be simulated:
+
 ```
 "Create a test task with priority 1"
 "Update all overdue tasks to be due tomorrow"
 "Delete all completed tasks in project 12345"
 "Create 5 subtasks under task 'Project Planning'"
 ```
+
 All these operations will validate against your real data but won't make any changes.
 
 ## Getting Started Workflow
 
 ### 1. First Steps
+
 ```
 "Test my Todoist connection"
 "Show me all my Todoist projects"
@@ -403,6 +437,7 @@ All these operations will validate against your real data but won't make any cha
 ```
 
 ### 2. Basic Task Management
+
 ```
 "Create a task 'Try out MCP integration' in my Inbox"
 "Add a high priority task 'Review project setup' due tomorrow"
@@ -410,6 +445,7 @@ All these operations will validate against your real data but won't make any cha
 ```
 
 ### 3. Advanced Organization
+
 ```
 "Create a section called 'In Progress' in my work project"
 "Move the setup task to the In Progress section"
@@ -417,6 +453,7 @@ All these operations will validate against your real data but won't make any cha
 ```
 
 ### 4. Bulk Operations
+
 ```
 "Create multiple tasks: 'Plan meeting agenda', 'Prepare slides', 'Send invites'"
 "Complete all tasks containing 'test' in the Claude project"
@@ -435,6 +472,7 @@ All these operations will validate against your real data but won't make any cha
 ## Development
 
 ### Building from source
+
 ```bash
 # Clone the repository
 git clone https://github.com/greirson/mcp-todoist.git
@@ -450,6 +488,7 @@ npm run build
 ```
 
 ### Development Commands
+
 ```bash
 # Watch for changes and rebuild
 npm run watch
@@ -481,6 +520,7 @@ npm run format:check
 The codebase follows a clean, modular architecture designed for maintainability and scalability:
 
 #### Core Structure
+
 - **`src/index.ts`**: Main server entry point with request routing
 - **`src/types.ts`**: TypeScript type definitions and interfaces
 - **`src/type-guards.ts`**: Runtime type validation functions
@@ -489,6 +529,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
 - **`src/cache.ts`**: In-memory caching for performance optimization
 
 #### Modular Tool Organization
+
 - **`src/tools/`**: Domain-specific MCP tool definitions organized by functionality:
   - `task-tools.ts` - Task management (9 tools)
   - `subtask-tools.ts` - Subtask operations (5 tools)
@@ -500,6 +541,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
   - `index.ts` - Centralized exports
 
 #### Business Logic Handlers
+
 - **`src/handlers/`**: Domain-separated business logic modules:
   - `task-handlers.ts` - Task CRUD and bulk operations
   - `subtask-handlers.ts` - Hierarchical task management
@@ -511,6 +553,7 @@ The codebase follows a clean, modular architecture designed for maintainability 
   - `test-handlers-enhanced/` - Comprehensive CRUD testing framework
 
 #### Utility Modules
+
 - **`src/utils/`**: Shared utility functions:
   - `api-helpers.ts` - API response handling utilities
   - `error-handling.ts` - Centralized error management
@@ -524,10 +567,13 @@ See [CHANGELOG.md](CHANGELOG.md) for a detailed history of all changes.
 For migration guides and breaking changes, see the full changelog.
 
 ## Contributing
+
 Contributions are welcome! Feel free to submit a Pull Request.
 
 ## License
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Issues and Support
+
 If you encounter any issues or need support, please file an issue on the [GitHub repository](https://github.com/greirson/mcp-todoist/issues).
