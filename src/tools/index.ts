@@ -7,6 +7,7 @@ import { REMINDER_TOOLS } from "./reminder-tools.js";
 import { FILTER_TOOLS } from "./filter-tools.js";
 import { DUPLICATE_TOOLS } from "./duplicate-tools.js";
 import { ACTIVITY_TOOLS } from "./activity-tools.js";
+import { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
 export { TASK_TOOLS } from "./task-tools.js";
@@ -18,6 +19,7 @@ export { REMINDER_TOOLS } from "./reminder-tools.js";
 export { FILTER_TOOLS } from "./filter-tools.js";
 export { DUPLICATE_TOOLS } from "./duplicate-tools.js";
 export { ACTIVITY_TOOLS } from "./activity-tools.js";
+export { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -99,6 +101,14 @@ export {
   GET_ACTIVITY_BY_DATE_RANGE_TOOL,
 } from "./activity-tools.js";
 
+export {
+  MOVE_TASK_TOOL,
+  REORDER_TASK_TOOL,
+  BULK_REORDER_TASKS_TOOL,
+  CLOSE_TASK_TOOL,
+  UPDATE_DAY_ORDER_TOOL,
+} from "./item-operations-tools.js";
+
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
   ...PROJECT_TOOLS,
@@ -109,5 +119,6 @@ export const ALL_TOOLS = [
   ...REMINDER_TOOLS,
   ...DUPLICATE_TOOLS,
   ...ACTIVITY_TOOLS,
+  ...ITEM_OPERATIONS_TOOLS,
   ...TEST_TOOLS,
 ];
