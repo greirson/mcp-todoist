@@ -7,9 +7,15 @@ import {
   BulkCreateTasksArgs,
   BulkUpdateTasksArgs,
   BulkTaskFilterArgs,
+  GetCompletedTasksArgs,
+  CompletedTasksResponse,
 } from "../types.js";
 import { CacheManager } from "../cache.js";
-import { ValidationError } from "../errors.js";
+import {
+  ValidationError,
+  AuthenticationError,
+  TodoistAPIError,
+} from "../errors.js";
 // Removed unused imports - now using ErrorHandler utility
 import { extractTaskIdentifiers } from "../utils/parameter-transformer.js";
 import {
@@ -17,18 +23,22 @@ import {
   validateDescription,
   validatePriority,
   validateDateString,
+  validateIsoDatetime,
   validateLabels,
   validateProjectId,
   validateSectionId,
   validateLimit,
+  validateOffset,
   validateTaskIdentifier,
   validateBulkSearchCriteria,
+  VALIDATION_LIMITS,
 } from "../validation.js";
 import {
   resolveProjectIdentifier,
   extractArrayFromResponse,
   createCacheKey,
   formatTaskForDisplay,
+  extractApiToken,
 } from "../utils/api-helpers.js";
 import { formatDueDetails, getDueDateOnly } from "../utils/datetime-utils.js";
 import { toApiPriority, fromApiPriority } from "../utils/priority-mapper.js";
@@ -910,4 +920,123 @@ export async function handleBulkCompleteTasks(
   } catch (error) {
     ErrorHandler.handleAPIError("bulk complete tasks", error);
   }
+}
+
+/**
+ * Fetches completed tasks from the Todoist Sync API.
+ *
+ * Implementation Notes:
+ * - The REST API v2 doesn't support fetching completed tasks, so we use the Sync API directly.
+ * - We extract the API token from the TodoistApi client to make direct HTTP requests.
+ *   This relies on internal implementation details of the library and may need updates
+ *   if the library structure changes.
+ * - Caching is not used because completed tasks are read-only and change infrequently.
+ *   Each call fetches fresh data from the API.
+ * - Dry-run mode is supported: when DRYRUN=true, returns a simulated response
+ *   without making actual API calls.
+ *
+ * @param todoistClient - The TodoistApi client instance (token is extracted from it)
+ * @param args - Query parameters including project_id, since, until, limit, offset
+ * @returns Formatted string with completed task details
+ */
+export async function handleGetCompletedTasks(
+  todoistClient: TodoistApi,
+  args: GetCompletedTasksArgs
+): Promise<string> {
+  return ErrorHandler.wrapAsync("get completed tasks", async () => {
+    // Validate inputs (Sync API supports higher limit than REST API)
+    validateLimit(args.limit, VALIDATION_LIMITS.SYNC_API_LIMIT_MAX);
+    validateOffset(args.offset);
+    validateIsoDatetime(args.since, "since");
+    validateIsoDatetime(args.until, "until");
+    validateProjectId(args.project_id);
+
+    // Check dry-run mode - return early without making actual API call
+    if (process.env.DRYRUN === "true") {
+      console.error("[DRY-RUN] Would fetch completed tasks from Sync API");
+      console.error(
+        `[DRY-RUN] Parameters: project_id=${args.project_id || "all"}, since=${args.since || "none"}, until=${args.until || "none"}, limit=${args.limit || 30}, offset=${args.offset || 0}`
+      );
+      return "DRY-RUN: Would retrieve completed tasks from Todoist Sync API. No actual API call made.";
+    }
+
+    // Extract API token from TodoistApi client (needed for Sync API calls)
+    const apiToken = extractApiToken(todoistClient);
+
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (args.project_id) {
+      params.append("project_id", args.project_id);
+    }
+    if (args.since) {
+      params.append("since", args.since);
+    }
+    if (args.until) {
+      params.append("until", args.until);
+    }
+    if (args.limit !== undefined) {
+      params.append("limit", args.limit.toString());
+    }
+    if (args.offset !== undefined) {
+      params.append("offset", args.offset.toString());
+    }
+    if (args.annotate_notes !== undefined) {
+      params.append("annotate_notes", args.annotate_notes.toString());
+    }
+
+    const queryString = params.toString();
+    const url = `https://api.todoist.com/sync/v9/completed/get_all${queryString ? `?${queryString}` : ""}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      if (response.status === 401) {
+        throw new AuthenticationError();
+      } else if (response.status === 403) {
+        throw new TodoistAPIError(
+          "Access denied. Completed tasks may require Todoist Premium."
+        );
+      }
+      throw new TodoistAPIError(
+        `Sync API error (${response.status}): ${errorText}`
+      );
+    }
+
+    const data: CompletedTasksResponse = await response.json();
+
+    if (!data.items || data.items.length === 0) {
+      return "No completed tasks found matching the criteria.";
+    }
+
+    // Format the response
+    const taskCount = data.items.length;
+    const taskWord = taskCount === 1 ? "task" : "tasks";
+
+    let result = `${taskCount} completed ${taskWord} found:\n\n`;
+
+    for (const item of data.items) {
+      // Get project name if available
+      const projectName =
+        data.projects[item.project_id]?.name || "Unknown Project";
+
+      // Format completion date
+      const completedDate = item.completed_at.split("T")[0];
+
+      result += `- ${item.content}\n`;
+      result += `  Completed: ${completedDate}\n`;
+      result += `  Project: ${projectName}\n`;
+      if (item.note_count > 0) {
+        result += `  Notes: ${item.note_count}\n`;
+      }
+      result += "\n";
+    }
+
+    return result.trim();
+  });
 }

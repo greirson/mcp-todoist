@@ -27,6 +27,7 @@ export {
   BULK_UPDATE_TASKS_TOOL,
   BULK_DELETE_TASKS_TOOL,
   BULK_COMPLETE_TASKS_TOOL,
+  GET_COMPLETED_TASKS_TOOL,
 } from "./task-tools.js";
 
 export {

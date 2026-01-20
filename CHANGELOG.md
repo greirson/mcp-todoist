@@ -5,9 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-01-19
+
+### Added
+
+- **Completed Tasks Retrieval**: New `todoist_completed_tasks_get` tool for fetching completed tasks via Todoist Sync API
+  - Filter by project ID
+  - Filter by date range using ISO 8601 datetime format (`since`/`until` parameters)
+  - Pagination support with `limit` (max 200) and `offset` parameters
+  - Optional notes/comments annotation with `annotate_notes` parameter
+  - Returns task content, completion date, project name, and note count
+
+### Fixed
+
+- **ISO 8601 Datetime Validation**: Fixed `validateIsoDatetime` to accept timezone suffixes
+  - Now supports `Z` suffix (e.g., `2024-01-01T00:00:00Z`)
+  - Now supports timezone offsets (e.g., `2024-01-01T00:00:00+00:00`, `2024-01-01T00:00:00-05:00`)
+  - Now supports milliseconds (e.g., `2024-01-01T00:00:00.123Z`)
+
+### Technical Implementation
+
+- **Sync API Integration**: Uses Todoist Sync API v9 endpoint `/sync/v9/completed/get_all`
+- **Type Definitions**: Added `GetCompletedTasksArgs`, `CompletedTask`, `CompletedTasksResponse` interfaces
+- **Type Guards**: Added `isGetCompletedTasksArgs` validation function
+- **Dry-Run Support**: Completed tasks retrieval supports dry-run mode for safe testing
+- **Export**: Added `GET_COMPLETED_TASKS_TOOL` to tool exports for backwards compatibility
+
+### Changed
+
+- Total MCP tools increased from 36 to 37
+
 ## [0.10.0] - 2026-01-16
 
 ### Added
+
 - **Phase 10: Reminder Management** - Full CRUD operations for task reminders via Todoist Sync API
   - `todoist_reminder_get`: List all reminders, optionally filtered by task ID or name
   - `todoist_reminder_create`: Create reminders with three types supported:
@@ -19,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Note: Reminders require Todoist Pro or Business plan
 
 ### Technical Implementation
+
 - **Sync API Integration**: Uses Todoist Sync API v9 directly since REST API does not support reminders
 - **New Files**:
   - `src/tools/reminder-tools.ts` - MCP tool definitions for 4 reminder operations
@@ -31,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Error Handling**: Graceful handling of premium tier restrictions with informative messages
 
 ### Changed
+
 - Total MCP tools increased from 32 to 36
 - Updated all documentation to reflect new tool count
 - Enhanced test framework to include reminder operations in comprehensive testing
@@ -38,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.9.1] - 2026-01-16
 
 ### Added
+
 - **Phase 8: Full Comment Management**: Complete CRUD operations for comments
   - `todoist_comment_update` - Update existing comment content by ID
   - `todoist_comment_delete` - Delete comments by ID
@@ -47,12 +81,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Tool Count**: Increased from 30 to 32 total MCP tools
 
 ### Changed
+
 - **Comment Tool Descriptions**: Updated to reflect support for both task and project comments
 - **Type System**: Added `UpdateCommentArgs` and `DeleteCommentArgs` interfaces
 - **Type Guards**: Added `isUpdateCommentArgs()` and `isDeleteCommentArgs()` validation functions
 - **Test Infrastructure**: Enhanced test suite now includes comment management operations (6 suites, 29+ tests)
 
 ### Technical Implementation
+
 - **Handler Functions**: Added `handleUpdateComment()` and `handleDeleteComment()` in `comment-handlers.ts`
 - **Dry-Run Support**: Comment update and delete operations already supported by existing DryRunWrapper
 - **Cache Integration**: Comment operations properly invalidate cache on mutations
@@ -60,6 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.9.0] - 2026-01-15
 
 ### Added
+
 - **Full Section Management (Phase 7)**: Complete CRUD operations for sections
   - **todoist_section_update**: Update section names with support for both ID and name-based lookup
   - **todoist_section_delete**: Delete sections (and all contained tasks) by ID or name search
@@ -74,6 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Section deletion with cleanup
 
 ### Changed
+
 - Total MCP tools increased from 28 to 30
 - Enhanced testing infrastructure: 5 test suites (Task, Subtask, Label, Section, Bulk Operations) with 23+ tests
 - **Dependency Updates**: Updated all dependencies to latest versions
@@ -94,6 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.9] - 2025-11-25
 
 ### Fixed
+
 - **Claude Code Compatibility (Issues #47, #48)**: Fixed critical bug where MCP server was completely unusable with Claude Code
   - Claude Code's API rejects tool schemas using `oneOf`, `allOf`, or `anyOf` at the top level
   - Removed 9 instances of `anyOf` from tool schemas across 3 files:
@@ -107,29 +146,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.8] - 2025-01-24
 
 ### Fixed
+
 - **Hierarchy Parent Display (Issue #37)**: Fixed missing parent task information in `todoist_task_hierarchy_get`
 - **Label Filter Fix (Issue #35)**: Fixed label filtering inconsistency in `todoist_task_get` tool
 
 ### Added
+
 - **Dry-Run Mode**: Complete simulation framework for safe testing and validation
 
 ### Security
+
 - **Critical Fix**: Fixed vulnerability in bulk operations where empty `content_contains` string matched ALL tasks instead of none (Issue #34)
 
 ## [0.8.7] - 2025-01-21
 
 ### Added
+
 - **Task Name Search**: New `task_name` parameter for `todoist_task_get` tool enables partial text search in task content (case-insensitive)
 - **Enhanced Error Messages**: Filter parameter now returns helpful error messages for invalid Todoist filter syntax
 
 ## [0.8.6] - 2025-09-19
 
 ### Added
+
 - `todoist_task_get` now supports `due_before` and `due_after` parameters for strict date window filtering
 
 ## [0.8.5] - 2025-09-17
 
 ### Added
+
 - **Enhanced Task Filtering**: Comprehensive due date filtering capabilities for bulk operations
 - **Priority Mapping System**: Intelligent priority conversion between user-facing and API formats
 - **Comprehensive Testing Infrastructure**: Extensive test coverage for new filtering and priority features
@@ -137,16 +182,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.4] - 2025-08-14
 
 ### Fixed
+
 - **Parameter Format Compatibility**: Resolved systematic mismatch between MCP protocol (snake_case) and Todoist SDK (camelCase)
 
 ## [0.8.3] - 2024-12-27
 
 ### Changed
+
 - **Project Name Support in Bulk Updates**: The `todoist_tasks_bulk_update` tool now supports project names in addition to project IDs
 
 ## [0.8.2] - 2024-12-07
 
 ### Added
+
 - **Task ID Display**: All operations now include task IDs in their output for improved usability (fixes #13)
 - **Task ID Support**: All task operations now support querying by task ID in addition to task name
 - **Enhanced Filtering**: `todoist_task_get` now supports `priority` and `limit` parameters for better task filtering
@@ -154,61 +202,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.8.1] - 2024-12-07
 
 ### Changed
+
 - **Major Architectural Refactoring**: Significantly improved codebase maintainability and organization
 
 ## [0.8.0] - 2024-12-07
 
 ### Added
+
 - **Phase 3: Subtask Management System**: Complete hierarchical task management with parent-child relationships
 - **Enhanced Testing Infrastructure**: Comprehensive CRUD testing with automatic cleanup
 
 ## [0.7.0] - 2024-12-06
 
 ### Added
+
 - **Code Quality Improvement Phase**: Major architectural enhancements and security improvements
 - **Label Management System**: Complete CRUD operations for Todoist labels (Phase 2 completion)
 
 ## [0.6.0] - 2024-12-06
 
 ### Added
+
 - **Testing Infrastructure**: Comprehensive testing system with 3 new MCP tools
 - **Integration Test Suite**: Full API integration testing
 
 ## [0.5.3] - 2024-11-XX
 
 ### Fixed
+
 - **Dependency Updates**: Updated linting and TypeScript dependencies via Dependabot
 - **CI/CD**: Improved automated testing and release pipeline
 
 ## [0.5.1] - 2024-11-XX
 
 ### Fixed
+
 - **Deadline Parameter**: Changed `deadline` to `deadline_date` parameter (YYYY-MM-DD format)
 
 ## [0.5.0] - 2024-11-XX
 
 ### Added
+
 - **Bulk Operations**: 4 new bulk tools for efficient multi-task operations
 - **Comment System**: Full comment support with file attachments
 
 ## [0.4.0] - 2024-10-XX
 
 ### Added
+
 - **Modular Architecture**: Refactored monolithic code into focused modules
 - **Performance Optimization**: 30-second caching for GET operations
 
 ## [0.3.0] - 2024-10-XX
 
 ### Added
+
 - **Complete Project Management**: Project and section creation tools
 
 ## [0.2.0] - 2024-09-XX
 
 ### Added
+
 - **Enhanced Task Creation**: Support for labels and deadline parameters
 
 ## [0.1.0] - 2024-09-XX
 
 ### Added
+
 - **Initial Release**: Basic Todoist MCP server functionality
 - **Core Task Management**: Create, read, update, delete, and complete tasks

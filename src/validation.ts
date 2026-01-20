@@ -13,6 +13,7 @@ export const VALIDATION_LIMITS = {
   COMMENT_MAX: 10000,
   LABELS_MAX_COUNT: 10,
   QUERY_LIMIT_MAX: 100,
+  SYNC_API_LIMIT_MAX: 200, // Sync API supports higher limit than REST API
   URL_MAX: 2048,
   PRIORITY_MIN: 1,
   PRIORITY_MAX: 4,
@@ -259,6 +260,50 @@ export function validateDateString(
   }
 }
 
+/**
+ * Validates ISO 8601 datetime strings for Sync API parameters.
+ * Accepts both date-only (YYYY-MM-DD) and datetime formats with optional timezone:
+ * - YYYY-MM-DD
+ * - YYYY-MM-DDTHH:MM:SS
+ * - YYYY-MM-DDTHH:MM:SSZ
+ * - YYYY-MM-DDTHH:MM:SS+00:00
+ * - YYYY-MM-DDTHH:MM:SS.sssZ (milliseconds)
+ *
+ * @param datetime - The datetime string to validate
+ * @param fieldName - Field name for error messages (default: "datetime")
+ */
+export function validateIsoDatetime(
+  datetime?: string,
+  fieldName = "datetime"
+): void {
+  if (datetime !== undefined) {
+    if (typeof datetime !== "string") {
+      throw new ValidationError(`${fieldName} must be a string`, fieldName);
+    }
+
+    // ISO 8601 format with optional timezone:
+    // - YYYY-MM-DD (date only)
+    // - YYYY-MM-DDTHH:MM:SS (datetime, seconds optional)
+    // - YYYY-MM-DDTHH:MM:SS.sss (with milliseconds)
+    // - YYYY-MM-DDTHH:MM:SSZ (UTC timezone)
+    // - YYYY-MM-DDTHH:MM:SS+HH:MM or -HH:MM (timezone offset)
+    const isoRegex =
+      /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d{1,3})?(Z|[+-]\d{2}:\d{2})?)?$/;
+    if (!isoRegex.test(datetime)) {
+      throw new ValidationError(
+        `${fieldName} must be in ISO 8601 format (e.g., YYYY-MM-DD, YYYY-MM-DDTHH:MM:SS, or with timezone like 2024-01-01T00:00:00Z)`,
+        fieldName
+      );
+    }
+
+    // Also validate that it's a valid date
+    const date = new Date(datetime);
+    if (isNaN(date.getTime())) {
+      throw new ValidationError(`${fieldName} is not a valid date`, fieldName);
+    }
+  }
+}
+
 export function validateLabels(labels?: string[]): void {
   if (labels !== undefined) {
     if (!Array.isArray(labels)) {
@@ -336,12 +381,23 @@ export function validateSectionName(name: string): string {
   });
 }
 
-export function validateLimit(limit?: number): void {
+export function validateLimit(limit?: number, max: number = 100): void {
   if (limit !== undefined) {
-    if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    if (!Number.isInteger(limit) || limit < 1 || limit > max) {
       throw new ValidationError(
-        "Limit must be an integer between 1 and 100",
+        `Limit must be an integer between 1 and ${max}`,
         "limit"
+      );
+    }
+  }
+}
+
+export function validateOffset(offset?: number): void {
+  if (offset !== undefined) {
+    if (!Number.isInteger(offset) || offset < 0) {
+      throw new ValidationError(
+        "Offset must be a non-negative integer",
+        "offset"
       );
     }
   }

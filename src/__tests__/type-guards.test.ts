@@ -5,6 +5,7 @@ import {
   isTaskNameArgs,
   isCreateProjectArgs,
   isCreateSectionArgs,
+  isGetCompletedTasksArgs,
 } from "../type-guards";
 
 describe("Type Guards", () => {
@@ -114,6 +115,46 @@ describe("Type Guards", () => {
       expect(isCreateSectionArgs({ project_id: "123" })).toBe(false);
       expect(isCreateSectionArgs({})).toBe(false);
       expect(isCreateSectionArgs(null)).toBe(false);
+    });
+  });
+
+  describe("isGetCompletedTasksArgs", () => {
+    it("should accept valid empty args", () => {
+      expect(isGetCompletedTasksArgs({})).toBe(true);
+    });
+
+    it("should accept valid args with all fields", () => {
+      expect(
+        isGetCompletedTasksArgs({
+          project_id: "123",
+          since: "2024-01-01T00:00:00",
+          until: "2024-01-31T23:59:59",
+          limit: 50,
+          offset: 10,
+          annotate_notes: true,
+        })
+      ).toBe(true);
+    });
+
+    it("should accept valid args with partial fields", () => {
+      expect(isGetCompletedTasksArgs({ limit: 100 })).toBe(true);
+      expect(isGetCompletedTasksArgs({ since: "2024-01-01T00:00:00" })).toBe(
+        true
+      );
+      expect(isGetCompletedTasksArgs({ project_id: "123" })).toBe(true);
+    });
+
+    it("should reject invalid types", () => {
+      expect(isGetCompletedTasksArgs({ limit: "50" })).toBe(false);
+      expect(isGetCompletedTasksArgs({ project_id: 123 })).toBe(false);
+      expect(isGetCompletedTasksArgs({ annotate_notes: "true" })).toBe(false);
+    });
+
+    it("should reject null and non-objects", () => {
+      expect(isGetCompletedTasksArgs(null)).toBe(false);
+      expect(isGetCompletedTasksArgs(undefined)).toBe(false);
+      expect(isGetCompletedTasksArgs("string")).toBe(false);
+      expect(isGetCompletedTasksArgs(123)).toBe(false);
     });
   });
 });

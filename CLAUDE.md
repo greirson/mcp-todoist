@@ -30,6 +30,7 @@ This is an MCP (Model Context Protocol) server that integrates Claude with the T
 The codebase follows a clean, domain-driven architecture with focused modules for improved maintainability:
 
 #### Core Infrastructure
+
 - **`src/index.ts`**: Main server entry point with request routing
 - **`src/types.ts`**: TypeScript type definitions and interfaces
 - **`src/type-guards.ts`**: Runtime type validation functions
@@ -38,6 +39,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 - **`src/cache.ts`**: Simple in-memory caching for API optimization
 
 #### Modular Tool Organization
+
 - **`src/tools/`**: Domain-specific MCP tool definitions (refactored from single 863-line file):
   - `task-tools.ts` - Task management tools (CREATE, READ, UPDATE, DELETE, COMPLETE + bulk operations)
   - `subtask-tools.ts` - Subtask management tools (hierarchical task operations)
@@ -49,6 +51,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `index.ts` - Centralized exports with backward compatibility
 
 #### Business Logic Handlers
+
 - **`src/handlers/`**: Domain-separated business logic:
   - `task-handlers.ts` - Task CRUD operations and bulk operations
   - `subtask-handlers.ts` - Hierarchical task management and parent-child relationships
@@ -59,6 +62,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `test-handlers.ts` - Testing infrastructure for API validation and performance monitoring
 
 #### Enhanced Testing Framework
+
 - **`src/handlers/test-handlers-enhanced/`**: Modular comprehensive testing (refactored from single 755-line file):
   - `types.ts` - Common test types and utilities
   - `task-tests.ts` - Task CRUD operation tests (5 tests)
@@ -69,6 +73,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `index.ts` - Test orchestrator and exports
 
 #### Utility Modules
+
 - **`src/utils/`**: Shared utility functions:
   - `api-helpers.ts` - API response handling and formatting utilities
   - `error-handling.ts` - Centralized error management with context tracking
@@ -76,16 +81,19 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 34 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 37 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
+
 - `todoist_task_create` - Creates new tasks with full attribute support
 - `todoist_task_get` - Retrieves and filters tasks (with caching)
 - `todoist_task_update` - Updates existing tasks found by name search
 - `todoist_task_delete` - Deletes tasks found by name search
 - `todoist_task_complete` - Marks tasks as complete found by name search
+- `todoist_completed_tasks_get` - Retrieves completed tasks via Sync API with date filtering and pagination
 
 **Subtask Management:**
+
 - `todoist_subtask_create` - Creates subtasks under parent tasks with full attribute support
 - `todoist_subtasks_bulk_create` - Creates multiple subtasks under a parent task efficiently
 - `todoist_task_convert_to_subtask` - Converts existing tasks to subtasks of another task
@@ -93,16 +101,19 @@ The server exposes 34 tools organized by entity type with standardized naming co
 - `todoist_task_hierarchy_get` - Retrieves task hierarchies with completion percentage tracking
 
 **Bulk Task Operations:**
+
 - `todoist_tasks_bulk_create` - Creates multiple tasks at once for improved efficiency
 - `todoist_tasks_bulk_update` - Updates multiple tasks based on search criteria
 - `todoist_tasks_bulk_delete` - Deletes multiple tasks based on search criteria
 - `todoist_tasks_bulk_complete` - Completes multiple tasks based on search criteria
 
 **Comment Management:**
+
 - `todoist_comment_create` - Adds comments to tasks with optional file attachments
 - `todoist_comment_get` - Retrieves comments for tasks or projects
 
 **Label Management:**
+
 - `todoist_label_get` - Lists all labels with IDs, names, and colors
 - `todoist_label_create` - Creates new labels with optional color, order, and favorite status
 - `todoist_label_update` - Updates existing labels by ID or name (supports all attributes)
@@ -110,22 +121,26 @@ The server exposes 34 tools organized by entity type with standardized naming co
 - `todoist_label_stats` - Provides detailed usage statistics and analytics
 
 **Project Management:**
+
 - `todoist_project_create` - Creates new projects with optional color and favorite status
 - `todoist_project_get` - Lists all projects with their IDs and names
 
 **Section Management:**
+
 - `todoist_section_create` - Creates sections within projects with optional ordering
 - `todoist_section_get` - Lists sections within projects
 - `todoist_section_update` - Updates section names by ID or name search
 - `todoist_section_delete` - Deletes sections and all contained tasks by ID or name search
 
 **Reminder Management (requires Todoist Pro/Business):**
+
 - `todoist_reminder_get` - Lists all reminders, optionally filtered by task
 - `todoist_reminder_create` - Creates reminders (relative, absolute, or location-based)
 - `todoist_reminder_update` - Updates existing reminders
 - `todoist_reminder_delete` - Deletes reminders
 
 **Testing Infrastructure:**
+
 - `todoist_test_connection` - Quick API token validation and connection test
 - `todoist_test_all_features` - Dual-mode testing: basic (read-only) and enhanced (full CRUD with cleanup)
 - `todoist_test_performance` - Performance benchmarking with configurable iterations
@@ -133,6 +148,7 @@ The server exposes 34 tools organized by entity type with standardized naming co
 ### Error Handling Strategy
 
 Structured error handling with custom error types:
+
 - `ValidationError` - Input validation failures
 - `TaskNotFoundError` - Task search failures
 - `LabelNotFoundError` - Label search failures
@@ -229,23 +245,27 @@ Complete simulation framework for safe testing and validation:
 The codebase includes comprehensive testing capabilities:
 
 **Unit Tests:**
+
 - Jest configured for ESM modules with ts-jest
 - Type guard unit tests in `src/__tests__/type-guards.test.ts`
 - Test imports use TypeScript extensions (not .js)
 
 **Integration Tests:**
+
 - `src/__tests__/integration.test.ts` - Full API integration testing
 - Requires `TODOIST_API_TOKEN` environment variable for execution
 - Tests skip gracefully when token is not available
 - Comprehensive testing of all MCP tools and API operations
 
 **Dry-Run Tests:**
+
 - `src/__tests__/dry-run-wrapper.test.ts` - Comprehensive dry-run mode validation
 - Tests all mutation operations (create, update, delete, complete) in simulation mode
 - Validates real data queries pass through unchanged
 - Tests error handling and validation in dry-run mode
 
 **Built-in Testing Tools:**
+
 - `todoist_test_connection` - Validates API token and connection
 - `todoist_test_all_features` - Dual-mode testing:
   - Basic mode: Read-only tests for tasks, projects, labels, sections, comments (default)
@@ -253,6 +273,7 @@ The codebase includes comprehensive testing capabilities:
 - `todoist_test_performance` - Benchmarks API response times with configurable iterations
 
 **Enhanced Testing Infrastructure:**
+
 - **Comprehensive CRUD Testing**: 18 tests across 4 suites (Task, Subtask, Label, Bulk Operations)
 - **Automatic Test Data Management**: Generates unique test data with timestamps
 - **Complete Cleanup**: Removes all test data after testing to prevent workspace pollution
@@ -260,6 +281,7 @@ The codebase includes comprehensive testing capabilities:
 - **Suite Organization**: Grouped tests by functionality for better debugging
 
 **Running Tests:**
+
 - `npm test` - Runs all tests (unit tests always, integration tests if token available)
 - `TODOIST_API_TOKEN=your-token npm test` - Runs with integration tests
 - `npm run test:watch` - Runs tests in watch mode
@@ -287,6 +309,7 @@ The codebase includes comprehensive testing capabilities:
 ### API Compatibility Handling
 
 Due to evolving Todoist API types, the codebase uses defensive programming patterns:
+
 - **Response Format Handling**: Uses `extractArrayFromResponse()` helper to handle multiple API response formats (direct arrays, `result.results`, `result.data`)
 - **Type Assertions**: Strategic type assertions for API compatibility while maintaining type safety
 - **Error Recovery**: Try-catch patterns for API signature changes
@@ -323,6 +346,7 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.md`:
 
 **Completed Phases:**
+
 - ✅ **Phase 1**: Testing Infrastructure (v0.6.0) - Comprehensive testing tools and integration tests
 - ✅ **Phase 2**: Label Management System (v0.7.0) - Full CRUD operations for labels with usage statistics and analytics
 - ✅ **Code Quality Improvement Phase (v0.7.0)**: Major architectural enhancements and security improvements
@@ -336,18 +360,18 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
 - ✅ **Phase 3**: Subtask Management (v0.8.0) - Hierarchical task management with parent-child relationships
   - ✅ **Subtask Handlers**: Created `src/handlers/subtask-handlers.ts` with full CRUD operations for hierarchical tasks
   - ✅ **Enhanced Testing**: Built `src/handlers/test-handlers-enhanced.ts` with comprehensive CRUD testing and automatic cleanup
-  - ✅ **New MCP Tools**: Added 5 subtask management tools 
+  - ✅ **New MCP Tools**: Added 5 subtask management tools
   - ✅ **Type System Enhancement**: Extended type definitions for subtask operations and hierarchy management
   - ✅ **API Compatibility**: Implemented workarounds for Todoist API limitations using delete & recreate patterns
 - ✅ **Dry-Run Mode Implementation**: Complete simulation framework for safe testing and validation
   - ✅ **DryRunWrapper Architecture**: Created `src/utils/dry-run-wrapper.ts` for operation simulation
   - ✅ **Environment Configuration**: Enabled via `DRYRUN=true` environment variable
 
-
   - ✅ **Comprehensive Tool Support**: All 34 MCP tools support dry-run mode with full validation
   - ✅ **Real Data Validation**: Uses actual API calls to validate while simulating mutations
   - ✅ **Factory Pattern Integration**: `createTodoistClient()` automatically handles dry-run wrapping
   - ✅ **Test Coverage**: Comprehensive test suite in `src/__tests__/dry-run-wrapper.test.ts`
+
 - Phase 10: Reminder Management (v0.9.0) - Full reminder CRUD via Sync API
   - Reminder Handlers: Created src/handlers/reminder-handlers.ts with Sync API integration
   - New MCP Tools: Added 4 reminder management tools (total: 36 tools)
@@ -362,6 +386,7 @@ The codebase includes a comprehensive development plan in `todoist-mcp-dev-prd.m
   - **New MCP Tools**: Added 2 section management tools (total: 36 tools)
 
 **Planned Future Phases:**
+
 - **Phase 4**: Duplicate Detection - Smart task deduplication using similarity algorithms
 - **Phase 5**: Project Analytics - Comprehensive project health metrics and insights
 
@@ -376,7 +401,9 @@ All future development should use the testing infrastructure to validate changes
 When making ANY changes to the codebase, you MUST update the following files:
 
 #### 1. CHANGELOG.md Updates
+
 **ALWAYS update CHANGELOG.md for every significant change:**
+
 - Add new entries following [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format
 - Use semantic versioning for version numbers
 - Categorize changes as: Added, Changed, Deprecated, Removed, Fixed, Security
@@ -385,7 +412,9 @@ When making ANY changes to the codebase, you MUST update the following files:
 - **Never skip this step** - releases reference "See CHANGELOG.md for full details"
 
 #### 2. README.md Updates
+
 **Update README.md when:**
+
 - Adding new MCP tools (update tool count and add to Tools Overview section)
 - Adding new features (update Features section and Usage Examples)
 - Changing installation or setup procedures
@@ -393,7 +422,9 @@ When making ANY changes to the codebase, you MUST update the following files:
 - Modifying architecture or key components
 
 #### 3. CLAUDE.md Updates
+
 **Update CLAUDE.md when:**
+
 - Adding new handlers, modules, or architectural components
 - Changing build commands, testing procedures, or development workflow
 - Adding new important notes, patterns, or best practices
@@ -428,12 +459,12 @@ For every commit that adds features or changes functionality:
 
 **Remember: Documentation is not optional - it's a required part of every change.**
 
-
 ## AI Team Configuration (autogenerated by team-configurator, 2025-01-21)
 
 **Important: YOU MUST USE subagents when available for the task.**
 
 ### Detected Technology Stack
+
 - **Runtime**: Node.js with TypeScript (ES2020/ES2022 modules)
 - **Core Framework**: Model Context Protocol (MCP) Server using @modelcontextprotocol/sdk v1.17.1
 - **API Integration**: Todoist API via @doist/todoist-api-typescript v5.1.1
@@ -446,70 +477,78 @@ For every commit that adds features or changes functionality:
 
 ### AI Team Agent Assignments
 
-| Task | Agent | Notes |
-|------|-------|-------|
-| **MCP Protocol & API Integration** | `api-architect` | Design MCP tool contracts, Todoist API integration patterns |
-| **TypeScript Backend Development** | `backend-developer` | Core server logic, handlers, business logic implementation |
-| **Code Quality & Security Reviews** | `code-reviewer` | Mandatory for all PRs, security-aware reviews of API integrations |
-| **Performance & Caching Optimization** | `performance-optimizer` | API response optimization, caching strategies, bulk operations |
-| **Documentation Updates** | `documentation-specialist` | README, API docs, architecture guides, changelog maintenance |
-| **Legacy Code Analysis** | `code-archaeologist` | Codebase exploration for refactoring, onboarding, risk assessment |
-| **Complex Multi-Step Features** | `tech-lead-orchestrator` | Coordinate multiple agents for large features or architectural changes |
+| Task                                   | Agent                      | Notes                                                                  |
+| -------------------------------------- | -------------------------- | ---------------------------------------------------------------------- |
+| **MCP Protocol & API Integration**     | `api-architect`            | Design MCP tool contracts, Todoist API integration patterns            |
+| **TypeScript Backend Development**     | `backend-developer`        | Core server logic, handlers, business logic implementation             |
+| **Code Quality & Security Reviews**    | `code-reviewer`            | Mandatory for all PRs, security-aware reviews of API integrations      |
+| **Performance & Caching Optimization** | `performance-optimizer`    | API response optimization, caching strategies, bulk operations         |
+| **Documentation Updates**              | `documentation-specialist` | README, API docs, architecture guides, changelog maintenance           |
+| **Legacy Code Analysis**               | `code-archaeologist`       | Codebase exploration for refactoring, onboarding, risk assessment      |
+| **Complex Multi-Step Features**        | `tech-lead-orchestrator`   | Coordinate multiple agents for large features or architectural changes |
 
 ### Routing Rules
 
 **Use `@api-architect` when:**
+
 - Designing new MCP tool interfaces or modifying existing tool contracts
 - Planning Todoist API integration patterns or authentication flows
 - Creating OpenAPI specs for the MCP server capabilities
 - Standardizing error responses or validation patterns
 
 **Use `@backend-developer` when:**
+
 - Implementing new MCP tools or handlers
 - Adding business logic for task, project, or label operations
 - Building caching mechanisms or performance optimizations
 - Creating utility functions or type definitions
 
 **Use `@code-reviewer` when:**
+
 - Reviewing any code changes before merging (mandatory)
 - Security review of API token handling or input validation
 - Quality assessment of TypeScript type safety
 - Performance review of bulk operations or caching
 
 **Use `@performance-optimizer` when:**
+
 - Optimizing API response times or reducing Todoist API calls
 - Implementing or tuning caching strategies (30-second TTL)
 - Analyzing bulk operation efficiency
 - Profiling memory usage or improving algorithmic complexity
 
 **Use `@documentation-specialist` when:**
+
 - Updating README.md with new features or tool counts
 - Creating or updating API documentation
 - Maintaining CHANGELOG.md for releases
 - Writing architecture documentation or onboarding guides
 
 **Use `@code-archaeologist` when:**
+
 - Exploring unfamiliar parts of the codebase
 - Planning major refactoring or architectural changes
 - Analyzing code quality metrics or technical debt
 - Understanding complex business logic flows
 
 **Use `@tech-lead-orchestrator` when:**
+
 - Planning multi-phase features like duplicate detection or analytics
 - Coordinating work across multiple domains (tasks, projects, labels)
 - Making architectural decisions affecting multiple modules
 - Breaking down complex requirements into agent assignments
 
 ### Sample Commands
+
 - **API Design**: `@api-architect design a new MCP tool for task scheduling`
 - **Feature Implementation**: `@backend-developer add batch task completion with rollback`
 - **Quality Assurance**: `@code-reviewer review the new subtask hierarchy implementation`
 - **Performance Tuning**: `@performance-optimizer optimize the task search and filtering logic`
 - **Documentation**: `@documentation-specialist update docs for the new bulk operations tools`
 
-
 # important-instruction-reminders
+
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
