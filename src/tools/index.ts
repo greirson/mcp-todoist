@@ -9,6 +9,7 @@ import { DUPLICATE_TOOLS } from "./duplicate-tools.js";
 import { ACTIVITY_TOOLS } from "./activity-tools.js";
 import { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
 import { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
+import { PROJECT_OPERATIONS_TOOLS } from "./project-operations-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
 export { TASK_TOOLS } from "./task-tools.js";
@@ -22,6 +23,7 @@ export { DUPLICATE_TOOLS } from "./duplicate-tools.js";
 export { ACTIVITY_TOOLS } from "./activity-tools.js";
 export { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
 export { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
+export { PROJECT_OPERATIONS_TOOLS } from "./project-operations-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -118,6 +120,12 @@ export {
   UNARCHIVE_SECTION_TOOL,
 } from "./section-operations-tools.js";
 
+export {
+  REORDER_PROJECTS_TOOL,
+  MOVE_PROJECT_TO_PARENT_TOOL,
+  GET_ARCHIVED_PROJECTS_TOOL,
+} from "./project-operations-tools.js";
+
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
   ...PROJECT_TOOLS,
@@ -130,5 +138,6 @@ export const ALL_TOOLS = [
   ...ACTIVITY_TOOLS,
   ...ITEM_OPERATIONS_TOOLS,
   ...SECTION_OPERATIONS_TOOLS,
+  ...PROJECT_OPERATIONS_TOOLS,
   ...TEST_TOOLS,
 ];
