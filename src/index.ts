@@ -66,6 +66,10 @@ import {
   isBulkReorderTasksArgs,
   isCloseTaskArgs,
   isUpdateDayOrderArgs,
+  isMoveSectionArgs,
+  isReorderSectionsArgs,
+  isArchiveSectionArgs,
+  isUnarchiveSectionArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -146,6 +150,12 @@ import {
   handleCloseTask,
   handleUpdateDayOrders,
 } from "./handlers/item-operations-handlers.js";
+import {
+  handleMoveSection,
+  handleReorderSections,
+  handleArchiveSection,
+  handleUnarchiveSection,
+} from "./handlers/section-operations-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -622,6 +632,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           );
         }
         result = await handleUpdateDayOrders(args);
+        break;
+
+      case "todoist_section_move":
+        if (!isMoveSectionArgs(args)) {
+          throw new Error("Invalid arguments for todoist_section_move");
+        }
+        result = await handleMoveSection(apiClient, args);
+        break;
+
+      case "todoist_sections_reorder":
+        if (!isReorderSectionsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_sections_reorder");
+        }
+        result = await handleReorderSections(args);
+        break;
+
+      case "todoist_section_archive":
+        if (!isArchiveSectionArgs(args)) {
+          throw new Error("Invalid arguments for todoist_section_archive");
+        }
+        result = await handleArchiveSection(apiClient, args);
+        break;
+
+      case "todoist_section_unarchive":
+        if (!isUnarchiveSectionArgs(args)) {
+          throw new Error("Invalid arguments for todoist_section_unarchive");
+        }
+        result = await handleUnarchiveSection(apiClient, args);
         break;
 
       case "todoist_test_connection":

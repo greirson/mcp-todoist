@@ -8,6 +8,7 @@ import { FILTER_TOOLS } from "./filter-tools.js";
 import { DUPLICATE_TOOLS } from "./duplicate-tools.js";
 import { ACTIVITY_TOOLS } from "./activity-tools.js";
 import { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
+import { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
 export { TASK_TOOLS } from "./task-tools.js";
@@ -20,6 +21,7 @@ export { FILTER_TOOLS } from "./filter-tools.js";
 export { DUPLICATE_TOOLS } from "./duplicate-tools.js";
 export { ACTIVITY_TOOLS } from "./activity-tools.js";
 export { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
+export { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -109,6 +111,13 @@ export {
   UPDATE_DAY_ORDER_TOOL,
 } from "./item-operations-tools.js";
 
+export {
+  MOVE_SECTION_TOOL,
+  REORDER_SECTIONS_TOOL,
+  ARCHIVE_SECTION_TOOL,
+  UNARCHIVE_SECTION_TOOL,
+} from "./section-operations-tools.js";
+
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
   ...PROJECT_TOOLS,
@@ -120,5 +129,6 @@ export const ALL_TOOLS = [
   ...DUPLICATE_TOOLS,
   ...ACTIVITY_TOOLS,
   ...ITEM_OPERATIONS_TOOLS,
+  ...SECTION_OPERATIONS_TOOLS,
   ...TEST_TOOLS,
 ];
