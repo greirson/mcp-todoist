@@ -5,6 +5,7 @@ import {
   handleTestAllFeatures,
   handleTestPerformance,
 } from "../handlers/test-handlers";
+import { handleGetCompletedTasks } from "../handlers/task-handlers";
 
 const token = process.env.TODOIST_API_TOKEN;
 const describeIfToken = token ? describe : describe.skip;
@@ -122,6 +123,67 @@ describeIfToken("Todoist MCP Integration Tests", () => {
       expect(projectOps).toBeDefined();
       expect(projectOps?.status).toBe("success");
       expect(projectOps?.details?.projectCount).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe("Completed Tasks (Sync API)", () => {
+    test("should fetch completed tasks without filters", async () => {
+      const result = await handleGetCompletedTasks(todoistClient!, {});
+
+      // Should return either tasks or "no tasks found" message
+      expect(typeof result).toBe("string");
+      expect(
+        result.includes("completed") || result.includes("No completed tasks")
+      ).toBe(true);
+    });
+
+    test("should fetch completed tasks with limit", async () => {
+      const result = await handleGetCompletedTasks(todoistClient!, {
+        limit: 5,
+      });
+
+      expect(typeof result).toBe("string");
+      // If there are results, count shouldn't exceed limit
+      const match = result.match(/^(\d+) completed/);
+      if (match) {
+        expect(parseInt(match[1])).toBeLessThanOrEqual(5);
+      }
+    });
+
+    test("should fetch completed tasks with date range", async () => {
+      // Get tasks from the last 7 days
+      const until = new Date().toISOString().split("T")[0] + "T23:59:59";
+      const since =
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0] + "T00:00:00";
+
+      const result = await handleGetCompletedTasks(todoistClient!, {
+        since,
+        until,
+      });
+
+      expect(typeof result).toBe("string");
+      expect(
+        result.includes("completed") || result.includes("No completed tasks")
+      ).toBe(true);
+    });
+
+    test("should handle invalid limit gracefully", async () => {
+      await expect(
+        handleGetCompletedTasks(todoistClient!, { limit: 500 })
+      ).rejects.toThrow("Limit must be an integer between 1 and 200");
+    });
+
+    test("should include project names in output", async () => {
+      const result = await handleGetCompletedTasks(todoistClient!, {
+        limit: 3,
+      });
+
+      // If there are results, they should include project info
+      if (!result.includes("No completed tasks")) {
+        expect(result.includes("Project:")).toBe(true);
+      }
     });
   });
 });

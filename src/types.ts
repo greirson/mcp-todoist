@@ -400,30 +400,15 @@ export interface TaskHierarchy {
 // Reminder operation interfaces (Phase 10: Reminder Management)
 // Based on Todoist Sync API v1
 
-/**
- * Reminder types supported by Todoist
- * - relative: Time-based reminder relative to task due date (uses minute_offset)
- * - absolute: Time-based reminder at a specific date/time (uses due object)
- * - location: Location-based reminder (uses location fields)
- */
 export type ReminderType = "relative" | "absolute" | "location";
 
-/**
- * Location trigger types for location-based reminders
- */
 export type LocationTrigger = "on_enter" | "on_leave";
 
-/**
- * Due date object for absolute reminders
- */
 export interface ReminderDue {
-  date: string; // ISO 8601 format (e.g., "2024-10-15T11:00:00.000000Z")
+  date: string;
   timezone?: string;
 }
 
-/**
- * Todoist Reminder object from the Sync API
- */
 export interface TodoistReminder {
   id: string;
   notify_uid?: string;
@@ -431,7 +416,7 @@ export interface TodoistReminder {
   type: ReminderType;
   due?: ReminderDue;
   minute_offset?: number;
-  name?: string; // Location alias name
+  name?: string;
   loc_lat?: string;
   loc_long?: string;
   loc_trigger?: LocationTrigger;
@@ -439,27 +424,18 @@ export interface TodoistReminder {
   is_deleted?: boolean;
 }
 
-/**
- * Arguments for getting reminders
- */
 export interface GetRemindersArgs {
   task_id?: string;
   task_name?: string;
 }
 
-/**
- * Arguments for creating a reminder
- */
 export interface CreateReminderArgs {
   task_id?: string;
   task_name?: string;
   type: ReminderType;
-  // For relative reminders
   minute_offset?: number;
-  // For absolute reminders
-  due_date?: string; // ISO 8601 format or natural language
+  due_date?: string;
   timezone?: string;
-  // For location reminders
   location_name?: string;
   latitude?: string;
   longitude?: string;
@@ -467,18 +443,12 @@ export interface CreateReminderArgs {
   radius?: number;
 }
 
-/**
- * Arguments for updating a reminder
- */
 export interface UpdateReminderArgs {
   reminder_id: string;
   type?: ReminderType;
-  // For relative reminders
   minute_offset?: number;
-  // For absolute reminders
   due_date?: string;
   timezone?: string;
-  // For location reminders
   location_name?: string;
   latitude?: string;
   longitude?: string;
@@ -486,16 +456,10 @@ export interface UpdateReminderArgs {
   radius?: number;
 }
 
-/**
- * Arguments for deleting a reminder
- */
 export interface DeleteReminderArgs {
   reminder_id: string;
 }
 
-/**
- * Sync API command structure
- */
 export interface SyncCommand {
   type: string;
   uuid: string;
@@ -503,9 +467,6 @@ export interface SyncCommand {
   args: Record<string, unknown>;
 }
 
-/**
- * Sync API response structure
- */
 export interface SyncResponse {
   sync_status: Record<string, string>;
   temp_id_mapping?: Record<string, string>;
@@ -514,9 +475,33 @@ export interface SyncResponse {
   sync_token?: string;
 }
 
-/**
- * Response type for reminder operations
- */
 export type RemindersResponse =
   | TodoistReminder[]
   | { reminders?: TodoistReminder[] };
+
+// Completed tasks interfaces (Sync API)
+export interface GetCompletedTasksArgs {
+  project_id?: string;
+  since?: string;
+  until?: string;
+  limit?: number;
+  offset?: number;
+  annotate_notes?: boolean;
+}
+
+export interface CompletedTask {
+  id: string;
+  task_id: string;
+  content: string;
+  completed_at: string;
+  project_id: string;
+  section_id?: string | null;
+  note_count: number;
+  user_id: string;
+}
+
+export interface CompletedTasksResponse {
+  items: CompletedTask[];
+  projects: Record<string, TodoistProject>;
+  sections: Record<string, TodoistSection>;
+}
