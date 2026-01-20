@@ -782,3 +782,26 @@ export interface CloseTaskArgs {
 export interface UpdateDayOrderArgs {
   items: { id: string; day_order: number }[];
 }
+
+export interface MoveSectionArgs {
+  section_id?: string;
+  section_name?: string;
+  project_id: string;
+}
+
+export interface ReorderSectionsArgs {
+  project_id: string;
+  sections: { id: string; section_order: number }[];
+}
+
+export interface ArchiveSectionArgs {
+  section_id?: string;
+  section_name?: string;
+  project_id?: string;
+}
+
+export interface UnarchiveSectionArgs {
+  section_id?: string;
+  section_name?: string;
+  project_id?: string;
+}

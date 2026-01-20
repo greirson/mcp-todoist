@@ -48,6 +48,10 @@ import {
   BulkReorderTasksArgs,
   CloseTaskArgs,
   UpdateDayOrderArgs,
+  MoveSectionArgs,
+  ReorderSectionsArgs,
+  ArchiveSectionArgs,
+  UnarchiveSectionArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -950,5 +954,68 @@ export function isUpdateDayOrderArgs(
         "day_order" in item &&
         typeof (item as Record<string, unknown>).day_order === "number"
     )
+  );
+}
+
+export function isMoveSectionArgs(args: unknown): args is MoveSectionArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  const hasSectionIdentifier =
+    (obj.section_id !== undefined && typeof obj.section_id === "string") ||
+    (obj.section_name !== undefined && typeof obj.section_name === "string");
+
+  return (
+    hasSectionIdentifier &&
+    "project_id" in obj &&
+    typeof obj.project_id === "string"
+  );
+}
+
+export function isReorderSectionsArgs(
+  args: unknown
+): args is ReorderSectionsArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "project_id" in obj &&
+    typeof obj.project_id === "string" &&
+    "sections" in obj &&
+    Array.isArray(obj.sections) &&
+    obj.sections.length > 0 &&
+    obj.sections.every(
+      (section: unknown) =>
+        typeof section === "object" &&
+        section !== null &&
+        "id" in section &&
+        typeof (section as Record<string, unknown>).id === "string" &&
+        "section_order" in section &&
+        typeof (section as Record<string, unknown>).section_order === "number"
+    )
+  );
+}
+
+export function isArchiveSectionArgs(
+  args: unknown
+): args is ArchiveSectionArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.section_id !== undefined && typeof obj.section_id === "string") ||
+    (obj.section_name !== undefined && typeof obj.section_name === "string")
+  );
+}
+
+export function isUnarchiveSectionArgs(
+  args: unknown
+): args is UnarchiveSectionArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.section_id !== undefined && typeof obj.section_id === "string") ||
+    (obj.section_name !== undefined && typeof obj.section_name === "string")
   );
 }
