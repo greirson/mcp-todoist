@@ -935,3 +935,58 @@ export interface UpdateProjectNoteArgs {
 export interface DeleteProjectNoteArgs {
   note_id: string;
 }
+
+// Phase 8: Collaboration & Sharing
+
+export interface Workspace {
+  id: string;
+  name: string;
+  is_default: boolean;
+}
+
+export interface Invitation {
+  id: string;
+  inviter_id: string;
+  project_id?: string;
+  message?: string;
+}
+
+export interface InviteToProjectArgs {
+  project_id: string;
+  email: string;
+  message?: string;
+}
+
+export interface AcceptInvitationArgs {
+  invitation_id: string;
+  invitation_secret: string;
+}
+
+export interface RejectInvitationArgs {
+  invitation_id: string;
+  invitation_secret: string;
+}
+
+export interface DeleteInvitationArgs {
+  invitation_id: string;
+}
+
+export interface LiveNotification {
+  id: string;
+  created_at: string;
+  notification_type: string;
+  is_unread: boolean;
+  from_uid?: string;
+  project_id?: string;
+  item_id?: string;
+}
+
+export interface GetLiveNotificationsArgs {
+  limit?: number;
+}
+
+export interface MarkNotificationReadArgs {
+  notification_id: string;
+}
+
+export interface MarkAllNotificationsReadArgs {}

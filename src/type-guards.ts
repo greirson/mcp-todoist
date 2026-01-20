@@ -62,6 +62,12 @@ import {
   CreateProjectNoteArgs,
   UpdateProjectNoteArgs,
   DeleteProjectNoteArgs,
+  InviteToProjectArgs,
+  AcceptInvitationArgs,
+  RejectInvitationArgs,
+  DeleteInvitationArgs,
+  GetLiveNotificationsArgs,
+  MarkNotificationReadArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -1137,4 +1143,64 @@ export function isDeleteProjectNoteArgs(
 
   const obj = args as Record<string, unknown>;
   return typeof obj.note_id === "string";
+}
+
+export function isInviteToProjectArgs(
+  args: unknown
+): args is InviteToProjectArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return typeof obj.project_id === "string" && typeof obj.email === "string";
+}
+
+export function isAcceptInvitationArgs(
+  args: unknown
+): args is AcceptInvitationArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    typeof obj.invitation_id === "string" &&
+    typeof obj.invitation_secret === "string"
+  );
+}
+
+export function isRejectInvitationArgs(
+  args: unknown
+): args is RejectInvitationArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    typeof obj.invitation_id === "string" &&
+    typeof obj.invitation_secret === "string"
+  );
+}
+
+export function isDeleteInvitationArgs(
+  args: unknown
+): args is DeleteInvitationArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return typeof obj.invitation_id === "string";
+}
+
+export function isGetLiveNotificationsArgs(
+  args: unknown
+): args is GetLiveNotificationsArgs {
+  if (typeof args !== "object" || args === null) return true;
+
+  const obj = args as Record<string, unknown>;
+  return obj.limit === undefined || typeof obj.limit === "number";
+}
+
+export function isMarkNotificationReadArgs(
+  args: unknown
+): args is MarkNotificationReadArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return typeof obj.notification_id === "string";
 }
