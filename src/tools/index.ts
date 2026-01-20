@@ -11,6 +11,7 @@ import { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
 import { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
 import { PROJECT_OPERATIONS_TOOLS } from "./project-operations-tools.js";
 import { USER_TOOLS } from "./user-tools.js";
+import { SHARED_LABEL_TOOLS } from "./shared-label-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
 export { TASK_TOOLS } from "./task-tools.js";
@@ -26,6 +27,7 @@ export { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
 export { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
 export { PROJECT_OPERATIONS_TOOLS } from "./project-operations-tools.js";
 export { USER_TOOLS } from "./user-tools.js";
+export { SHARED_LABEL_TOOLS } from "./shared-label-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -134,6 +136,12 @@ export {
   GET_USER_SETTINGS_TOOL,
 } from "./user-tools.js";
 
+export {
+  GET_SHARED_LABELS_TOOL,
+  RENAME_SHARED_LABEL_TOOL,
+  REMOVE_SHARED_LABEL_TOOL,
+} from "./shared-label-tools.js";
+
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
   ...PROJECT_TOOLS,
@@ -148,5 +156,6 @@ export const ALL_TOOLS = [
   ...SECTION_OPERATIONS_TOOLS,
   ...PROJECT_OPERATIONS_TOOLS,
   ...USER_TOOLS,
+  ...SHARED_LABEL_TOOLS,
   ...TEST_TOOLS,
 ];

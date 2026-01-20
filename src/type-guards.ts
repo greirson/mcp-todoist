@@ -55,6 +55,8 @@ import {
   ReorderProjectsArgs,
   MoveProjectToParentArgs,
   GetArchivedProjectsArgs,
+  RenameSharedLabelArgs,
+  RemoveSharedLabelArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -1067,4 +1069,22 @@ export function isGetArchivedProjectsArgs(
     (obj.limit === undefined || typeof obj.limit === "number") &&
     (obj.offset === undefined || typeof obj.offset === "number")
   );
+}
+
+export function isRenameSharedLabelArgs(
+  args: unknown
+): args is RenameSharedLabelArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return typeof obj.name === "string" && typeof obj.new_name === "string";
+}
+
+export function isRemoveSharedLabelArgs(
+  args: unknown
+): args is RemoveSharedLabelArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return typeof obj.name === "string";
 }
