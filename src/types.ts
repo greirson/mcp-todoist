@@ -805,3 +805,18 @@ export interface UnarchiveSectionArgs {
   section_name?: string;
   project_id?: string;
 }
+
+export interface ReorderProjectsArgs {
+  projects: { id: string; child_order: number }[];
+}
+
+export interface MoveProjectToParentArgs {
+  project_id?: string;
+  project_name?: string;
+  parent_id?: string;
+}
+
+export interface GetArchivedProjectsArgs {
+  limit?: number;
+  offset?: number;
+}

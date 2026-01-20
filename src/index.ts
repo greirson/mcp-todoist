@@ -70,6 +70,9 @@ import {
   isReorderSectionsArgs,
   isArchiveSectionArgs,
   isUnarchiveSectionArgs,
+  isReorderProjectsArgs,
+  isMoveProjectToParentArgs,
+  isGetArchivedProjectsArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -156,6 +159,11 @@ import {
   handleArchiveSection,
   handleUnarchiveSection,
 } from "./handlers/section-operations-handlers.js";
+import {
+  handleReorderProjects,
+  handleMoveProjectToParent,
+  handleGetArchivedProjects,
+} from "./handlers/project-operations-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -660,6 +668,31 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_section_unarchive");
         }
         result = await handleUnarchiveSection(apiClient, args);
+        break;
+
+      case "todoist_projects_reorder":
+        if (!isReorderProjectsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_projects_reorder");
+        }
+        result = await handleReorderProjects(args);
+        break;
+
+      case "todoist_project_move_to_parent":
+        if (!isMoveProjectToParentArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_project_move_to_parent"
+          );
+        }
+        result = await handleMoveProjectToParent(apiClient, args);
+        break;
+
+      case "todoist_archived_projects_get":
+        if (!isGetArchivedProjectsArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_archived_projects_get"
+          );
+        }
+        result = await handleGetArchivedProjects(args);
         break;
 
       case "todoist_test_connection":

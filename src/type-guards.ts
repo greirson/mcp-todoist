@@ -52,6 +52,9 @@ import {
   ReorderSectionsArgs,
   ArchiveSectionArgs,
   UnarchiveSectionArgs,
+  ReorderProjectsArgs,
+  MoveProjectToParentArgs,
+  GetArchivedProjectsArgs,
 } from "./types.js";
 
 export function isCreateTaskArgs(args: unknown): args is CreateTaskArgs {
@@ -1017,5 +1020,51 @@ export function isUnarchiveSectionArgs(
   return (
     (obj.section_id !== undefined && typeof obj.section_id === "string") ||
     (obj.section_name !== undefined && typeof obj.section_name === "string")
+  );
+}
+
+export function isReorderProjectsArgs(
+  args: unknown
+): args is ReorderProjectsArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    "projects" in obj &&
+    Array.isArray(obj.projects) &&
+    obj.projects.length > 0 &&
+    obj.projects.every(
+      (project: unknown) =>
+        typeof project === "object" &&
+        project !== null &&
+        "id" in project &&
+        typeof (project as Record<string, unknown>).id === "string" &&
+        "child_order" in project &&
+        typeof (project as Record<string, unknown>).child_order === "number"
+    )
+  );
+}
+
+export function isMoveProjectToParentArgs(
+  args: unknown
+): args is MoveProjectToParentArgs {
+  if (typeof args !== "object" || args === null) return false;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.project_id !== undefined && typeof obj.project_id === "string") ||
+    (obj.project_name !== undefined && typeof obj.project_name === "string")
+  );
+}
+
+export function isGetArchivedProjectsArgs(
+  args: unknown
+): args is GetArchivedProjectsArgs {
+  if (typeof args !== "object" || args === null) return true;
+
+  const obj = args as Record<string, unknown>;
+  return (
+    (obj.limit === undefined || typeof obj.limit === "number") &&
+    (obj.offset === undefined || typeof obj.offset === "number")
   );
 }
