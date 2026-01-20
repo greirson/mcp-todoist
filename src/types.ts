@@ -820,3 +820,58 @@ export interface GetArchivedProjectsArgs {
   limit?: number;
   offset?: number;
 }
+
+export interface UserInfo {
+  id: string;
+  email: string;
+  full_name: string;
+  inbox_project_id: string;
+  team_inbox_id?: string;
+  avatar_medium?: string;
+  avatar_big?: string;
+  avatar_s640?: string;
+  is_premium: boolean;
+  premium_until?: string;
+  business_account_id?: string;
+  date_format: number;
+  time_format: number;
+  start_day: number;
+  start_page: string;
+  next_week: number;
+  timezone: string;
+  lang: string;
+  joined_at: string;
+  sort_order: number;
+  days_off: number[];
+  default_reminder?: string;
+  auto_reminder?: number;
+  karma: number;
+  karma_trend: string;
+  completed_count: number;
+  completed_today: number;
+}
+
+export interface ProductivityStats {
+  karma_last_update: number;
+  karma_trend: string;
+  days_items: { date: string; total_completed: number }[];
+  completed_count: number;
+  karma_update_reasons: {
+    positive_karma_reasons: number[];
+    negative_karma_reasons: number[];
+  };
+  karma: number;
+  week_items: { date: string; total_completed: number }[];
+  goals: {
+    karma_disabled: number;
+    user_id: string;
+    max_weekly_streak: { count: number; start: string; end: string };
+    ignore_days: number[];
+    vacation_mode: number;
+    current_weekly_streak: { count: number; start: string; end: string };
+    current_daily_streak: { count: number; start: string; end: string };
+    weekly_goal: number;
+    max_daily_streak: { count: number; start: string; end: string };
+    daily_goal: number;
+  };
+}

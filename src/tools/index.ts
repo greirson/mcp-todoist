@@ -10,6 +10,7 @@ import { ACTIVITY_TOOLS } from "./activity-tools.js";
 import { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
 import { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
 import { PROJECT_OPERATIONS_TOOLS } from "./project-operations-tools.js";
+import { USER_TOOLS } from "./user-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
 export { TASK_TOOLS } from "./task-tools.js";
@@ -24,6 +25,7 @@ export { ACTIVITY_TOOLS } from "./activity-tools.js";
 export { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
 export { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
 export { PROJECT_OPERATIONS_TOOLS } from "./project-operations-tools.js";
+export { USER_TOOLS } from "./user-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -126,6 +128,12 @@ export {
   GET_ARCHIVED_PROJECTS_TOOL,
 } from "./project-operations-tools.js";
 
+export {
+  GET_USER_TOOL,
+  GET_PRODUCTIVITY_STATS_TOOL,
+  GET_USER_SETTINGS_TOOL,
+} from "./user-tools.js";
+
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
   ...PROJECT_TOOLS,
@@ -139,5 +147,6 @@ export const ALL_TOOLS = [
   ...ITEM_OPERATIONS_TOOLS,
   ...SECTION_OPERATIONS_TOOLS,
   ...PROJECT_OPERATIONS_TOOLS,
+  ...USER_TOOLS,
   ...TEST_TOOLS,
 ];
