@@ -875,3 +875,16 @@ export interface ProductivityStats {
     daily_goal: number;
   };
 }
+
+export interface SharedLabel {
+  name: string;
+}
+
+export interface RenameSharedLabelArgs {
+  name: string;
+  new_name: string;
+}
+
+export interface RemoveSharedLabelArgs {
+  name: string;
+}

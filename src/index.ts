@@ -73,6 +73,8 @@ import {
   isReorderProjectsArgs,
   isMoveProjectToParentArgs,
   isGetArchivedProjectsArgs,
+  isRenameSharedLabelArgs,
+  isRemoveSharedLabelArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -169,6 +171,11 @@ import {
   handleGetProductivityStats,
   handleGetUserSettings,
 } from "./handlers/user-handlers.js";
+import {
+  handleGetSharedLabels,
+  handleRenameSharedLabel,
+  handleRemoveSharedLabel,
+} from "./handlers/shared-label-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -710,6 +717,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case "todoist_user_settings_get":
         result = await handleGetUserSettings();
+        break;
+
+      case "todoist_shared_labels_get":
+        result = await handleGetSharedLabels();
+        break;
+
+      case "todoist_shared_label_rename":
+        if (!isRenameSharedLabelArgs(args)) {
+          throw new Error("Invalid arguments for todoist_shared_label_rename");
+        }
+        result = await handleRenameSharedLabel(args);
+        break;
+
+      case "todoist_shared_label_remove":
+        if (!isRemoveSharedLabelArgs(args)) {
+          throw new Error("Invalid arguments for todoist_shared_label_remove");
+        }
+        result = await handleRemoveSharedLabel(args);
         break;
 
       case "todoist_test_connection":
