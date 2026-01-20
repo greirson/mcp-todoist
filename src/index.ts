@@ -80,6 +80,12 @@ import {
   isCreateProjectNoteArgs,
   isUpdateProjectNoteArgs,
   isDeleteProjectNoteArgs,
+  isInviteToProjectArgs,
+  isAcceptInvitationArgs,
+  isRejectInvitationArgs,
+  isDeleteInvitationArgs,
+  isGetLiveNotificationsArgs,
+  isMarkNotificationReadArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -191,6 +197,17 @@ import {
   handleUpdateProjectNote,
   handleDeleteProjectNote,
 } from "./handlers/project-notes-handlers.js";
+import {
+  handleGetWorkspaces,
+  handleGetInvitations,
+  handleInviteToProject,
+  handleAcceptInvitation,
+  handleRejectInvitation,
+  handleDeleteInvitation,
+  handleGetLiveNotifications,
+  handleMarkNotificationRead,
+  handleMarkAllNotificationsRead,
+} from "./handlers/collaboration-handlers.js";
 import { handleError } from "./errors.js";
 import type { TaskHierarchy, TaskNode } from "./types.js";
 
@@ -789,6 +806,62 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_project_note_delete");
         }
         result = await handleDeleteProjectNote(args);
+        break;
+
+      case "todoist_workspaces_get":
+        result = await handleGetWorkspaces();
+        break;
+
+      case "todoist_invitations_get":
+        result = await handleGetInvitations();
+        break;
+
+      case "todoist_project_invite":
+        if (!isInviteToProjectArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_invite");
+        }
+        result = await handleInviteToProject(args);
+        break;
+
+      case "todoist_invitation_accept":
+        if (!isAcceptInvitationArgs(args)) {
+          throw new Error("Invalid arguments for todoist_invitation_accept");
+        }
+        result = await handleAcceptInvitation(args);
+        break;
+
+      case "todoist_invitation_reject":
+        if (!isRejectInvitationArgs(args)) {
+          throw new Error("Invalid arguments for todoist_invitation_reject");
+        }
+        result = await handleRejectInvitation(args);
+        break;
+
+      case "todoist_invitation_delete":
+        if (!isDeleteInvitationArgs(args)) {
+          throw new Error("Invalid arguments for todoist_invitation_delete");
+        }
+        result = await handleDeleteInvitation(args);
+        break;
+
+      case "todoist_notifications_get":
+        if (!isGetLiveNotificationsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_notifications_get");
+        }
+        result = await handleGetLiveNotifications(args);
+        break;
+
+      case "todoist_notification_mark_read":
+        if (!isMarkNotificationReadArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_notification_mark_read"
+          );
+        }
+        result = await handleMarkNotificationRead(args);
+        break;
+
+      case "todoist_notifications_mark_all_read":
+        result = await handleMarkAllNotificationsRead();
         break;
 
       case "todoist_test_connection":

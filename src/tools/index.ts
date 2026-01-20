@@ -14,6 +14,7 @@ import { USER_TOOLS } from "./user-tools.js";
 import { SHARED_LABEL_TOOLS } from "./shared-label-tools.js";
 import { BACKUP_TOOLS } from "./backup-tools.js";
 import { PROJECT_NOTES_TOOLS } from "./project-notes-tools.js";
+import { COLLABORATION_TOOLS } from "./collaboration-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
 export { TASK_TOOLS } from "./task-tools.js";
@@ -32,6 +33,7 @@ export { USER_TOOLS } from "./user-tools.js";
 export { SHARED_LABEL_TOOLS } from "./shared-label-tools.js";
 export { BACKUP_TOOLS } from "./backup-tools.js";
 export { PROJECT_NOTES_TOOLS } from "./project-notes-tools.js";
+export { COLLABORATION_TOOLS } from "./collaboration-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -155,6 +157,18 @@ export {
   DELETE_PROJECT_NOTE_TOOL,
 } from "./project-notes-tools.js";
 
+export {
+  GET_WORKSPACES_TOOL,
+  GET_INVITATIONS_TOOL,
+  INVITE_TO_PROJECT_TOOL,
+  ACCEPT_INVITATION_TOOL,
+  REJECT_INVITATION_TOOL,
+  DELETE_INVITATION_TOOL,
+  GET_LIVE_NOTIFICATIONS_TOOL,
+  MARK_NOTIFICATION_READ_TOOL,
+  MARK_ALL_NOTIFICATIONS_READ_TOOL,
+} from "./collaboration-tools.js";
+
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
   ...PROJECT_TOOLS,
@@ -172,5 +186,6 @@ export const ALL_TOOLS = [
   ...SHARED_LABEL_TOOLS,
   ...BACKUP_TOOLS,
   ...PROJECT_NOTES_TOOLS,
+  ...COLLABORATION_TOOLS,
   ...TEST_TOOLS,
 ];
