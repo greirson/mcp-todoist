@@ -18,6 +18,7 @@ import {
   PromoteSubtaskArgs,
   GetTaskHierarchyArgs,
 } from "../../types.js";
+import { formatTaskHierarchy } from "../../utils/formatters.js";
 
 export async function handleSubtaskAction(
   api: TodoistApi,
@@ -68,7 +69,7 @@ export async function handleSubtaskAction(
       );
       return `Subtask promoted to task:\nID: ${result.id}\nContent: ${result.content}\nProject: ${result.projectId}`;
     }
-    case "get_hierarchy": {
+    case "hierarchy": {
       const result = await handleGetTaskHierarchy(
         api,
         args as unknown as GetTaskHierarchyArgs
@@ -78,51 +79,4 @@ export async function handleSubtaskAction(
     default:
       throw new ValidationError(`Unknown subtask action: ${action}`);
   }
-}
-
-interface TaskNode {
-  task: {
-    id: string;
-    content: string;
-    isCompleted?: boolean;
-  };
-  children: TaskNode[];
-  depth: number;
-  completionPercentage: number;
-  isOriginalTask?: boolean;
-}
-
-interface TaskHierarchy {
-  root: TaskNode;
-  totalTasks: number;
-  completedTasks: number;
-  overallCompletion: number;
-}
-
-function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
-  const lines: string[] = [];
-  lines.push(`Task Hierarchy (${hierarchy.overallCompletion}% complete)`);
-  lines.push(
-    `Total: ${hierarchy.totalTasks} tasks, Completed: ${hierarchy.completedTasks}`
-  );
-  lines.push("");
-
-  function formatNode(node: TaskNode, prefix: string = ""): void {
-    const marker = node.isOriginalTask ? ">>>" : "";
-    const status = node.task.isCompleted ? "[x]" : "[ ]";
-    const completion =
-      node.children.length > 0 ? ` (${node.completionPercentage}%)` : "";
-    lines.push(
-      `${prefix}${status} ${node.task.content}${completion} ${marker}`
-    );
-
-    node.children.forEach((child, index) => {
-      const isLast = index === node.children.length - 1;
-      const connector = isLast ? "\\-- " : "|-- ";
-      formatNode(child, prefix + connector.substring(0, 4));
-    });
-  }
-
-  formatNode(hierarchy.root);
-  return lines.join("\n");
 }

@@ -11,7 +11,6 @@ import {
   handleDeleteProject,
   handleArchiveProject,
   handleGetProjectCollaborators,
-  handleGetCollaborators,
 } from "../project-handlers.js";
 import {
   handleReorderProjects,
@@ -26,7 +25,6 @@ import {
   ReorderProjectsArgs,
   MoveProjectToParentArgs,
   GetArchivedProjectsArgs,
-  GetCollaboratorsArgs,
 } from "../../types.js";
 
 export async function handleProjectAction(
@@ -49,7 +47,7 @@ export async function handleProjectAction(
         api,
         args as unknown as ProjectNameArgs & { archive?: boolean }
       );
-    case "get_collaborators":
+    case "collaborators":
       return handleGetProjectCollaborators(
         api,
         args as unknown as GetProjectCollaboratorsArgs
@@ -68,7 +66,7 @@ export async function handleProjectOpsAction(
   switch (action) {
     case "reorder":
       return handleReorderProjects(args as unknown as ReorderProjectsArgs);
-    case "move":
+    case "move_to_parent":
       return handleMoveProjectToParent(
         api,
         args as unknown as MoveProjectToParentArgs
@@ -76,11 +74,6 @@ export async function handleProjectOpsAction(
     case "get_archived":
       return handleGetArchivedProjects(
         args as unknown as GetArchivedProjectsArgs
-      );
-    case "get_collaborators":
-      return handleGetCollaborators(
-        api,
-        args as unknown as GetCollaboratorsArgs
       );
     default:
       throw new ValidationError(`Unknown project operations action: ${action}`);
