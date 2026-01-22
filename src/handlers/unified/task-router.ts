@@ -64,13 +64,13 @@ export async function handleTaskBulkAction(
   const action = args.action as string;
 
   switch (action) {
-    case "create":
+    case "bulk_create":
       return handleBulkCreateTasks(api, args as unknown as BulkCreateTasksArgs);
-    case "update":
+    case "bulk_update":
       return handleBulkUpdateTasks(api, args as unknown as BulkUpdateTasksArgs);
-    case "delete":
+    case "bulk_delete":
       return handleBulkDeleteTasks(api, args as unknown as BulkTaskFilterArgs);
-    case "complete":
+    case "bulk_complete":
       return handleBulkCompleteTasks(
         api,
         args as unknown as BulkTaskFilterArgs

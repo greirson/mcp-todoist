@@ -34,7 +34,7 @@ export async function handleTaskOpsAction(
       return handleBulkReorderTasks(args as unknown as BulkReorderTasksArgs);
     case "close":
       return handleCloseTask(api, args as unknown as CloseTaskArgs);
-    case "update_day_orders":
+    case "day_order":
       return handleUpdateDayOrders(args as unknown as UpdateDayOrderArgs);
     default:
       throw new ValidationError(`Unknown task operations action: ${action}`);

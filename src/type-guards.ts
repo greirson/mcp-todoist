@@ -753,7 +753,7 @@ export function isFilterNameArgs(args: unknown): args is FilterNameArgs {
 export function isFindDuplicatesArgs(
   args: unknown
 ): args is FindDuplicatesArgs {
-  if (typeof args !== "object" || args === null) return true;
+  if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
   return (
@@ -807,7 +807,7 @@ const VALID_ACTIVITY_EVENT_TYPES: ActivityEventType[] = [
 ];
 
 export function isGetActivityArgs(args: unknown): args is GetActivityArgs {
-  if (typeof args !== "object" || args === null) return true;
+  if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
   return (
@@ -1073,7 +1073,7 @@ export function isMoveProjectToParentArgs(
 export function isGetArchivedProjectsArgs(
   args: unknown
 ): args is GetArchivedProjectsArgs {
-  if (typeof args !== "object" || args === null) return true;
+  if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
   return (
@@ -1190,7 +1190,7 @@ export function isDeleteInvitationArgs(
 export function isGetLiveNotificationsArgs(
   args: unknown
 ): args is GetLiveNotificationsArgs {
-  if (typeof args !== "object" || args === null) return true;
+  if (typeof args !== "object" || args === null) return false;
 
   const obj = args as Record<string, unknown>;
   return obj.limit === undefined || typeof obj.limit === "number";

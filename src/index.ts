@@ -232,36 +232,13 @@ import {
   handleMarkAllNotificationsRead,
 } from "./handlers/collaboration-handlers.js";
 import { handleError } from "./errors.js";
-import type { TaskHierarchy, TaskNode } from "./types.js";
-
-// Helper function to format task hierarchy
-function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
-  function formatNode(node: TaskNode, indent: string = ""): string {
-    const status = node.task.isCompleted ? "✓" : "○";
-    const completion =
-      node.children.length > 0 ? ` [${node.completionPercentage}%]` : "";
-    const currentTaskMarker = node.isOriginalTask ? " ← current task" : "";
-    let result = `${indent}${status} ${node.task.content} (ID: ${node.task.id})${completion}${currentTaskMarker}\n`;
-
-    for (const child of node.children) {
-      result += formatNode(child, indent + "  ");
-    }
-
-    return result;
-  }
-
-  let result = formatNode(hierarchy.root);
-  result += `\nTotal tasks: ${hierarchy.totalTasks}\n`;
-  result += `Completed: ${hierarchy.completedTasks} (${hierarchy.overallCompletion}%)`;
-
-  return result;
-}
+import { formatTaskHierarchy } from "./utils/formatters.js";
 
 // Server implementation
 const server = new Server(
   {
     name: "todoist-mcp-server",
-    version: "0.11.0",
+    version: "1.0.0",
   },
   {
     capabilities: {
