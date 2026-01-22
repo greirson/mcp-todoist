@@ -217,7 +217,7 @@ Priority: 4 (Normal)
 
 ### Supported Operations
 
-All 48 MCP tools support dry-run mode:
+All 86 MCP tools support dry-run mode:
 
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
@@ -233,82 +233,29 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 48 tools organized by entity type:
+The server provides **86 MCP tools** for complete Todoist management:
 
-### Task Management
+| Category      | Tools | Description                                                          |
+| ------------- | ----- | -------------------------------------------------------------------- |
+| Tasks         | 12    | Create, update, complete, delete, reopen, bulk operations, quick add |
+| Subtasks      | 5     | Hierarchical task management with parent-child relationships         |
+| Projects      | 11    | Full CRUD, archiving, collaborators, reordering                      |
+| Sections      | 8     | Create, update, delete, move, archive, reorder                       |
+| Labels        | 5     | CRUD operations with usage statistics                                |
+| Comments      | 4     | Add, get, update, delete task/project comments                       |
+| Reminders     | 4     | Absolute, relative, and location-based reminders                     |
+| Filters       | 4     | Custom filter management via Sync API                                |
+| Duplicates    | 2     | Find and merge duplicate tasks                                       |
+| User          | 3     | Profile info and productivity statistics                             |
+| Activity      | 3     | Activity log and audit trail                                         |
+| Backups       | 2     | List and download automatic backups                                  |
+| Collaboration | 9     | Invitations, notifications, workspaces                               |
+| Project Notes | 4     | Project-level notes for collaborators                                |
+| Shared Labels | 3     | Workspace-wide labels (Business)                                     |
+| Advanced Ops  | 7     | Task/project move, reorder operations                                |
+| Testing       | 3     | Connection, feature, and performance tests                           |
 
-- **Todoist Task Create**: Create new tasks with full attribute support including duration
-- **Todoist Task Get**: Retrieve tasks by ID or combine priority, label, natural-language filters, and strict `due_before`/`due_after` windows with timezone-aware due details
-- **Todoist Task Update**: Update existing tasks (found by ID or partial name search) with duration support
-- **Todoist Task Complete**: Mark tasks as complete (found by ID or partial name search)
-- **Todoist Task Delete**: Remove tasks (found by ID or partial name search)
-- **Todoist Task Reopen**: Restore completed tasks (found by ID or partial name search)
-- **Todoist Completed Tasks Get**: Retrieve completed tasks with date range filtering and pagination
-- **Todoist Task Quick Add**: Natural language task creation with inline parsing for dates, projects, labels, priorities
-
-### Subtask Management
-
-- **Todoist Subtask Create**: Create subtasks under parent tasks with full attribute support
-- **Todoist Subtasks Bulk Create**: Create multiple subtasks under a parent task efficiently
-- **Todoist Task Convert to Subtask**: Convert existing tasks to subtasks of another task
-- **Todoist Subtask Promote**: Promote subtasks to main tasks (remove parent relationship)
-- **Todoist Task Hierarchy Get**: View task hierarchies with subtasks and completion tracking
-
-### Bulk Task Operations
-
-- **Todoist Tasks Bulk Create**: Create multiple tasks at once for improved efficiency
-- **Todoist Tasks Bulk Update**: Update multiple tasks based on search criteria with the same strict `due_before`/`due_after` filtering used by single-task queries
-- **Todoist Tasks Bulk Delete**: Delete multiple tasks based on search criteria with timezone-aware due comparisons
-- **Todoist Tasks Bulk Complete**: Complete multiple tasks based on search criteria with timezone-aware due comparisons
-
-### Comment Management
-
-- **Todoist Comment Create**: Add comments to tasks with optional file attachments
-- **Todoist Comment Get**: Retrieve comments for tasks or projects
-
-### Label Management
-
-- **Todoist Label Get**: List all labels with their IDs and colors
-- **Todoist Label Create**: Create new labels with optional color and ordering
-- **Todoist Label Update**: Update existing labels (name, color, order, favorite status)
-- **Todoist Label Delete**: Remove labels from your workspace
-- **Todoist Label Stats**: Get detailed usage statistics for all labels
-
-### Project Management
-
-- **Todoist Project Create**: Create new projects with optional color, description, parent_id, view_style, and favorite status
-- **Todoist Project Get**: List all projects with hierarchy, descriptions, and status indicators
-- **Todoist Project Update**: Update project properties (name, color, description, view_style, favorite)
-- **Todoist Project Delete**: Delete projects by ID or name
-- **Todoist Project Archive**: Archive/unarchive projects with status tracking
-- **Todoist Project Collaborators Get**: Retrieve collaborators for shared projects
-
-### Section Management
-
-- **Todoist Section Create**: Create sections within projects with optional ordering
-- **Todoist Section Get**: List sections within projects
-- **Todoist Section Update**: Update section names (by ID or partial name search)
-- **Todoist Section Delete**: Delete sections and all contained tasks (by ID or partial name search)
-
-### Reminder Management (Requires Pro/Business)
-
-- **Todoist Reminder Get**: List all reminders, optionally filtered by task
-- **Todoist Reminder Create**: Create reminders (relative, absolute, or location-based)
-- **Todoist Reminder Update**: Update existing reminder settings
-- **Todoist Reminder Delete**: Remove reminders from tasks
-
-### Filter Management
-
-- **Todoist Filter Get**: List all custom filters with queries and settings
-- **Todoist Filter Create**: Create filters using Todoist query syntax
-- **Todoist Filter Update**: Update existing filters by ID or name
-- **Todoist Filter Delete**: Remove filters by ID or name
-
-### Testing & Validation
-
-- **Todoist Test Connection**: Validate API token and test connectivity
-- **Todoist Test All Features**: Two modes - basic (read-only API tests) and enhanced (full CRUD testing with cleanup)
-- **Todoist Test Performance**: Benchmark API response times with configurable iterations
+For detailed tool documentation with parameters, see **[TOOLS_REFERENCE.md](TOOLS_REFERENCE.md)**.
 
 ## Troubleshooting
 
