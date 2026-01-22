@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-01-21
+
+### Added
+
+- **Unified Tools Mode**: New streamlined 19-tool interface enabled with `TODOIST_UNIFIED_TOOLS=true`
+  - Consolidates 86 individual tools into 19 action-based tools for reduced AI decision overhead
+  - Each unified tool supports multiple actions via an `action` parameter
+  - All existing functionality preserved - same handlers, same responses
+  - See [UNIFIED_TOOLS_REFERENCE.md](UNIFIED_TOOLS_REFERENCE.md) for complete documentation
+
+- **New Unified Tools**:
+  | Tool | Actions | Description |
+  |------|---------|-------------|
+  | `todoist_task` | create, get, update, delete, complete, reopen, quick_add | Complete task management |
+  | `todoist_task_bulk` | bulk_create, bulk_update, bulk_delete, bulk_complete | Multi-task operations |
+  | `todoist_subtask` | create, bulk_create, convert, promote, hierarchy | Hierarchical task management |
+  | `todoist_project` | create, get, update, delete, archive, collaborators | Project CRUD |
+  | `todoist_project_ops` | reorder, move_to_parent, get_archived | Advanced project ops |
+  | `todoist_section` | create, get, update, delete, move, reorder, archive, unarchive | Section management |
+  | `todoist_label` | create, get, update, delete, stats | Label management |
+  | `todoist_comment` | create, get, update, delete | Comments |
+  | `todoist_reminder` | create, get, update, delete | Reminders (Pro) |
+  | `todoist_filter` | create, get, update, delete | Filters (Pro) |
+  | `todoist_collaboration` | workspaces, invitations, invite, accept, reject, delete_invite, notifications, mark_read, mark_all_read | Team features |
+  | `todoist_user` | info, stats, settings | User profile |
+  | `todoist_utility` | test_connection, test_features, test_performance, find_duplicates, merge_duplicates | Testing & utilities |
+  | `todoist_activity` | get, by_project, by_date | Activity logs |
+  | `todoist_task_ops` | move, reorder, bulk_reorder, close, day_order | Advanced task ops |
+  | `todoist_completed` | get | Completed tasks |
+  | `todoist_backup` | list, download | Backups |
+  | `todoist_notes` | create, get, update, delete | Project notes |
+  | `todoist_shared_labels` | get, rename, remove | Shared labels (Business) |
+
+- **Migration Guide**: New [MIGRATION.md](MIGRATION.md) with complete tool mapping from legacy to unified
+
+- **Documentation**:
+  - [UNIFIED_TOOLS_REFERENCE.md](UNIFIED_TOOLS_REFERENCE.md) - Complete reference for unified tools
+  - Updated README.md with unified tools overview and configuration
+  - Updated CLAUDE.md with dual-mode architecture documentation
+
+### Changed
+
+- **Tool Architecture**: Now supports two modes controlled by `TODOIST_UNIFIED_TOOLS` environment variable
+  - Legacy mode (default): 86 individual tools for fine-grained control
+  - Unified mode: 19 consolidated tools with action-based routing
+
+### Technical Implementation
+
+- **New Files**:
+  - `src/tools/unified/*.ts` - 17 unified tool definition files
+  - `src/handlers/unified/*.ts` - 16 router handlers dispatching to existing handlers
+- **Backward Compatibility**: Legacy 86-tool mode remains the default and is fully supported
+- **No Breaking Changes**: All existing functionality preserved in both modes
+
+---
+
 ## [0.11.0] - 2026-01-19
 
 ### Added

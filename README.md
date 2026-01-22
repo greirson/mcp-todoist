@@ -1,12 +1,6 @@
 # Todoist MCP Server
 
-[![smithery badge](https://smithery.ai/badge/@greirson/mcp-todoist)](https://smithery.ai/server/@greirson/mcp-todoist)
-
 An MCP (Model Context Protocol) server that connects Claude with Todoist for complete task and project management through natural language.
-
-<a href="https://glama.ai/mcp/servers/@greirson/mcp-todoist">
-  <img width="380" height="200" src="https://glama.ai/mcp/servers/@greirson/mcp-todoist/badge" alt="Todoist Server MCP server" />
-</a>
 
 ## Quick Start
 
@@ -64,38 +58,23 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 
 ## Installation & Setup
 
-### Installing via Smithery
-
-To install mcp-todoist for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@greirson/mcp-todoist):
-
-```bash
-npx -y @smithery/cli install @greirson/mcp-todoist --client claude
-```
-
-### Option 1: Using npx (Recommended - No Installation Required)
-
-This is the easiest method as it doesn't require installing anything globally.
-
-#### Step 1: Get Your Todoist API Token
+### Step 1: Get Your Todoist API Token
 
 1. Log in to your [Todoist account](https://todoist.com)
-2. Go to **Settings** → **Integrations**
-3. Scroll down to the **Developer** section
-4. Copy your **API token** (keep this secure!)
+2. Go to **Settings** > **Integrations** > **Developer**
+3. Copy your **API token** (keep this secure!)
 
-#### Step 2: Configure Claude Desktop
+### Step 2: Configure Your Client
 
-Add the server to your Claude Desktop configuration file:
+<details>
+<summary><strong>Claude Desktop</strong></summary>
 
-**On macOS/Linux:**
+**Config file location:**
 
-- File location: `~/.config/claude_desktop_config.json`
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-**On Windows:**
-
-- File location: `%APPDATA%\Claude\claude_desktop_config.json`
-
-Add this configuration:
+**Add this configuration:**
 
 ```json
 {
@@ -111,25 +90,73 @@ Add this configuration:
 }
 ```
 
-**⚠️ Important:** Replace `your_api_token_here` with your actual Todoist API token from Step 1.
+**Or install via [Smithery](https://smithery.ai/server/@greirson/mcp-todoist):**
 
-### Option 2: Global npm Installation
+```bash
+npx -y @smithery/cli install @greirson/mcp-todoist --client claude
+```
 
-If you prefer to install the package globally:
+</details>
 
-#### Step 1: Install the Package
+<details>
+<summary><strong>Claude Code (CLI)</strong></summary>
+
+**Quick setup (recommended):**
+
+```bash
+claude mcp add todoist -e TODOIST_API_TOKEN=your_api_token_here -- npx @greirson/mcp-todoist
+```
+
+**Or add manually to `~/.claude.json`:**
+
+```json
+{
+  "mcpServers": {
+    "todoist": {
+      "command": "npx",
+      "args": ["@greirson/mcp-todoist"],
+      "env": {
+        "TODOIST_API_TOKEN": "your_api_token_here"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Opencode</strong></summary>
+
+**Add to `.opencode.json` in your project root:**
+
+```json
+{
+  "mcpServers": {
+    "todoist": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@greirson/mcp-todoist"],
+      "env": {
+        "TODOIST_API_TOKEN": "your_api_token_here"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Global npm Installation (Alternative)</strong></summary>
+
+If you prefer to install globally instead of using npx:
 
 ```bash
 npm install -g @greirson/mcp-todoist
 ```
 
-#### Step 2: Get Your Todoist API Token
-
-(Same as Option 1, Step 1)
-
-#### Step 3: Configure Claude Desktop
-
-Use this configuration for global installation:
+Then use `"command": "mcp-todoist"` instead of npx in your config:
 
 ```json
 {
@@ -144,19 +171,17 @@ Use this configuration for global installation:
 }
 ```
 
-### Step 4: Restart Claude Desktop
+</details>
 
-Close and reopen Claude Desktop to load the new MCP server.
+### Step 3: Restart Your Client
 
-### Step 5: Verify Installation
+Close and reopen your client to load the MCP server.
 
-In Claude Desktop, try asking:
+### Step 4: Verify Installation
 
-```
-"Show me my Todoist projects"
-```
+Try asking: _"Show me my Todoist projects"_
 
-You should see a list of your Todoist projects, confirming the integration is working!
+You should see a list of your projects, confirming the integration is working!
 
 ## Dry-Run Mode
 
@@ -217,7 +242,7 @@ Priority: 4 (Normal)
 
 ### Supported Operations
 
-All 86 MCP tools support dry-run mode:
+All 19 MCP tools support dry-run mode:
 
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
@@ -233,29 +258,31 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides **86 MCP tools** for complete Todoist management:
+The server provides **19 MCP tools** for complete Todoist management:
 
-| Category      | Tools | Description                                                          |
-| ------------- | ----- | -------------------------------------------------------------------- |
-| Tasks         | 12    | Create, update, complete, delete, reopen, bulk operations, quick add |
-| Subtasks      | 5     | Hierarchical task management with parent-child relationships         |
-| Projects      | 11    | Full CRUD, archiving, collaborators, reordering                      |
-| Sections      | 8     | Create, update, delete, move, archive, reorder                       |
-| Labels        | 5     | CRUD operations with usage statistics                                |
-| Comments      | 4     | Add, get, update, delete task/project comments                       |
-| Reminders     | 4     | Absolute, relative, and location-based reminders                     |
-| Filters       | 4     | Custom filter management via Sync API                                |
-| Duplicates    | 2     | Find and merge duplicate tasks                                       |
-| User          | 3     | Profile info and productivity statistics                             |
-| Activity      | 3     | Activity log and audit trail                                         |
-| Backups       | 2     | List and download automatic backups                                  |
-| Collaboration | 9     | Invitations, notifications, workspaces                               |
-| Project Notes | 4     | Project-level notes for collaborators                                |
-| Shared Labels | 3     | Workspace-wide labels (Business)                                     |
-| Advanced Ops  | 7     | Task/project move, reorder operations                                |
-| Testing       | 3     | Connection, feature, and performance tests                           |
+| Tool                    | Actions                                                                 | Description                     |
+| ----------------------- | ----------------------------------------------------------------------- | ------------------------------- |
+| `todoist_task`          | create, get, update, delete, complete, reopen, quick_add                | Complete task management        |
+| `todoist_task_bulk`     | bulk_create, bulk_update, bulk_delete, bulk_complete                    | Efficient multi-task operations |
+| `todoist_subtask`       | create, bulk_create, convert, promote, hierarchy                        | Hierarchical task management    |
+| `todoist_project`       | create, get, update, delete, archive, collaborators                     | Project CRUD and sharing        |
+| `todoist_project_ops`   | reorder, move_to_parent, get_archived                                   | Advanced project operations     |
+| `todoist_section`       | create, get, update, delete, move, reorder, archive                     | Section management              |
+| `todoist_label`         | create, get, update, delete, stats                                      | Label management with analytics |
+| `todoist_comment`       | create, get, update, delete                                             | Task/project comments           |
+| `todoist_reminder`      | create, get, update, delete                                             | Reminder management (Pro)       |
+| `todoist_filter`        | create, get, update, delete                                             | Custom filters (Pro)            |
+| `todoist_collaboration` | invitations, notifications, workspace operations                        | Team collaboration features     |
+| `todoist_user`          | info, productivity_stats, karma_history                                 | User profile and stats          |
+| `todoist_utility`       | test_connection, test_features, test_performance, find/merge duplicates | Testing and utilities           |
+| `todoist_activity`      | get_log, get_events, get_summary                                        | Activity audit trail            |
+| `todoist_task_ops`      | move, reorder, close                                                    | Advanced task operations        |
+| `todoist_completed`     | get, get_all, get_stats                                                 | Completed task retrieval        |
+| `todoist_backup`        | list, download                                                          | Automatic backup access         |
+| `todoist_notes`         | create, get, update, delete                                             | Project notes (collaborators)   |
+| `todoist_shared_labels` | create, get, rename, remove                                             | Workspace labels (Business)     |
 
-For detailed tool documentation with parameters, see **[TOOLS_REFERENCE.md](TOOLS_REFERENCE.md)**.
+For detailed tool documentation with parameters and examples, see **[TOOLS_REFERENCE.md](TOOLS_REFERENCE.md)**.
 
 ## Troubleshooting
 

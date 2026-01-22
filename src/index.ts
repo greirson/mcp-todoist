@@ -12,6 +12,29 @@ import {
   type TodoistClient,
 } from "./utils/dry-run-wrapper.js";
 import { ALL_TOOLS } from "./tools/index.js";
+import { ALL_UNIFIED_TOOLS } from "./tools/unified/index.js";
+import {
+  // Unified routers
+  handleTaskAction,
+  handleTaskBulkAction,
+  handleCompletedAction,
+  handleProjectAction,
+  handleProjectOpsAction,
+  handleSectionAction,
+  handleSubtaskAction,
+  handleLabelAction,
+  handleSharedLabelsAction,
+  handleCommentAction,
+  handleReminderAction,
+  handleFilterAction,
+  handleCollaborationAction,
+  handleUserAction,
+  handleUtilityAction,
+  handleActivityAction,
+  handleTaskOpsAction,
+  handleBackupAction,
+  handleNotesAction,
+} from "./handlers/unified/index.js";
 import {
   isCreateTaskArgs,
   isGetTasksArgs,
@@ -260,9 +283,21 @@ const todoistClient = createTodoistClient(TODOIST_API_TOKEN);
 // Cast to TodoistApi for handler compatibility (DryRunWrapper implements the same interface)
 const apiClient = todoistClient as TodoistApi;
 
+// Determine which tool set to use based on environment variable
+// Set TODOIST_UNIFIED_TOOLS=true to use the new consolidated tools (19 tools)
+// Default uses legacy tools (60+ tools) for backward compatibility
+const USE_UNIFIED_TOOLS = process.env.TODOIST_UNIFIED_TOOLS === "true";
+const TOOLS = USE_UNIFIED_TOOLS ? ALL_UNIFIED_TOOLS : ALL_TOOLS;
+
+if (USE_UNIFIED_TOOLS) {
+  console.error("Using unified tools (19 consolidated tools)");
+} else {
+  console.error("Using legacy tools (60+ individual tools)");
+}
+
 // Tool handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: ALL_TOOLS,
+  tools: TOOLS,
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -884,6 +919,127 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           args as { iterations?: number }
         );
         result = JSON.stringify(performanceResult, null, 2);
+        break;
+
+      // ============================================
+      // UNIFIED TOOLS (19 consolidated tools)
+      // ============================================
+
+      case "todoist_task":
+        result = await handleTaskAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_task_bulk":
+        result = await handleTaskBulkAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_completed":
+        result = await handleCompletedAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_project":
+        result = await handleProjectAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_project_ops":
+        result = await handleProjectOpsAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_section":
+        result = await handleSectionAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_subtask":
+        result = await handleSubtaskAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_label":
+        result = await handleLabelAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_shared_labels":
+        result = await handleSharedLabelsAction(
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_comment":
+        result = await handleCommentAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_reminder":
+        result = await handleReminderAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_filter":
+        result = await handleFilterAction(args as Record<string, unknown>);
+        break;
+
+      case "todoist_collaboration":
+        result = await handleCollaborationAction(
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_user":
+        result = await handleUserAction(args as Record<string, unknown>);
+        break;
+
+      case "todoist_utility":
+        result = await handleUtilityAction(
+          apiClient,
+          args as Record<string, unknown>,
+          TODOIST_API_TOKEN
+        );
+        break;
+
+      case "todoist_activity":
+        result = await handleActivityAction(args as Record<string, unknown>);
+        break;
+
+      case "todoist_task_ops":
+        result = await handleTaskOpsAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_backup":
+        result = await handleBackupAction(args as Record<string, unknown>);
+        break;
+
+      case "todoist_project_notes":
+        result = await handleNotesAction(args as Record<string, unknown>);
         break;
 
       default:
