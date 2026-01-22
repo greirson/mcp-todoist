@@ -47,6 +47,17 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `comment-tools.ts` - Comment creation and retrieval tools
   - `label-tools.ts` - Label CRUD and statistics tools
   - `filter-tools.ts` - Filter management tools (Sync API, requires Pro/Business plan)
+  - `reminder-tools.ts` - Reminder management tools
+  - `duplicate-tools.ts` - Duplicate detection and merging tools
+  - `activity-tools.ts` - Activity log and audit trail tools
+  - `backup-tools.ts` - Backup listing and download tools
+  - `collaboration-tools.ts` - Workspace, invitation, and notification tools
+  - `item-operations-tools.ts` - Task move, reorder, and close tools
+  - `project-notes-tools.ts` - Project notes CRUD tools
+  - `project-operations-tools.ts` - Project reorder and archive tools
+  - `section-operations-tools.ts` - Section move, reorder, and archive tools
+  - `shared-label-tools.ts` - Shared label management tools (Business)
+  - `user-tools.ts` - User info and productivity stats tools
   - `test-tools.ts` - Testing and validation tools
   - `index.ts` - Centralized exports with backward compatibility
 
@@ -59,6 +70,17 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
   - `comment-handlers.ts` - Comment creation and retrieval operations
   - `label-handlers.ts` - Label CRUD operations and usage statistics
   - `filter-handlers.ts` - Filter CRUD operations via Todoist Sync API
+  - `reminder-handlers.ts` - Reminder CRUD operations via Sync API
+  - `duplicate-handlers.ts` - Duplicate detection and merging operations
+  - `activity-handlers.ts` - Activity log operations
+  - `backup-handlers.ts` - Backup listing and download operations
+  - `collaboration-handlers.ts` - Workspace, invitation, and notification operations
+  - `item-operations-handlers.ts` - Task move, reorder, and close operations
+  - `project-notes-handlers.ts` - Project notes CRUD operations
+  - `project-operations-handlers.ts` - Project reorder and archive operations
+  - `section-operations-handlers.ts` - Section move, reorder, and archive operations
+  - `shared-label-handlers.ts` - Shared label operations (Business)
+  - `user-handlers.ts` - User info and productivity stats operations
   - `test-handlers.ts` - Testing infrastructure for API validation and performance monitoring
 
 #### Enhanced Testing Framework
@@ -84,7 +106,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 48 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 86 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
 
 **Task Management:**
 
@@ -248,7 +270,7 @@ Complete simulation framework for safe testing and validation:
 - **Mock Response Generation**: Returns realistic mock data with generated IDs for mutation operations
 - **Detailed Logging**: Clear `[DRY-RUN]` prefixes show exactly what operations would perform
 - **Factory Pattern**: `createTodoistClient()` function automatically wraps client based on environment
-- **Comprehensive Coverage**: All 46 MCP tools support dry-run mode with full validation
+- **Comprehensive Coverage**: All 86 MCP tools support dry-run mode with full validation
 - **Type Safety**: Full TypeScript support with proper type definitions for all dry-run operations
 
 ### Data Flow Pattern
@@ -348,7 +370,7 @@ Due to evolving Todoist API types, the codebase uses defensive programming patte
 - **Cache Strategy**: GET operations are cached for 30 seconds; mutation operations (create/update/delete) clear the cache
 - **Dry-Run Mode**: Enable with `DRYRUN=true` environment variable for safe testing and validation
   - Uses real API data for validation while simulating mutations
-  - All 46 MCP tools support dry-run mode with comprehensive logging
+  - All 86 MCP tools support dry-run mode with comprehensive logging
   - Perfect for testing automations, learning the API, and safe experimentation
 - **Task Search**: Update/delete/complete operations support both:
   - **Task ID**: Direct lookup by ID (more reliable, takes precedence)
