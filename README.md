@@ -90,12 +90,6 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 }
 ```
 
-**Or install via [Smithery](https://smithery.ai/server/@greirson/mcp-todoist):**
-
-```bash
-npx -y @smithery/cli install @greirson/mcp-todoist --client claude
-```
-
 </details>
 
 <details>
