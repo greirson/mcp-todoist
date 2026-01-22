@@ -106,89 +106,36 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 ### Tool Architecture
 
-The server exposes 86 tools organized by entity type with standardized naming convention using underscores (MCP-compliant):
+The server exposes 19 MCP tools with action-based routing:
 
-**Task Management:**
+| Tool                    | Actions                                                                 | Description                     |
+| ----------------------- | ----------------------------------------------------------------------- | ------------------------------- |
+| `todoist_task`          | create, get, update, delete, complete, reopen, quick_add                | Complete task management        |
+| `todoist_task_bulk`     | bulk_create, bulk_update, bulk_delete, bulk_complete                    | Efficient multi-task operations |
+| `todoist_subtask`       | create, bulk_create, convert, promote, hierarchy                        | Hierarchical task management    |
+| `todoist_project`       | create, get, update, delete, archive, collaborators                     | Project CRUD and sharing        |
+| `todoist_project_ops`   | reorder, move_to_parent, get_archived                                   | Advanced project operations     |
+| `todoist_section`       | create, get, update, delete, move, reorder, archive                     | Section management              |
+| `todoist_label`         | create, get, update, delete, stats                                      | Label management with analytics |
+| `todoist_comment`       | create, get, update, delete                                             | Task/project comments           |
+| `todoist_reminder`      | create, get, update, delete                                             | Reminder management (Pro)       |
+| `todoist_filter`        | create, get, update, delete                                             | Custom filters (Pro)            |
+| `todoist_collaboration` | invitations, notifications, workspace operations                        | Team collaboration features     |
+| `todoist_user`          | info, productivity_stats, karma_history                                 | User profile and stats          |
+| `todoist_utility`       | test_connection, test_features, test_performance, find/merge duplicates | Testing and utilities           |
+| `todoist_activity`      | get_log, get_events, get_summary                                        | Activity audit trail            |
+| `todoist_task_ops`      | move, reorder, close                                                    | Advanced task operations        |
+| `todoist_completed`     | get, get_all, get_stats                                                 | Completed task retrieval        |
+| `todoist_backup`        | list, download                                                          | Automatic backup access         |
+| `todoist_notes`         | create, get, update, delete                                             | Project notes (collaborators)   |
+| `todoist_shared_labels` | create, get, rename, remove                                             | Workspace labels (Business)     |
 
-- `todoist_task_create` - Creates new tasks with full attribute support (including duration)
-- `todoist_task_get` - Retrieves and filters tasks (with caching)
-- `todoist_task_update` - Updates existing tasks found by name search (including duration)
-- `todoist_task_delete` - Deletes tasks found by name search
-- `todoist_task_complete` - Marks tasks as complete found by name search
-- `todoist_task_reopen` - Reopens completed tasks found by ID or name search
-- `todoist_task_quick_add` - Natural language task creation with inline parsing for dates, projects, labels, priorities
+**Tool Files:**
 
-**Subtask Management:**
+- **`src/tools/unified/`**: Tool definitions with action-based routing
+- **`src/handlers/unified/`**: Router handlers that dispatch actions to domain handlers
 
-- `todoist_subtask_create` - Creates subtasks under parent tasks with full attribute support
-- `todoist_subtasks_bulk_create` - Creates multiple subtasks under a parent task efficiently
-- `todoist_task_convert_to_subtask` - Converts existing tasks to subtasks of another task
-- `todoist_subtask_promote` - Promotes subtasks to main tasks (removes parent relationship)
-- `todoist_task_hierarchy_get` - Retrieves task hierarchies with completion percentage tracking
-
-**Bulk Task Operations:**
-
-- `todoist_tasks_bulk_create` - Creates multiple tasks at once for improved efficiency
-- `todoist_tasks_bulk_update` - Updates multiple tasks based on search criteria
-- `todoist_tasks_bulk_delete` - Deletes multiple tasks based on search criteria
-- `todoist_tasks_bulk_complete` - Completes multiple tasks based on search criteria
-
-**Comment Management:**
-
-- `todoist_comment_create` - Adds comments to tasks with optional file attachments
-- `todoist_comment_get` - Retrieves comments for tasks or projects
-- `todoist_comment_update` - Updates existing comment content
-- `todoist_comment_delete` - Deletes comments by ID
-
-**Label Management:**
-
-- `todoist_label_get` - Lists all labels with IDs, names, and colors
-- `todoist_label_create` - Creates new labels with optional color, order, and favorite status
-- `todoist_label_update` - Updates existing labels by ID or name (supports all attributes)
-- `todoist_label_delete` - Deletes labels by ID or name
-- `todoist_label_stats` - Provides detailed usage statistics and analytics
-
-**Project Management:**
-
-- `todoist_project_create` - Creates projects with full attribute support (color, parent_id, description, view_style, favorite)
-- `todoist_project_get` - Lists all projects with hierarchy, descriptions, and status indicators
-- `todoist_project_update` - Updates project properties (name, color, description, view_style, favorite status)
-- `todoist_project_delete` - Deletes projects by ID or name
-- `todoist_project_archive` - Archives or unarchives projects
-- `todoist_project_collaborators_get` - Retrieves collaborators for shared projects
-- `todoist_collaborators_get` - Lists collaborators in shared projects for task assignment
-
-**Section Management:**
-
-- `todoist_section_create` - Creates sections within projects with optional ordering
-- `todoist_section_get` - Lists sections within projects
-- `todoist_section_update` - Updates section names by ID or name search
-- `todoist_section_delete` - Deletes sections and all contained tasks by ID or name search
-
-**Filter Management (Sync API, requires Pro/Business plan):**
-
-- `todoist_filter_get` - Lists all custom filters with queries and settings
-- `todoist_filter_create` - Creates new filters using Todoist query syntax
-- `todoist_filter_update` - Updates existing filters by ID or name
-- `todoist_filter_delete` - Removes filters by ID or name
-
-**Reminder Management (Sync API, requires Pro/Business plan):**
-
-- `todoist_reminder_get` - Lists all reminders with optional task filtering
-- `todoist_reminder_create` - Creates absolute or relative reminders for tasks
-- `todoist_reminder_update` - Updates reminder timing by ID
-- `todoist_reminder_delete` - Removes reminders by ID
-
-**Duplicate Detection:**
-
-- `todoist_duplicates_find` - Finds similar/duplicate tasks using Levenshtein distance algorithm with configurable threshold
-- `todoist_duplicates_merge` - Merges duplicate tasks by keeping one and completing/deleting others
-
-**Testing Infrastructure:**
-
-- `todoist_test_connection` - Quick API token validation and connection test
-- `todoist_test_all_features` - Dual-mode testing: basic (read-only) and enhanced (full CRUD with cleanup)
-- `todoist_test_performance` - Performance benchmarking with configurable iterations
+For complete documentation, see `TOOLS_REFERENCE.md`.
 
 ### Error Handling Strategy
 

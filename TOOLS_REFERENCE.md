@@ -1,236 +1,544 @@
 # Todoist MCP Tools Reference
 
-Complete reference for all 86 MCP tools provided by the Todoist MCP Server.
+Complete reference for all 19 MCP tools provided by the Todoist MCP Server v1.0.
 
 ## Table of Contents
 
-- [Task Management (12 tools)](#task-management-12-tools)
-- [Subtask Management (5 tools)](#subtask-management-5-tools)
-- [Project Management (11 tools)](#project-management-11-tools)
-- [Comment Management (4 tools)](#comment-management-4-tools)
-- [Label Management (5 tools)](#label-management-5-tools)
-- [Filter Management (4 tools)](#filter-management-4-tools)
-- [Reminder Management (4 tools)](#reminder-management-4-tools)
-- [Duplicate Detection (2 tools)](#duplicate-detection-2-tools)
-- [Collaboration (9 tools)](#collaboration-9-tools)
-- [Activity Log (3 tools)](#activity-log-3-tools)
-- [Backup (2 tools)](#backup-2-tools)
-- [User (3 tools)](#user-3-tools)
-- [Project Notes (4 tools)](#project-notes-4-tools)
-- [Shared Labels (3 tools)](#shared-labels-3-tools)
-- [Item Operations (5 tools)](#item-operations-5-tools)
-- [Section Operations (4 tools)](#section-operations-4-tools)
-- [Project Operations (3 tools)](#project-operations-3-tools)
-- [Testing (3 tools)](#testing-3-tools)
+- [Core Tools](#core-tools)
+  - [todoist_task](#todoist_task)
+  - [todoist_task_bulk](#todoist_task_bulk)
+  - [todoist_subtask](#todoist_subtask)
+  - [todoist_project](#todoist_project)
+  - [todoist_section](#todoist_section)
+  - [todoist_label](#todoist_label)
+  - [todoist_comment](#todoist_comment)
+  - [todoist_reminder](#todoist_reminder)
+  - [todoist_filter](#todoist_filter)
+  - [todoist_collaboration](#todoist_collaboration)
+  - [todoist_user](#todoist_user)
+  - [todoist_utility](#todoist_utility)
+- [Advanced Tools](#advanced-tools)
+  - [todoist_task_ops](#todoist_task_ops)
+  - [todoist_project_ops](#todoist_project_ops)
+  - [todoist_completed](#todoist_completed)
+  - [todoist_activity](#todoist_activity)
+  - [todoist_backup](#todoist_backup)
+  - [todoist_notes](#todoist_notes)
+  - [todoist_shared_labels](#todoist_shared_labels)
 
 ---
 
-## Task Management (12 tools)
+## Core Tools
 
-| Tool Name                     | Description                                                                                                                                                                                                              |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `todoist_task_create`         | Create a new task in Todoist with optional description, due date, priority, labels, deadline, project, section, and duration for time blocking                                                                           |
-| `todoist_task_get`            | Retrieve tasks from Todoist. Use 'filter' for Todoist filter syntax (e.g., 'today', 'p1') or 'task_name' for simple text search in task content                                                                          |
-| `todoist_task_update`         | Update an existing task found by ID or partial name search. Supports updating content, description, due date, priority, labels, deadline, project, section, and duration                                                 |
-| `todoist_task_delete`         | Delete a task found by ID or partial name search (case-insensitive)                                                                                                                                                      |
-| `todoist_task_complete`       | Mark a task as complete found by ID or partial name search (case-insensitive)                                                                                                                                            |
-| `todoist_task_reopen`         | Reopen a previously completed task found by ID or partial name search (case-insensitive). Use this to restore a task that was marked as complete.                                                                        |
-| `todoist_tasks_bulk_create`   | Create multiple tasks at once for improved efficiency. Each task can have full attributes including duration for time blocking.                                                                                          |
-| `todoist_tasks_bulk_update`   | Update multiple tasks at once based on search criteria. Supports updating content, priority, due dates, labels, project, section, and duration.                                                                          |
-| `todoist_tasks_bulk_delete`   | Delete multiple tasks at once based on search criteria. Use with caution - this will permanently delete matching tasks.                                                                                                  |
-| `todoist_tasks_bulk_complete` | Complete multiple tasks at once based on search criteria. Efficiently mark many tasks as done.                                                                                                                           |
-| `todoist_completed_tasks_get` | Retrieve completed tasks from Todoist. Uses the Sync API to fetch tasks that have been marked as complete. Supports filtering by project, date range, and pagination.                                                    |
-| `todoist_task_quick_add`      | Create a task using natural language parsing like the Todoist app. The text is parsed to extract due dates, projects (#), labels (@), assignees (+), priorities (p1-p4), deadlines ({in 3 days}), and descriptions (//). |
+### todoist_task
 
----
+Manage Todoist tasks - create, read, update, delete, complete, reopen, or quick add using natural language.
 
-## Subtask Management (5 tools)
+**Actions:**
 
-| Tool Name                         | Description                                                        |
-| --------------------------------- | ------------------------------------------------------------------ |
-| `todoist_subtask_create`          | Create a new subtask under a parent task in Todoist                |
-| `todoist_subtasks_bulk_create`    | Create multiple subtasks under a parent task in a single operation |
-| `todoist_task_convert_to_subtask` | Convert an existing task to a subtask of another task              |
-| `todoist_subtask_promote`         | Promote a subtask to a main task (remove parent relationship)      |
-| `todoist_task_hierarchy_get`      | Get a task with all its subtasks in a hierarchical structure       |
+| Action      | Description                                   | Required Parameters      |
+| ----------- | --------------------------------------------- | ------------------------ |
+| `create`    | Create a new task with full attribute support | `content`                |
+| `get`       | Retrieve tasks with optional filters          | None                     |
+| `update`    | Update an existing task                       | `task_id` or `task_name` |
+| `delete`    | Delete a task                                 | `task_id` or `task_name` |
+| `complete`  | Mark a task as complete                       | `task_id` or `task_name` |
+| `reopen`    | Reopen a completed task                       | `task_id` or `task_name` |
+| `quick_add` | Create task using natural language            | `text`                   |
 
----
+**Parameters:**
 
-## Project Management (11 tools)
+| Parameter       | Type   | Description                                                                    |
+| --------------- | ------ | ------------------------------------------------------------------------------ |
+| `action`        | string | **Required.** One of: create, get, update, delete, complete, reopen, quick_add |
+| `task_id`       | string | Task ID for direct lookup (preferred)                                          |
+| `task_name`     | string | Partial task name for case-insensitive search                                  |
+| `content`       | string | Task title/content                                                             |
+| `description`   | string | Detailed task description                                                      |
+| `due_string`    | string | Due date in natural language (e.g., 'tomorrow', 'next Monday')                 |
+| `due_date`      | string | Due date in YYYY-MM-DD format                                                  |
+| `deadline_date` | string | Actual deadline in YYYY-MM-DD format                                           |
+| `priority`      | number | Priority 1 (highest) to 4 (lowest)                                             |
+| `project_id`    | string | Project ID to assign task to                                                   |
+| `section_id`    | string | Section ID within project                                                      |
+| `labels`        | array  | Array of label names to assign                                                 |
+| `assignee_id`   | string | User ID to assign task to (shared projects only)                               |
+| `duration`      | number | Task duration for time blocking                                                |
+| `duration_unit` | string | 'minute' (default) or 'day'                                                    |
+| `filter`        | string | Todoist filter query (for get action)                                          |
+| `text`          | string | Natural language text for quick_add                                            |
 
-| Tool Name                           | Description                                                                                                                                  |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `todoist_project_get`               | Get a list of all projects from Todoist with their IDs, names, descriptions, and hierarchy information                                       |
-| `todoist_project_create`            | Create a new project in Todoist with optional sub-project hierarchy, description, and view style                                             |
-| `todoist_project_update`            | Update an existing project in Todoist. Can modify name, color, favorite status, description, or view style.                                  |
-| `todoist_project_delete`            | Delete a project from Todoist. This will also delete all tasks and sub-projects within the project.                                          |
-| `todoist_project_archive`           | Archive or unarchive a project in Todoist. Archived projects are hidden from the main view but can be restored.                              |
-| `todoist_project_collaborators_get` | Get a list of collaborators for a shared project in Todoist. Returns collaborator names and emails.                                          |
-| `todoist_section_get`               | Get a list of sections within a project from Todoist with their IDs and names                                                                |
-| `todoist_section_create`            | Create a new section within a project in Todoist                                                                                             |
-| `todoist_section_update`            | Update an existing section in Todoist. Can update name by section ID or section name search.                                                 |
-| `todoist_section_delete`            | Delete a section and all its tasks from Todoist. Can delete by section ID or section name search.                                            |
-| `todoist_collaborators_get`         | Get a list of collaborators for a shared project. Returns user IDs, names, and emails that can be used for task assignment with assignee_id. |
+**Examples:**
 
----
-
-## Comment Management (4 tools)
-
-| Tool Name                | Description                                                                                                                               |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `todoist_comment_create` | Add a comment to a task or project in Todoist. For task comments, provide task_id or task_name. For project comments, provide project_id. |
-| `todoist_comment_get`    | Get comments for a task or project in Todoist                                                                                             |
-| `todoist_comment_update` | Update an existing comment's content by comment ID                                                                                        |
-| `todoist_comment_delete` | Delete a comment by its ID                                                                                                                |
+```json
+{"action": "create", "content": "Buy groceries", "due_string": "tomorrow", "priority": 1}
+{"action": "get", "filter": "today", "priority": 1}
+{"action": "update", "task_id": "123", "content": "Updated title", "priority": 2}
+{"action": "complete", "task_name": "groceries"}
+{"action": "quick_add", "text": "Meeting tomorrow at 2pm #Work @urgent p1"}
+```
 
 ---
 
-## Label Management (5 tools)
+### todoist_task_bulk
 
-| Tool Name              | Description                                    |
-| ---------------------- | ---------------------------------------------- |
-| `todoist_label_get`    | Get all labels in Todoist                      |
-| `todoist_label_create` | Create a new label in Todoist                  |
-| `todoist_label_update` | Update an existing label in Todoist            |
-| `todoist_label_delete` | Delete a label from Todoist                    |
-| `todoist_label_stats`  | Get usage statistics for all labels in Todoist |
+Perform bulk operations on Todoist tasks - create, update, delete, or complete multiple tasks at once.
 
----
+**Actions:**
 
-## Filter Management (4 tools)
+| Action          | Description                               | Required Parameters           |
+| --------------- | ----------------------------------------- | ----------------------------- |
+| `bulk_create`   | Create multiple tasks at once             | `tasks` array                 |
+| `bulk_update`   | Update multiple tasks matching criteria   | `search_criteria`, `updates`  |
+| `bulk_delete`   | Delete multiple tasks matching criteria   | At least one search criterion |
+| `bulk_complete` | Complete multiple tasks matching criteria | At least one search criterion |
 
-| Tool Name               | Description                                                                                                                                                                  |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `todoist_filter_get`    | Get all custom filters in Todoist. Filters are saved searches that help you organize and view tasks based on specific criteria. Note: Requires Todoist Pro or Business plan. |
-| `todoist_filter_create` | Create a new custom filter in Todoist. Filters use Todoist's query syntax (e.g., 'p1', 'today', '@label', '#project'). Note: Requires Todoist Pro or Business plan.          |
-| `todoist_filter_update` | Update an existing filter in Todoist. Can update name, query, color, order, or favorite status. Note: Frozen filters (from cancelled subscriptions) cannot be modified.      |
-| `todoist_filter_delete` | Delete a filter from Todoist. This action cannot be undone. Note: Frozen filters (from cancelled subscriptions) cannot be deleted.                                           |
+**Parameters:**
 
----
+| Parameter          | Type   | Description                                                                |
+| ------------------ | ------ | -------------------------------------------------------------------------- |
+| `action`           | string | **Required.** One of: bulk_create, bulk_update, bulk_delete, bulk_complete |
+| `tasks`            | array  | Array of task objects to create (for bulk_create)                          |
+| `search_criteria`  | object | Criteria to find tasks (for bulk_update)                                   |
+| `project_id`       | string | Filter by project ID                                                       |
+| `priority`         | number | Filter by priority 1-4                                                     |
+| `due_before`       | string | Filter tasks due before date (YYYY-MM-DD)                                  |
+| `due_after`        | string | Filter tasks due after date (YYYY-MM-DD)                                   |
+| `content_contains` | string | Filter tasks containing text                                               |
+| `updates`          | object | Updates to apply to matching tasks                                         |
 
-## Reminder Management (4 tools)
+**Examples:**
 
-| Tool Name                 | Description                                                                                                                                                                               |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `todoist_reminder_get`    | Get all reminders, optionally filtered by task. Reminders require Todoist Pro or Business plan.                                                                                           |
-| `todoist_reminder_create` | Create a new reminder for a task. Supports three reminder types: relative (minutes before due), absolute (specific date/time), and location-based. Requires Todoist Pro or Business plan. |
-| `todoist_reminder_update` | Update an existing reminder. Can change the type, timing, or location settings. Requires Todoist Pro or Business plan.                                                                    |
-| `todoist_reminder_delete` | Delete a reminder. Requires Todoist Pro or Business plan.                                                                                                                                 |
+```json
+{"action": "bulk_create", "tasks": [
+  {"content": "Task 1", "priority": 1},
+  {"content": "Task 2", "due_string": "tomorrow"}
+]}
 
----
+{"action": "bulk_update",
+ "search_criteria": {"project_id": "123", "priority": 4},
+ "updates": {"priority": 2}}
 
-## Duplicate Detection (2 tools)
-
-| Tool Name                  | Description                                                                                                                                         |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `todoist_duplicates_find`  | Find duplicate or similar tasks using content similarity analysis. Returns grouped tasks that have similar titles, sorted by similarity percentage. |
-| `todoist_duplicates_merge` | Merge duplicate tasks by keeping one task and completing or deleting the others. Use after todoist_duplicates_find to clean up duplicates.          |
-
----
-
-## Collaboration (9 tools)
-
-| Tool Name                             | Description                                                                                                             |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `todoist_workspaces_get`              | Get all workspaces for the current user. Workspaces are available with Todoist Business accounts for team organization. |
-| `todoist_invitations_get`             | Get all pending project sharing invitations received by the current user.                                               |
-| `todoist_project_invite`              | Invite a user to collaborate on a project by email. The invitee will receive an email notification.                     |
-| `todoist_invitation_accept`           | Accept a project sharing invitation. Requires both the invitation ID and secret from the invitation email.              |
-| `todoist_invitation_reject`           | Reject a project sharing invitation. Requires both the invitation ID and secret.                                        |
-| `todoist_invitation_delete`           | Delete/revoke a pending invitation that you sent. Use this to cancel an invitation before it is accepted.               |
-| `todoist_notifications_get`           | Get live notifications including comments, assignments, sharing invitations, and other collaboration events.            |
-| `todoist_notification_mark_read`      | Mark a specific notification as read.                                                                                   |
-| `todoist_notifications_mark_all_read` | Mark all notifications as read.                                                                                         |
+{"action": "bulk_complete", "due_before": "2024-01-01", "project_id": "123"}
+```
 
 ---
 
-## Activity Log (3 tools)
+### todoist_subtask
 
-| Tool Name                        | Description                                                                                                                                                                                                                   |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `todoist_activity_get`           | Get Todoist activity log with optional filters. Returns events for items, notes, projects, sections, labels, filters, and reminders. Useful for auditing changes, tracking productivity, and understanding workspace history. |
-| `todoist_activity_by_project`    | Get Todoist activity log for a specific project. Returns all events (tasks added/completed/deleted, comments, etc.) related to the project. Useful for project auditing and tracking project-specific changes.                |
-| `todoist_activity_by_date_range` | Get Todoist activity log within a specific date range. Returns all events that occurred between the specified dates. Useful for generating activity reports and reviewing changes over time periods.                          |
+Manage hierarchical subtasks in Todoist.
 
----
+**Actions:**
 
-## Backup (2 tools)
+| Action        | Description                                 | Required Parameters                      |
+| ------------- | ------------------------------------------- | ---------------------------------------- |
+| `create`      | Create a subtask under a parent             | `parent_id` or `parent_name`, `content`  |
+| `bulk_create` | Create multiple subtasks under a parent     | `parent_id` or `parent_name`, `subtasks` |
+| `convert`     | Convert an existing task to a subtask       | `task_id`, `parent_id`                   |
+| `promote`     | Promote a subtask to a main task            | `task_id`                                |
+| `hierarchy`   | Get task hierarchy with completion tracking | `task_id`                                |
 
-| Tool Name                 | Description                                                                                                                                     |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `todoist_backups_get`     | List all available automatic backups of your Todoist data. Todoist creates backups automatically. Returns version timestamps and download URLs. |
-| `todoist_backup_download` | Get the download URL for a specific backup version. The URL is time-limited. Backups are ZIP files containing CSV exports of your Todoist data. |
+**Examples:**
 
----
-
-## User (3 tools)
-
-| Tool Name                        | Description                                                                                                              |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `todoist_user_get`               | Get information about the current Todoist user including name, email, timezone, karma, and account settings.             |
-| `todoist_productivity_stats_get` | Get detailed productivity statistics including karma, task completion history, daily/weekly streaks, and goals progress. |
-| `todoist_user_settings_get`      | Get user settings including reminder preferences, notification settings, sounds, and theme configuration.                |
+```json
+{"action": "create", "parent_id": "123", "content": "Subtask 1"}
+{"action": "bulk_create", "parent_id": "123", "subtasks": [
+  {"content": "Sub 1"}, {"content": "Sub 2"}
+]}
+{"action": "hierarchy", "task_id": "123"}
+```
 
 ---
 
-## Project Notes (4 tools)
+### todoist_project
 
-| Tool Name                     | Description                                                                                    |
-| ----------------------------- | ---------------------------------------------------------------------------------------------- |
-| `todoist_project_notes_get`   | Get all notes for a specific project. Project notes are shared with all project collaborators. |
-| `todoist_project_note_create` | Create a new note for a project. Project notes are visible to all project collaborators.       |
-| `todoist_project_note_update` | Update an existing project note's content.                                                     |
-| `todoist_project_note_delete` | Delete a project note by ID.                                                                   |
+Manage Todoist projects - create, read, update, delete, archive, or get collaborators.
 
----
+**Actions:**
 
-## Shared Labels (3 tools)
+| Action          | Description                            | Required Parameters            |
+| --------------- | -------------------------------------- | ------------------------------ |
+| `create`        | Create a new project                   | `name`                         |
+| `get`           | List all projects                      | None                           |
+| `update`        | Update project properties              | `project_id` or `project_name` |
+| `delete`        | Delete a project and all its tasks     | `project_id` or `project_name` |
+| `archive`       | Archive or unarchive a project         | `project_id` or `project_name` |
+| `collaborators` | Get collaborators for a shared project | `project_id` or `project_name` |
 
-| Tool Name                     | Description                                                                                                                                                    |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `todoist_shared_labels_get`   | Get all shared labels in the workspace. Shared labels are available in Todoist Business accounts for team collaboration.                                       |
-| `todoist_shared_label_rename` | Rename a shared label across all items in the workspace. Updates the label name for all team members. Requires Todoist Business account.                       |
-| `todoist_shared_label_remove` | Remove a shared label from all items in the workspace. This removes the label from all tasks but does not delete the tasks. Requires Todoist Business account. |
+**Parameters:**
 
----
+| Parameter      | Type    | Description                                                               |
+| -------------- | ------- | ------------------------------------------------------------------------- |
+| `action`       | string  | **Required.** One of: create, get, update, delete, archive, collaborators |
+| `project_id`   | string  | Project ID (takes precedence over project_name)                           |
+| `project_name` | string  | Project name for search                                                   |
+| `name`         | string  | Project name (for create/update)                                          |
+| `color`        | string  | Project color (e.g., 'red', 'blue', 'green')                              |
+| `description`  | string  | Project description                                                       |
+| `view_style`   | string  | 'list' or 'board'                                                         |
+| `is_favorite`  | boolean | Favorite status                                                           |
+| `parent_id`    | string  | Parent project ID (for sub-projects)                                      |
+| `archived`     | boolean | true to archive, false to unarchive                                       |
 
-## Item Operations (5 tools)
+**Examples:**
 
-| Tool Name                       | Description                                                                                                                                                              |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `todoist_task_move`             | Move a task to a different project, section, or under a parent task. Uses Todoist Sync API for reliable movement operations.                                             |
-| `todoist_task_reorder`          | Set the order of a task within its project/section. Lower numbers appear first.                                                                                          |
-| `todoist_tasks_reorder_bulk`    | Reorder multiple tasks at once by specifying their new positions. Efficient for reorganizing task lists.                                                                 |
-| `todoist_task_close`            | Close a task. For recurring tasks, this completes the current occurrence and schedules the next one. For non-recurring tasks, this is equivalent to completing the task. |
-| `todoist_task_day_order_update` | Update the day order of tasks in the Today view. Controls the order tasks appear when viewing today's tasks.                                                             |
-
----
-
-## Section Operations (4 tools)
-
-| Tool Name                   | Description                                                                                              |
-| --------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `todoist_section_move`      | Move a section to a different project. All tasks in the section will move with it.                       |
-| `todoist_sections_reorder`  | Reorder sections within a project by specifying their new positions.                                     |
-| `todoist_section_archive`   | Archive a section. Archived sections are hidden but not deleted. Tasks in the section are also archived. |
-| `todoist_section_unarchive` | Unarchive a previously archived section. Restores the section and its tasks to active status.            |
+```json
+{"action": "create", "name": "Work Tasks", "color": "blue", "view_style": "board"}
+{"action": "archive", "project_name": "Old Project", "archived": true}
+{"action": "collaborators", "project_id": "123"}
+```
 
 ---
 
-## Project Operations (3 tools)
+### todoist_section
 
-| Tool Name                        | Description                                                                                                                 |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `todoist_projects_reorder`       | Reorder projects by specifying their new positions. Controls project ordering in the sidebar.                               |
-| `todoist_project_move_to_parent` | Move a project under another project (making it a sub-project) or to root level. Useful for organizing project hierarchies. |
-| `todoist_archived_projects_get`  | Get a list of all archived projects. Useful for reviewing or restoring archived projects.                                   |
+Manage Todoist sections within projects.
+
+**Actions:**
+
+| Action      | Description                       | Required Parameters                          |
+| ----------- | --------------------------------- | -------------------------------------------- |
+| `create`    | Create a new section              | `project_id`, `name`                         |
+| `get`       | List sections                     | None (all) or `project_id`                   |
+| `update`    | Rename a section                  | `section_id` or `section_name`, `name`       |
+| `delete`    | Delete a section and its tasks    | `section_id` or `section_name`               |
+| `move`      | Move section to another project   | `section_id` or `section_name`, `project_id` |
+| `reorder`   | Reorder sections within a project | `project_id`, `sections` array               |
+| `archive`   | Archive a section                 | `section_id` or `section_name`               |
+| `unarchive` | Restore an archived section       | `section_id` or `section_name`               |
+
+**Examples:**
+
+```json
+{"action": "create", "project_id": "123", "name": "In Progress"}
+{"action": "reorder", "project_id": "123", "sections": [
+  {"id": "1", "section_order": 1}, {"id": "2", "section_order": 2}
+]}
+```
 
 ---
 
-## Testing (3 tools)
+### todoist_label
 
-| Tool Name                   | Description                                                                 |
-| --------------------------- | --------------------------------------------------------------------------- |
-| `todoist_test_connection`   | Test the connection to Todoist API and verify API token validity            |
-| `todoist_test_all_features` | Run comprehensive tests on all Todoist MCP features to verify functionality |
-| `todoist_test_performance`  | Measure performance and response times of Todoist API operations            |
+Manage Todoist labels for task organization.
+
+**Actions:**
+
+| Action   | Description                | Required Parameters        |
+| -------- | -------------------------- | -------------------------- |
+| `create` | Create a new label         | `name`                     |
+| `get`    | List all labels            | None                       |
+| `update` | Update a label             | `label_id` or `label_name` |
+| `delete` | Delete a label             | `label_id` or `label_name` |
+| `stats`  | Get label usage statistics | None                       |
+
+**Examples:**
+
+```json
+{"action": "create", "name": "urgent", "color": "red"}
+{"action": "stats"}
+```
+
+---
+
+### todoist_comment
+
+Manage comments on Todoist tasks and projects.
+
+**Actions:**
+
+| Action   | Description            | Required Parameters                  |
+| -------- | ---------------------- | ------------------------------------ |
+| `create` | Add a comment          | `task_id` or `project_id`, `content` |
+| `get`    | Get comments           | `task_id` or `project_id`            |
+| `update` | Update comment content | `comment_id`, `content`              |
+| `delete` | Delete a comment       | `comment_id`                         |
+
+**Examples:**
+
+```json
+{"action": "create", "task_id": "123", "content": "Great progress!"}
+{"action": "get", "task_id": "123"}
+```
+
+---
+
+### todoist_reminder
+
+Manage task reminders in Todoist (requires Pro/Business plan).
+
+**Actions:**
+
+| Action   | Description            | Required Parameters     |
+| -------- | ---------------------- | ----------------------- |
+| `create` | Create a reminder      | `task_id`, `type`       |
+| `get`    | List reminders         | None (all) or `task_id` |
+| `update` | Update reminder timing | `reminder_id`           |
+| `delete` | Delete a reminder      | `reminder_id`           |
+
+**Parameters:**
+
+| Parameter       | Type   | Description                            |
+| --------------- | ------ | -------------------------------------- |
+| `type`          | string | 'relative', 'absolute', or 'location'  |
+| `minute_offset` | number | Minutes before due time (for relative) |
+| `due_date`      | string | ISO datetime (for absolute)            |
+
+**Examples:**
+
+```json
+{"action": "create", "task_id": "123", "type": "relative", "minute_offset": 30}
+{"action": "create", "task_id": "123", "type": "absolute", "due_date": "2024-12-25T09:00:00Z"}
+```
+
+---
+
+### todoist_filter
+
+Manage custom filters in Todoist (requires Pro/Business plan).
+
+**Actions:**
+
+| Action   | Description            | Required Parameters          |
+| -------- | ---------------------- | ---------------------------- |
+| `create` | Create a custom filter | `name`, `query`              |
+| `get`    | List all filters       | None                         |
+| `update` | Update a filter        | `filter_id` or `filter_name` |
+| `delete` | Delete a filter        | `filter_id` or `filter_name` |
+
+**Examples:**
+
+```json
+{"action": "create", "name": "Urgent Today", "query": "today & p1"}
+{"action": "update", "filter_id": "123", "query": "p1 | p2"}
+```
+
+---
+
+### todoist_collaboration
+
+Manage Todoist collaboration, invitations, and notifications.
+
+**Actions:**
+
+| Action          | Description                     | Required Parameters       |
+| --------------- | ------------------------------- | ------------------------- |
+| `workspaces`    | List workspaces (Business)      | None                      |
+| `invitations`   | List pending invitations        | None                      |
+| `invite`        | Invite user to a project        | `project_id`, `email`     |
+| `accept`        | Accept an invitation            | `invitation_id`, `secret` |
+| `reject`        | Reject an invitation            | `invitation_id`, `secret` |
+| `delete_invite` | Delete/revoke a sent invitation | `invitation_id`           |
+| `notifications` | Get live notifications          | None                      |
+| `mark_read`     | Mark notification as read       | `notification_id`         |
+| `mark_all_read` | Mark all notifications as read  | None                      |
+
+**Examples:**
+
+```json
+{"action": "invite", "project_id": "123", "email": "user@example.com"}
+{"action": "notifications", "limit": 10}
+```
+
+---
+
+### todoist_user
+
+Get Todoist user information and productivity stats.
+
+**Actions:**
+
+| Action     | Description                                  |
+| ---------- | -------------------------------------------- |
+| `info`     | Get user profile (name, email, timezone)     |
+| `stats`    | Get productivity statistics (karma, streaks) |
+| `settings` | Get user settings (theme, date format)       |
+
+**Examples:**
+
+```json
+{"action": "info"}
+{"action": "stats"}
+```
+
+---
+
+### todoist_utility
+
+Utility operations for testing and duplicate detection.
+
+**Actions:**
+
+| Action             | Description           | Key Parameters                       |
+| ------------------ | --------------------- | ------------------------------------ |
+| `test_connection`  | Validate API token    | None                                 |
+| `test_features`    | Run feature tests     | `mode`: 'basic' or 'enhanced'        |
+| `test_performance` | Benchmark API         | `iterations`                         |
+| `find_duplicates`  | Find similar tasks    | `threshold` (0-100%)                 |
+| `merge_duplicates` | Merge duplicate tasks | `keep_task_id`, `duplicate_task_ids` |
+
+**Examples:**
+
+```json
+{"action": "test_connection"}
+{"action": "find_duplicates", "threshold": 80, "project_id": "123"}
+{"action": "merge_duplicates", "keep_task_id": "123", "duplicate_task_ids": ["456", "789"], "merge_action": "complete"}
+```
+
+---
+
+## Advanced Tools
+
+### todoist_task_ops
+
+Advanced task operations via Sync API.
+
+**Actions:**
+
+| Action         | Description                         | Required Parameters      |
+| -------------- | ----------------------------------- | ------------------------ |
+| `move`         | Move task to project/section/parent | `task_id`, destination   |
+| `reorder`      | Set task position                   | `task_id`, `child_order` |
+| `bulk_reorder` | Reorder multiple tasks              | `items` array            |
+| `close`        | Close task (for recurring)          | `task_id`                |
+| `day_order`    | Set position in Today view          | `task_id`, `day_order`   |
+
+**Examples:**
+
+```json
+{"action": "move", "task_id": "123", "project_id": "456"}
+{"action": "bulk_reorder", "items": [{"id": "123", "child_order": 1}, {"id": "456", "child_order": 2}]}
+```
+
+---
+
+### todoist_project_ops
+
+Advanced project operations.
+
+**Actions:**
+
+| Action           | Description                 | Required Parameters       |
+| ---------------- | --------------------------- | ------------------------- |
+| `reorder`        | Reorder projects in sidebar | `projects` array          |
+| `move_to_parent` | Move project under another  | `project_id`, `parent_id` |
+| `get_archived`   | List archived projects      | None                      |
+
+**Examples:**
+
+```json
+{"action": "reorder", "projects": [{"id": "123", "child_order": 0}, {"id": "456", "child_order": 1}]}
+{"action": "move_to_parent", "project_id": "123", "parent_id": "456"}
+```
+
+---
+
+### todoist_completed
+
+Get completed tasks history.
+
+**Actions:**
+
+| Action | Description                           |
+| ------ | ------------------------------------- |
+| `get`  | Retrieve completed tasks with filters |
+
+**Parameters:**
+
+| Parameter    | Type   | Description                       |
+| ------------ | ------ | --------------------------------- |
+| `project_id` | string | Filter to specific project        |
+| `since`      | string | Start date (YYYY-MM-DD)           |
+| `until`      | string | End date (YYYY-MM-DD)             |
+| `limit`      | number | Max tasks to return (default: 30) |
+
+**Examples:**
+
+```json
+{"action": "get", "project_id": "123", "limit": 50}
+{"action": "get", "since": "2024-01-01", "until": "2024-01-31"}
+```
+
+---
+
+### todoist_activity
+
+Get activity logs and audit trails (requires Pro/Business).
+
+**Actions:**
+
+| Action       | Description                | Key Parameters              |
+| ------------ | -------------------------- | --------------------------- |
+| `get`        | Get activity entries       | `object_type`, `event_type` |
+| `by_project` | Activity for a project     | `project_id`                |
+| `by_date`    | Activity within date range | `since`, `until`            |
+
+**Examples:**
+
+```json
+{"action": "get", "object_type": "item", "event_type": "completed"}
+{"action": "by_project", "project_id": "123", "limit": 20}
+```
+
+---
+
+### todoist_backup
+
+Manage Todoist backups (requires Pro/Business).
+
+**Actions:**
+
+| Action     | Description                   | Required Parameters |
+| ---------- | ----------------------------- | ------------------- |
+| `list`     | Get available backup versions | None                |
+| `download` | Download a specific backup    | `version`           |
+
+**Examples:**
+
+```json
+{"action": "list"}
+{"action": "download", "version": "2024-01-15_12-00"}
+```
+
+---
+
+### todoist_notes
+
+Manage project notes (different from task comments).
+
+**Actions:**
+
+| Action   | Description             | Required Parameters     |
+| -------- | ----------------------- | ----------------------- |
+| `create` | Create a project note   | `project_id`, `content` |
+| `get`    | Get notes for a project | `project_id`            |
+| `update` | Update note content     | `note_id`, `content`    |
+| `delete` | Delete a note           | `note_id`               |
+
+**Examples:**
+
+```json
+{"action": "create", "project_id": "123", "content": "Project kickoff notes..."}
+{"action": "get", "project_id": "123"}
+```
+
+---
+
+### todoist_shared_labels
+
+Manage shared labels in Todoist Business workspaces.
+
+**Actions:**
+
+| Action   | Description            | Required Parameters |
+| -------- | ---------------------- | ------------------- |
+| `get`    | List all shared labels | None                |
+| `rename` | Rename a shared label  | `name`, `new_name`  |
+| `remove` | Remove a shared label  | `name`              |
+
+**Examples:**
+
+```json
+{"action": "get"}
+{"action": "rename", "name": "old-label", "new_name": "new-label"}
+```
