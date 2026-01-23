@@ -32,12 +32,12 @@ export class TaskNotFoundError extends TodoistMCPError {
 }
 
 export class ProjectNotFoundError extends TodoistMCPError {
-  constructor(projectId: string) {
-    super(
-      `Could not find project with ID "${projectId}"`,
-      "PROJECT_NOT_FOUND",
-      404
-    );
+  constructor(identifier: string) {
+    // Check if it looks like an error message already
+    const message = identifier.includes("found") || identifier.includes("required")
+      ? identifier
+      : `Could not find project "${identifier}"`;
+    super(message, "PROJECT_NOT_FOUND", 404);
     this.name = "ProjectNotFoundError";
   }
 }
@@ -81,6 +81,28 @@ export class SubtaskError extends TodoistMCPError {
   constructor(message: string) {
     super(`Subtask operation error: ${message}`, "SUBTASK_ERROR", 400);
     this.name = "SubtaskError";
+  }
+}
+
+export class FilterNotFoundError extends TodoistMCPError {
+  constructor(filterIdentifier: string) {
+    super(
+      `Could not find filter "${filterIdentifier}"`,
+      "FILTER_NOT_FOUND",
+      404
+    );
+    this.name = "FilterNotFoundError";
+  }
+}
+
+export class FilterFrozenError extends TodoistMCPError {
+  constructor(filterName: string) {
+    super(
+      `Filter "${filterName}" is frozen (from a cancelled subscription) and cannot be modified`,
+      "FILTER_FROZEN",
+      403
+    );
+    this.name = "FilterFrozenError";
   }
 }
 

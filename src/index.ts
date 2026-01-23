@@ -12,25 +12,55 @@ import {
   type TodoistClient,
 } from "./utils/dry-run-wrapper.js";
 import { ALL_TOOLS } from "./tools/index.js";
+import { ALL_UNIFIED_TOOLS } from "./tools/unified/index.js";
+import {
+  // Unified routers
+  handleTaskAction,
+  handleTaskBulkAction,
+  handleCompletedAction,
+  handleProjectAction,
+  handleProjectOpsAction,
+  handleSectionAction,
+  handleSubtaskAction,
+  handleLabelAction,
+  handleSharedLabelsAction,
+  handleCommentAction,
+  handleReminderAction,
+  handleFilterAction,
+  handleCollaborationAction,
+  handleUserAction,
+  handleUtilityAction,
+  handleActivityAction,
+  handleTaskOpsAction,
+  handleBackupAction,
+  handleNotesAction,
+} from "./handlers/unified/index.js";
 import {
   isCreateTaskArgs,
   isGetTasksArgs,
   isUpdateTaskArgs,
   isTaskNameArgs as isDeleteTaskArgs,
   isTaskNameArgs as isCompleteTaskArgs,
+  isQuickAddTaskArgs,
+  isTaskNameArgs as isReopenTaskArgs,
   isGetProjectsArgs,
   isGetSectionsArgs,
   isCreateProjectArgs,
+  isUpdateProjectArgs,
+  isProjectNameArgs,
+  isArchiveProjectArgs,
+  isGetProjectCollaboratorsArgs,
   isCreateSectionArgs,
   isUpdateSectionArgs,
   isSectionIdentifierArgs,
+  isGetCollaboratorsArgs,
   isBulkCreateTasksArgs,
   isBulkUpdateTasksArgs,
   isBulkTaskFilterArgs,
   isCreateCommentArgs,
   isGetCommentsArgs,
   isUpdateCommentArgs,
-  isDeleteCommentArgs,
+  isCommentIdArgs,
   isGetLabelsArgs,
   isCreateLabelArgs,
   isUpdateLabelArgs,
@@ -41,11 +71,44 @@ import {
   isConvertToSubtaskArgs,
   isPromoteSubtaskArgs,
   isGetTaskHierarchyArgs,
+  isGetFiltersArgs,
+  isCreateFilterArgs,
+  isUpdateFilterArgs,
+  isFilterNameArgs,
   isGetRemindersArgs,
   isCreateReminderArgs,
   isUpdateReminderArgs,
-  isDeleteReminderArgs,
-  isGetCompletedTasksArgs,
+  isReminderIdArgs,
+  isFindDuplicatesArgs,
+  isMergeDuplicatesArgs,
+  isGetActivityArgs,
+  isGetActivityByProjectArgs,
+  isGetActivityByDateRangeArgs,
+  isMoveTaskArgs,
+  isReorderTaskArgs,
+  isBulkReorderTasksArgs,
+  isCloseTaskArgs,
+  isUpdateDayOrderArgs,
+  isMoveSectionArgs,
+  isReorderSectionsArgs,
+  isArchiveSectionArgs,
+  isUnarchiveSectionArgs,
+  isReorderProjectsArgs,
+  isMoveProjectToParentArgs,
+  isGetArchivedProjectsArgs,
+  isRenameSharedLabelArgs,
+  isRemoveSharedLabelArgs,
+  isDownloadBackupArgs,
+  isGetProjectNotesArgs,
+  isCreateProjectNoteArgs,
+  isUpdateProjectNoteArgs,
+  isDeleteProjectNoteArgs,
+  isInviteToProjectArgs,
+  isAcceptInvitationArgs,
+  isRejectInvitationArgs,
+  isDeleteInvitationArgs,
+  isGetLiveNotificationsArgs,
+  isMarkNotificationReadArgs,
 } from "./type-guards.js";
 import {
   handleCreateTask,
@@ -53,19 +116,25 @@ import {
   handleUpdateTask,
   handleDeleteTask,
   handleCompleteTask,
+  handleReopenTask,
   handleBulkCreateTasks,
   handleBulkUpdateTasks,
   handleBulkDeleteTasks,
   handleBulkCompleteTasks,
-  handleGetCompletedTasks,
+  handleQuickAddTask,
 } from "./handlers/task-handlers.js";
 import {
   handleGetProjects,
   handleGetSections,
   handleCreateProject,
+  handleUpdateProject,
+  handleDeleteProject,
+  handleArchiveProject,
+  handleGetProjectCollaborators,
   handleCreateSection,
   handleUpdateSection,
   handleDeleteSection,
+  handleGetCollaborators,
 } from "./handlers/project-handlers.js";
 import {
   handleCreateComment,
@@ -93,42 +162,83 @@ import {
   handleGetTaskHierarchy,
 } from "./handlers/subtask-handlers.js";
 import {
+  handleGetFilters,
+  handleCreateFilter,
+  handleUpdateFilter,
+  handleDeleteFilter,
+} from "./handlers/filter-handlers.js";
+import {
   handleGetReminders,
   handleCreateReminder,
   handleUpdateReminder,
   handleDeleteReminder,
 } from "./handlers/reminder-handlers.js";
+import {
+  handleFindDuplicates,
+  handleMergeDuplicates,
+} from "./handlers/duplicate-handlers.js";
+import {
+  handleGetActivity,
+  handleGetActivityByProject,
+  handleGetActivityByDateRange,
+} from "./handlers/activity-handlers.js";
+import {
+  handleMoveTask,
+  handleReorderTask,
+  handleBulkReorderTasks,
+  handleCloseTask,
+  handleUpdateDayOrders,
+} from "./handlers/item-operations-handlers.js";
+import {
+  handleMoveSection,
+  handleReorderSections,
+  handleArchiveSection,
+  handleUnarchiveSection,
+} from "./handlers/section-operations-handlers.js";
+import {
+  handleReorderProjects,
+  handleMoveProjectToParent,
+  handleGetArchivedProjects,
+} from "./handlers/project-operations-handlers.js";
+import {
+  handleGetUser,
+  handleGetProductivityStats,
+  handleGetUserSettings,
+} from "./handlers/user-handlers.js";
+import {
+  handleGetSharedLabels,
+  handleRenameSharedLabel,
+  handleRemoveSharedLabel,
+} from "./handlers/shared-label-handlers.js";
+import {
+  handleGetBackups,
+  handleDownloadBackup,
+} from "./handlers/backup-handlers.js";
+import {
+  handleGetProjectNotes,
+  handleCreateProjectNote,
+  handleUpdateProjectNote,
+  handleDeleteProjectNote,
+} from "./handlers/project-notes-handlers.js";
+import {
+  handleGetWorkspaces,
+  handleGetInvitations,
+  handleInviteToProject,
+  handleAcceptInvitation,
+  handleRejectInvitation,
+  handleDeleteInvitation,
+  handleGetLiveNotifications,
+  handleMarkNotificationRead,
+  handleMarkAllNotificationsRead,
+} from "./handlers/collaboration-handlers.js";
 import { handleError } from "./errors.js";
-import type { TaskHierarchy, TaskNode } from "./types.js";
-
-// Helper function to format task hierarchy
-function formatTaskHierarchy(hierarchy: TaskHierarchy): string {
-  function formatNode(node: TaskNode, indent: string = ""): string {
-    const status = node.task.isCompleted ? "✓" : "○";
-    const completion =
-      node.children.length > 0 ? ` [${node.completionPercentage}%]` : "";
-    const currentTaskMarker = node.isOriginalTask ? " ← current task" : "";
-    let result = `${indent}${status} ${node.task.content} (ID: ${node.task.id})${completion}${currentTaskMarker}\n`;
-
-    for (const child of node.children) {
-      result += formatNode(child, indent + "  ");
-    }
-
-    return result;
-  }
-
-  let result = formatNode(hierarchy.root);
-  result += `\nTotal tasks: ${hierarchy.totalTasks}\n`;
-  result += `Completed: ${hierarchy.completedTasks} (${hierarchy.overallCompletion}%)`;
-
-  return result;
-}
+import { formatTaskHierarchy } from "./utils/formatters.js";
 
 // Server implementation
 const server = new Server(
   {
     name: "todoist-mcp-server",
-    version: "0.10.0",
+    version: "1.0.0",
   },
   {
     capabilities: {
@@ -150,9 +260,21 @@ const todoistClient = createTodoistClient(TODOIST_API_TOKEN);
 // Cast to TodoistApi for handler compatibility (DryRunWrapper implements the same interface)
 const apiClient = todoistClient as TodoistApi;
 
+// Determine which tool set to use based on environment variable
+// Set TODOIST_UNIFIED_TOOLS=true to use the new consolidated tools (19 tools)
+// Default uses legacy tools (60+ tools) for backward compatibility
+const USE_UNIFIED_TOOLS = process.env.TODOIST_UNIFIED_TOOLS === "true";
+const TOOLS = USE_UNIFIED_TOOLS ? ALL_UNIFIED_TOOLS : ALL_TOOLS;
+
+if (USE_UNIFIED_TOOLS) {
+  console.error("Using unified tools (19 consolidated tools)");
+} else {
+  console.error("Using legacy tools (60+ individual tools)");
+}
+
 // Tool handlers
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: ALL_TOOLS,
+  tools: TOOLS,
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -201,6 +323,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         result = await handleCompleteTask(apiClient, args);
         break;
 
+      case "todoist_task_quick_add":
+        if (!isQuickAddTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_quick_add");
+        }
+        result = await handleQuickAddTask(TODOIST_API_TOKEN, args);
+        break;
+
+      case "todoist_task_reopen":
+        if (!isReopenTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_reopen");
+        }
+        result = await handleReopenTask(apiClient, args);
+        break;
+
       case "todoist_project_get":
         if (!isGetProjectsArgs(args)) {
           throw new Error("Invalid arguments for todoist_project_get");
@@ -222,6 +358,36 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         result = await handleCreateProject(apiClient, args);
         break;
 
+      case "todoist_project_update":
+        if (!isUpdateProjectArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_update");
+        }
+        result = await handleUpdateProject(apiClient, args);
+        break;
+
+      case "todoist_project_delete":
+        if (!isProjectNameArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_delete");
+        }
+        result = await handleDeleteProject(apiClient, args);
+        break;
+
+      case "todoist_project_archive":
+        if (!isArchiveProjectArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_archive");
+        }
+        result = await handleArchiveProject(apiClient, args);
+        break;
+
+      case "todoist_project_collaborators_get":
+        if (!isGetProjectCollaboratorsArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_project_collaborators_get"
+          );
+        }
+        result = await handleGetProjectCollaborators(apiClient, args);
+        break;
+
       case "todoist_section_create":
         if (!isCreateSectionArgs(args)) {
           throw new Error("Invalid arguments for todoist_section_create");
@@ -241,6 +407,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error("Invalid arguments for todoist_section_delete");
         }
         result = await handleDeleteSection(apiClient, args);
+        break;
+
+      case "todoist_collaborators_get":
+        if (!isGetCollaboratorsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_collaborators_get");
+        }
+        result = await handleGetCollaborators(apiClient, args);
         break;
 
       case "todoist_tasks_bulk_create":
@@ -271,13 +444,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         result = await handleBulkCompleteTasks(apiClient, args);
         break;
 
-      case "todoist_completed_tasks_get":
-        if (!isGetCompletedTasksArgs(args)) {
-          throw new Error("Invalid arguments for todoist_completed_tasks_get");
-        }
-        result = await handleGetCompletedTasks(apiClient, args);
-        break;
-
       case "todoist_comment_create":
         if (!isCreateCommentArgs(args)) {
           throw new Error("Invalid arguments for todoist_comment_create");
@@ -300,7 +466,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         break;
 
       case "todoist_comment_delete":
-        if (!isDeleteCommentArgs(args)) {
+        if (!isCommentIdArgs(args)) {
           throw new Error("Invalid arguments for todoist_comment_delete");
         }
         result = await handleDeleteComment(apiClient, args);
@@ -402,6 +568,34 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         result = formatTaskHierarchy(hierarchy);
         break;
 
+      case "todoist_filter_get":
+        if (!isGetFiltersArgs(args)) {
+          throw new Error("Invalid arguments for todoist_filter_get");
+        }
+        result = await handleGetFilters();
+        break;
+
+      case "todoist_filter_create":
+        if (!isCreateFilterArgs(args)) {
+          throw new Error("Invalid arguments for todoist_filter_create");
+        }
+        result = await handleCreateFilter(args);
+        break;
+
+      case "todoist_filter_update":
+        if (!isUpdateFilterArgs(args)) {
+          throw new Error("Invalid arguments for todoist_filter_update");
+        }
+        result = await handleUpdateFilter(args);
+        break;
+
+      case "todoist_filter_delete":
+        if (!isFilterNameArgs(args)) {
+          throw new Error("Invalid arguments for todoist_filter_delete");
+        }
+        result = await handleDeleteFilter(args);
+        break;
+
       case "todoist_reminder_get":
         if (!isGetRemindersArgs(args)) {
           throw new Error("Invalid arguments for todoist_reminder_get");
@@ -424,10 +618,262 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         break;
 
       case "todoist_reminder_delete":
-        if (!isDeleteReminderArgs(args)) {
+        if (!isReminderIdArgs(args)) {
           throw new Error("Invalid arguments for todoist_reminder_delete");
         }
         result = await handleDeleteReminder(args);
+        break;
+
+      case "todoist_duplicates_find":
+        if (!isFindDuplicatesArgs(args)) {
+          throw new Error("Invalid arguments for todoist_duplicates_find");
+        }
+        result = await handleFindDuplicates(apiClient, args);
+        break;
+
+      case "todoist_duplicates_merge":
+        if (!isMergeDuplicatesArgs(args)) {
+          throw new Error("Invalid arguments for todoist_duplicates_merge");
+        }
+        result = await handleMergeDuplicates(apiClient, args);
+        break;
+
+      case "todoist_activity_get":
+        if (!isGetActivityArgs(args)) {
+          throw new Error("Invalid arguments for todoist_activity_get");
+        }
+        result = await handleGetActivity(args);
+        break;
+
+      case "todoist_activity_by_project":
+        if (!isGetActivityByProjectArgs(args)) {
+          throw new Error("Invalid arguments for todoist_activity_by_project");
+        }
+        result = await handleGetActivityByProject(args);
+        break;
+
+      case "todoist_activity_by_date_range":
+        if (!isGetActivityByDateRangeArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_activity_by_date_range"
+          );
+        }
+        result = await handleGetActivityByDateRange(args);
+        break;
+
+      case "todoist_task_move":
+        if (!isMoveTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_move");
+        }
+        result = await handleMoveTask(apiClient, args);
+        break;
+
+      case "todoist_task_reorder":
+        if (!isReorderTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_reorder");
+        }
+        result = await handleReorderTask(apiClient, args);
+        break;
+
+      case "todoist_tasks_reorder_bulk":
+        if (!isBulkReorderTasksArgs(args)) {
+          throw new Error("Invalid arguments for todoist_tasks_reorder_bulk");
+        }
+        result = await handleBulkReorderTasks(args);
+        break;
+
+      case "todoist_task_close":
+        if (!isCloseTaskArgs(args)) {
+          throw new Error("Invalid arguments for todoist_task_close");
+        }
+        result = await handleCloseTask(apiClient, args);
+        break;
+
+      case "todoist_task_day_order_update":
+        if (!isUpdateDayOrderArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_task_day_order_update"
+          );
+        }
+        result = await handleUpdateDayOrders(args);
+        break;
+
+      case "todoist_section_move":
+        if (!isMoveSectionArgs(args)) {
+          throw new Error("Invalid arguments for todoist_section_move");
+        }
+        result = await handleMoveSection(apiClient, args);
+        break;
+
+      case "todoist_sections_reorder":
+        if (!isReorderSectionsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_sections_reorder");
+        }
+        result = await handleReorderSections(args);
+        break;
+
+      case "todoist_section_archive":
+        if (!isArchiveSectionArgs(args)) {
+          throw new Error("Invalid arguments for todoist_section_archive");
+        }
+        result = await handleArchiveSection(apiClient, args);
+        break;
+
+      case "todoist_section_unarchive":
+        if (!isUnarchiveSectionArgs(args)) {
+          throw new Error("Invalid arguments for todoist_section_unarchive");
+        }
+        result = await handleUnarchiveSection(apiClient, args);
+        break;
+
+      case "todoist_projects_reorder":
+        if (!isReorderProjectsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_projects_reorder");
+        }
+        result = await handleReorderProjects(args);
+        break;
+
+      case "todoist_project_move_to_parent":
+        if (!isMoveProjectToParentArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_project_move_to_parent"
+          );
+        }
+        result = await handleMoveProjectToParent(apiClient, args);
+        break;
+
+      case "todoist_archived_projects_get":
+        if (!isGetArchivedProjectsArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_archived_projects_get"
+          );
+        }
+        result = await handleGetArchivedProjects(args);
+        break;
+
+      case "todoist_user_get":
+        result = await handleGetUser();
+        break;
+
+      case "todoist_productivity_stats_get":
+        result = await handleGetProductivityStats();
+        break;
+
+      case "todoist_user_settings_get":
+        result = await handleGetUserSettings();
+        break;
+
+      case "todoist_shared_labels_get":
+        result = await handleGetSharedLabels();
+        break;
+
+      case "todoist_shared_label_rename":
+        if (!isRenameSharedLabelArgs(args)) {
+          throw new Error("Invalid arguments for todoist_shared_label_rename");
+        }
+        result = await handleRenameSharedLabel(args);
+        break;
+
+      case "todoist_shared_label_remove":
+        if (!isRemoveSharedLabelArgs(args)) {
+          throw new Error("Invalid arguments for todoist_shared_label_remove");
+        }
+        result = await handleRemoveSharedLabel(args);
+        break;
+
+      case "todoist_backups_get":
+        result = await handleGetBackups();
+        break;
+
+      case "todoist_backup_download":
+        if (!isDownloadBackupArgs(args)) {
+          throw new Error("Invalid arguments for todoist_backup_download");
+        }
+        result = await handleDownloadBackup(args);
+        break;
+
+      case "todoist_project_notes_get":
+        if (!isGetProjectNotesArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_notes_get");
+        }
+        result = await handleGetProjectNotes(args);
+        break;
+
+      case "todoist_project_note_create":
+        if (!isCreateProjectNoteArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_note_create");
+        }
+        result = await handleCreateProjectNote(args);
+        break;
+
+      case "todoist_project_note_update":
+        if (!isUpdateProjectNoteArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_note_update");
+        }
+        result = await handleUpdateProjectNote(args);
+        break;
+
+      case "todoist_project_note_delete":
+        if (!isDeleteProjectNoteArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_note_delete");
+        }
+        result = await handleDeleteProjectNote(args);
+        break;
+
+      case "todoist_workspaces_get":
+        result = await handleGetWorkspaces();
+        break;
+
+      case "todoist_invitations_get":
+        result = await handleGetInvitations();
+        break;
+
+      case "todoist_project_invite":
+        if (!isInviteToProjectArgs(args)) {
+          throw new Error("Invalid arguments for todoist_project_invite");
+        }
+        result = await handleInviteToProject(args);
+        break;
+
+      case "todoist_invitation_accept":
+        if (!isAcceptInvitationArgs(args)) {
+          throw new Error("Invalid arguments for todoist_invitation_accept");
+        }
+        result = await handleAcceptInvitation(args);
+        break;
+
+      case "todoist_invitation_reject":
+        if (!isRejectInvitationArgs(args)) {
+          throw new Error("Invalid arguments for todoist_invitation_reject");
+        }
+        result = await handleRejectInvitation(args);
+        break;
+
+      case "todoist_invitation_delete":
+        if (!isDeleteInvitationArgs(args)) {
+          throw new Error("Invalid arguments for todoist_invitation_delete");
+        }
+        result = await handleDeleteInvitation(args);
+        break;
+
+      case "todoist_notifications_get":
+        if (!isGetLiveNotificationsArgs(args)) {
+          throw new Error("Invalid arguments for todoist_notifications_get");
+        }
+        result = await handleGetLiveNotifications(args);
+        break;
+
+      case "todoist_notification_mark_read":
+        if (!isMarkNotificationReadArgs(args)) {
+          throw new Error(
+            "Invalid arguments for todoist_notification_mark_read"
+          );
+        }
+        result = await handleMarkNotificationRead(args);
+        break;
+
+      case "todoist_notifications_mark_all_read":
+        result = await handleMarkAllNotificationsRead();
         break;
 
       case "todoist_test_connection":
@@ -438,7 +884,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case "todoist_test_all_features":
         const featuresResult = await handleTestAllFeatures(
           apiClient,
-          args as { mode?: "basic" | "enhanced" }
+          args as { mode?: "basic" | "enhanced" },
+          TODOIST_API_TOKEN
         );
         result = JSON.stringify(featuresResult, null, 2);
         break;
@@ -449,6 +896,127 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           args as { iterations?: number }
         );
         result = JSON.stringify(performanceResult, null, 2);
+        break;
+
+      // ============================================
+      // UNIFIED TOOLS (19 consolidated tools)
+      // ============================================
+
+      case "todoist_task":
+        result = await handleTaskAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_task_bulk":
+        result = await handleTaskBulkAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_completed":
+        result = await handleCompletedAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_project":
+        result = await handleProjectAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_project_ops":
+        result = await handleProjectOpsAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_section":
+        result = await handleSectionAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_subtask":
+        result = await handleSubtaskAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_label":
+        result = await handleLabelAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_shared_labels":
+        result = await handleSharedLabelsAction(
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_comment":
+        result = await handleCommentAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_reminder":
+        result = await handleReminderAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_filter":
+        result = await handleFilterAction(args as Record<string, unknown>);
+        break;
+
+      case "todoist_collaboration":
+        result = await handleCollaborationAction(
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_user":
+        result = await handleUserAction(args as Record<string, unknown>);
+        break;
+
+      case "todoist_utility":
+        result = await handleUtilityAction(
+          apiClient,
+          args as Record<string, unknown>,
+          TODOIST_API_TOKEN
+        );
+        break;
+
+      case "todoist_activity":
+        result = await handleActivityAction(args as Record<string, unknown>);
+        break;
+
+      case "todoist_task_ops":
+        result = await handleTaskOpsAction(
+          apiClient,
+          args as Record<string, unknown>
+        );
+        break;
+
+      case "todoist_backup":
+        result = await handleBackupAction(args as Record<string, unknown>);
+        break;
+
+      case "todoist_project_notes":
+        result = await handleNotesAction(args as Record<string, unknown>);
         break;
 
       default:
