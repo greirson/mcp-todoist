@@ -1,19 +1,39 @@
-// Centralized exports for all MCP tools organized by domain
 import { TASK_TOOLS } from "./task-tools.js";
 import { SUBTASK_TOOLS } from "./subtask-tools.js";
 import { PROJECT_TOOLS } from "./project-tools.js";
 import { COMMENT_TOOLS } from "./comment-tools.js";
 import { LABEL_TOOLS } from "./label-tools.js";
 import { REMINDER_TOOLS } from "./reminder-tools.js";
+import { FILTER_TOOLS } from "./filter-tools.js";
+import { DUPLICATE_TOOLS } from "./duplicate-tools.js";
+import { ACTIVITY_TOOLS } from "./activity-tools.js";
+import { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
+import { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
+import { PROJECT_OPERATIONS_TOOLS } from "./project-operations-tools.js";
+import { USER_TOOLS } from "./user-tools.js";
+import { SHARED_LABEL_TOOLS } from "./shared-label-tools.js";
+import { BACKUP_TOOLS } from "./backup-tools.js";
+import { PROJECT_NOTES_TOOLS } from "./project-notes-tools.js";
+import { COLLABORATION_TOOLS } from "./collaboration-tools.js";
 import { TEST_TOOLS } from "./test-tools.js";
 
-// Export individual tool categories
 export { TASK_TOOLS } from "./task-tools.js";
 export { SUBTASK_TOOLS } from "./subtask-tools.js";
 export { PROJECT_TOOLS } from "./project-tools.js";
 export { COMMENT_TOOLS } from "./comment-tools.js";
 export { LABEL_TOOLS } from "./label-tools.js";
 export { REMINDER_TOOLS } from "./reminder-tools.js";
+export { FILTER_TOOLS } from "./filter-tools.js";
+export { DUPLICATE_TOOLS } from "./duplicate-tools.js";
+export { ACTIVITY_TOOLS } from "./activity-tools.js";
+export { ITEM_OPERATIONS_TOOLS } from "./item-operations-tools.js";
+export { SECTION_OPERATIONS_TOOLS } from "./section-operations-tools.js";
+export { PROJECT_OPERATIONS_TOOLS } from "./project-operations-tools.js";
+export { USER_TOOLS } from "./user-tools.js";
+export { SHARED_LABEL_TOOLS } from "./shared-label-tools.js";
+export { BACKUP_TOOLS } from "./backup-tools.js";
+export { PROJECT_NOTES_TOOLS } from "./project-notes-tools.js";
+export { COLLABORATION_TOOLS } from "./collaboration-tools.js";
 export { TEST_TOOLS } from "./test-tools.js";
 
 // Export individual tools for backwards compatibility
@@ -23,11 +43,13 @@ export {
   UPDATE_TASK_TOOL,
   DELETE_TASK_TOOL,
   COMPLETE_TASK_TOOL,
+  REOPEN_TASK_TOOL,
   BULK_CREATE_TASKS_TOOL,
   BULK_UPDATE_TASKS_TOOL,
   BULK_DELETE_TASKS_TOOL,
   BULK_COMPLETE_TASKS_TOOL,
   GET_COMPLETED_TASKS_TOOL,
+  QUICK_ADD_TASK_TOOL,
 } from "./task-tools.js";
 
 export {
@@ -42,9 +64,14 @@ export {
   GET_PROJECTS_TOOL,
   GET_SECTIONS_TOOL,
   CREATE_PROJECT_TOOL,
+  UPDATE_PROJECT_TOOL,
+  DELETE_PROJECT_TOOL,
+  ARCHIVE_PROJECT_TOOL,
+  GET_PROJECT_COLLABORATORS_TOOL,
   CREATE_SECTION_TOOL,
   UPDATE_SECTION_TOOL,
   DELETE_SECTION_TOOL,
+  GET_COLLABORATORS_TOOL,
 } from "./project-tools.js";
 
 export { CREATE_COMMENT_TOOL, GET_COMMENTS_TOOL } from "./comment-tools.js";
@@ -70,13 +97,95 @@ export {
   DELETE_REMINDER_TOOL,
 } from "./reminder-tools.js";
 
-// Combined array of all tools in the same order as the original
+export {
+  GET_FILTERS_TOOL,
+  CREATE_FILTER_TOOL,
+  UPDATE_FILTER_TOOL,
+  DELETE_FILTER_TOOL,
+} from "./filter-tools.js";
+
+export {
+  FIND_DUPLICATES_TOOL,
+  MERGE_DUPLICATES_TOOL,
+} from "./duplicate-tools.js";
+
+export {
+  GET_ACTIVITY_TOOL,
+  GET_ACTIVITY_BY_PROJECT_TOOL,
+  GET_ACTIVITY_BY_DATE_RANGE_TOOL,
+} from "./activity-tools.js";
+
+export {
+  MOVE_TASK_TOOL,
+  REORDER_TASK_TOOL,
+  BULK_REORDER_TASKS_TOOL,
+  CLOSE_TASK_TOOL,
+  UPDATE_DAY_ORDER_TOOL,
+} from "./item-operations-tools.js";
+
+export {
+  MOVE_SECTION_TOOL,
+  REORDER_SECTIONS_TOOL,
+  ARCHIVE_SECTION_TOOL,
+  UNARCHIVE_SECTION_TOOL,
+} from "./section-operations-tools.js";
+
+export {
+  REORDER_PROJECTS_TOOL,
+  MOVE_PROJECT_TO_PARENT_TOOL,
+  GET_ARCHIVED_PROJECTS_TOOL,
+} from "./project-operations-tools.js";
+
+export {
+  GET_USER_TOOL,
+  GET_PRODUCTIVITY_STATS_TOOL,
+  GET_USER_SETTINGS_TOOL,
+} from "./user-tools.js";
+
+export {
+  GET_SHARED_LABELS_TOOL,
+  RENAME_SHARED_LABEL_TOOL,
+  REMOVE_SHARED_LABEL_TOOL,
+} from "./shared-label-tools.js";
+
+export { GET_BACKUPS_TOOL, DOWNLOAD_BACKUP_TOOL } from "./backup-tools.js";
+
+export {
+  GET_PROJECT_NOTES_TOOL,
+  CREATE_PROJECT_NOTE_TOOL,
+  UPDATE_PROJECT_NOTE_TOOL,
+  DELETE_PROJECT_NOTE_TOOL,
+} from "./project-notes-tools.js";
+
+export {
+  GET_WORKSPACES_TOOL,
+  GET_INVITATIONS_TOOL,
+  INVITE_TO_PROJECT_TOOL,
+  ACCEPT_INVITATION_TOOL,
+  REJECT_INVITATION_TOOL,
+  DELETE_INVITATION_TOOL,
+  GET_LIVE_NOTIFICATIONS_TOOL,
+  MARK_NOTIFICATION_READ_TOOL,
+  MARK_ALL_NOTIFICATIONS_READ_TOOL,
+} from "./collaboration-tools.js";
+
 export const ALL_TOOLS = [
   ...TASK_TOOLS,
   ...PROJECT_TOOLS,
   ...COMMENT_TOOLS,
   ...LABEL_TOOLS,
+  ...FILTER_TOOLS,
   ...SUBTASK_TOOLS,
   ...REMINDER_TOOLS,
+  ...DUPLICATE_TOOLS,
+  ...ACTIVITY_TOOLS,
+  ...ITEM_OPERATIONS_TOOLS,
+  ...SECTION_OPERATIONS_TOOLS,
+  ...PROJECT_OPERATIONS_TOOLS,
+  ...USER_TOOLS,
+  ...SHARED_LABEL_TOOLS,
+  ...BACKUP_TOOLS,
+  ...PROJECT_NOTES_TOOLS,
+  ...COLLABORATION_TOOLS,
   ...TEST_TOOLS,
 ];

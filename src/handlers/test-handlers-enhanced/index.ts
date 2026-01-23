@@ -7,10 +7,16 @@ import { testBulkOperations } from "./bulk-tests.js";
 import { testSectionOperations } from "./section-tests.js";
 import { testCommentOperations } from "./comment-tests.js";
 import { testReminderOperations } from "./reminder-tests.js";
+import { testQuickAddOperations } from "./quick-add-tests.js";
+import { testDurationAndReopenOperations } from "./duration-reopen-tests.js";
+import { testProjectOperations } from "./project-tests.js";
+import { testCollaborationOperations } from "./collaboration-tests.js";
+import { testFilterOperations } from "./filter-tests.js";
 import { TestSuite, ComprehensiveTestReport } from "./types.js";
 
 export async function handleTestAllFeaturesEnhanced(
-  todoistClient: TodoistApi
+  todoistClient: TodoistApi,
+  apiToken?: string
 ): Promise<ComprehensiveTestReport> {
   const testStartTime = Date.now();
   const suites: TestSuite[] = [];
@@ -23,6 +29,15 @@ export async function handleTestAllFeaturesEnhanced(
   suites.push(await testBulkOperations(todoistClient));
   suites.push(await testCommentOperations(todoistClient));
   suites.push(await testReminderOperations(todoistClient));
+  suites.push(await testDurationAndReopenOperations(todoistClient));
+  suites.push(await testProjectOperations(todoistClient));
+  suites.push(await testCollaborationOperations(todoistClient));
+  suites.push(await testFilterOperations());
+
+  // Run quick add tests if API token is provided
+  if (apiToken) {
+    suites.push(await testQuickAddOperations(todoistClient, apiToken));
+  }
 
   // Calculate totals
   const totalTests = suites.reduce((sum, suite) => sum + suite.tests.length, 0);
@@ -62,3 +77,8 @@ export { testSectionOperations } from "./section-tests.js";
 export { testBulkOperations } from "./bulk-tests.js";
 export { testCommentOperations } from "./comment-tests.js";
 export { testReminderOperations } from "./reminder-tests.js";
+export { testQuickAddOperations } from "./quick-add-tests.js";
+export { testDurationAndReopenOperations } from "./duration-reopen-tests.js";
+export { testProjectOperations } from "./project-tests.js";
+export { testCollaborationOperations } from "./collaboration-tests.js";
+export { testFilterOperations } from "./filter-tests.js";

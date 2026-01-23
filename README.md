@@ -1,12 +1,6 @@
 # Todoist MCP Server
 
-[![smithery badge](https://smithery.ai/badge/@greirson/mcp-todoist)](https://smithery.ai/server/@greirson/mcp-todoist)
-
 An MCP (Model Context Protocol) server that connects Claude with Todoist for complete task and project management through natural language.
-
-<a href="https://glama.ai/mcp/servers/@greirson/mcp-todoist">
-  <img width="380" height="200" src="https://glama.ai/mcp/servers/@greirson/mcp-todoist/badge" alt="Todoist Server MCP server" />
-</a>
 
 ## Quick Start
 
@@ -64,38 +58,23 @@ An MCP (Model Context Protocol) server that connects Claude with Todoist for com
 
 ## Installation & Setup
 
-### Installing via Smithery
-
-To install mcp-todoist for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@greirson/mcp-todoist):
-
-```bash
-npx -y @smithery/cli install @greirson/mcp-todoist --client claude
-```
-
-### Option 1: Using npx (Recommended - No Installation Required)
-
-This is the easiest method as it doesn't require installing anything globally.
-
-#### Step 1: Get Your Todoist API Token
+### Step 1: Get Your Todoist API Token
 
 1. Log in to your [Todoist account](https://todoist.com)
-2. Go to **Settings** → **Integrations**
-3. Scroll down to the **Developer** section
-4. Copy your **API token** (keep this secure!)
+2. Go to **Settings** > **Integrations** > **Developer**
+3. Copy your **API token** (keep this secure!)
 
-#### Step 2: Configure Claude Desktop
+### Step 2: Configure Your Client
 
-Add the server to your Claude Desktop configuration file:
+<details>
+<summary><strong>Claude Desktop</strong></summary>
 
-**On macOS/Linux:**
+**Config file location:**
 
-- File location: `~/.config/claude_desktop_config.json`
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-**On Windows:**
-
-- File location: `%APPDATA%\Claude\claude_desktop_config.json`
-
-Add this configuration:
+**Add this configuration:**
 
 ```json
 {
@@ -111,25 +90,67 @@ Add this configuration:
 }
 ```
 
-**⚠️ Important:** Replace `your_api_token_here` with your actual Todoist API token from Step 1.
+</details>
 
-### Option 2: Global npm Installation
+<details>
+<summary><strong>Claude Code (CLI)</strong></summary>
 
-If you prefer to install the package globally:
+**Quick setup (recommended):**
 
-#### Step 1: Install the Package
+```bash
+claude mcp add todoist -e TODOIST_API_TOKEN=your_api_token_here -- npx @greirson/mcp-todoist
+```
+
+**Or add manually to `~/.claude.json`:**
+
+```json
+{
+  "mcpServers": {
+    "todoist": {
+      "command": "npx",
+      "args": ["@greirson/mcp-todoist"],
+      "env": {
+        "TODOIST_API_TOKEN": "your_api_token_here"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Opencode</strong></summary>
+
+**Add to `.opencode.json` in your project root:**
+
+```json
+{
+  "mcpServers": {
+    "todoist": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@greirson/mcp-todoist"],
+      "env": {
+        "TODOIST_API_TOKEN": "your_api_token_here"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Global npm Installation (Alternative)</strong></summary>
+
+If you prefer to install globally instead of using npx:
 
 ```bash
 npm install -g @greirson/mcp-todoist
 ```
 
-#### Step 2: Get Your Todoist API Token
-
-(Same as Option 1, Step 1)
-
-#### Step 3: Configure Claude Desktop
-
-Use this configuration for global installation:
+Then use `"command": "mcp-todoist"` instead of npx in your config:
 
 ```json
 {
@@ -144,19 +165,17 @@ Use this configuration for global installation:
 }
 ```
 
-### Step 4: Restart Claude Desktop
+</details>
 
-Close and reopen Claude Desktop to load the new MCP server.
+### Step 3: Restart Your Client
 
-### Step 5: Verify Installation
+Close and reopen your client to load the MCP server.
 
-In Claude Desktop, try asking:
+### Step 4: Verify Installation
 
-```
-"Show me my Todoist projects"
-```
+Try asking: _"Show me my Todoist projects"_
 
-You should see a list of your Todoist projects, confirming the integration is working!
+You should see a list of your projects, confirming the integration is working!
 
 ## Dry-Run Mode
 
@@ -217,7 +236,7 @@ Priority: 4 (Normal)
 
 ### Supported Operations
 
-All 32 MCP tools support dry-run mode:
+All 19 MCP tools support dry-run mode:
 
 - Task creation, updates, completion, and deletion
 - Subtask operations and hierarchy changes
@@ -233,69 +252,31 @@ Remove the `DRYRUN` environment variable or set it to `false`, then restart Clau
 
 ## Tools Overview
 
-The server provides 37 tools organized by entity type:
+The server provides **19 MCP tools** for complete Todoist management:
 
-### Task Management
+| Tool                    | Actions                                                                 | Description                     |
+| ----------------------- | ----------------------------------------------------------------------- | ------------------------------- |
+| `todoist_task`          | create, get, update, delete, complete, reopen, quick_add                | Complete task management        |
+| `todoist_task_bulk`     | bulk_create, bulk_update, bulk_delete, bulk_complete                    | Efficient multi-task operations |
+| `todoist_subtask`       | create, bulk_create, convert, promote, hierarchy                        | Hierarchical task management    |
+| `todoist_project`       | create, get, update, delete, archive, collaborators                     | Project CRUD and sharing        |
+| `todoist_project_ops`   | reorder, move_to_parent, get_archived                                   | Advanced project operations     |
+| `todoist_section`       | create, get, update, delete, move, reorder, archive                     | Section management              |
+| `todoist_label`         | create, get, update, delete, stats                                      | Label management with analytics |
+| `todoist_comment`       | create, get, update, delete                                             | Task/project comments           |
+| `todoist_reminder`      | create, get, update, delete                                             | Reminder management (Pro)       |
+| `todoist_filter`        | create, get, update, delete                                             | Custom filters (Pro)            |
+| `todoist_collaboration` | invitations, notifications, workspace operations                        | Team collaboration features     |
+| `todoist_user`          | info, productivity_stats, karma_history                                 | User profile and stats          |
+| `todoist_utility`       | test_connection, test_features, test_performance, find/merge duplicates | Testing and utilities           |
+| `todoist_activity`      | get_log, get_events, get_summary                                        | Activity audit trail            |
+| `todoist_task_ops`      | move, reorder, close                                                    | Advanced task operations        |
+| `todoist_completed`     | get, get_all, get_stats                                                 | Completed task retrieval        |
+| `todoist_backup`        | list, download                                                          | Automatic backup access         |
+| `todoist_notes`         | create, get, update, delete                                             | Project notes (collaborators)   |
+| `todoist_shared_labels` | create, get, rename, remove                                             | Workspace labels (Business)     |
 
-- **Todoist Task Create**: Create new tasks with full attribute support
-- **Todoist Task Get**: Retrieve tasks by ID or combine priority, label, natural-language filters, and strict `due_before`/`due_after` windows with timezone-aware due details
-- **Todoist Task Update**: Update existing tasks (found by ID or partial name search)
-- **Todoist Task Complete**: Mark tasks as complete (found by ID or partial name search)
-- **Todoist Task Delete**: Remove tasks (found by ID or partial name search)
-- **Todoist Completed Tasks Get**: Retrieve completed tasks with date range filtering and pagination
-
-### Subtask Management
-
-- **Todoist Subtask Create**: Create subtasks under parent tasks with full attribute support
-- **Todoist Subtasks Bulk Create**: Create multiple subtasks under a parent task efficiently
-- **Todoist Task Convert to Subtask**: Convert existing tasks to subtasks of another task
-- **Todoist Subtask Promote**: Promote subtasks to main tasks (remove parent relationship)
-- **Todoist Task Hierarchy Get**: View task hierarchies with subtasks and completion tracking
-
-### Bulk Task Operations
-
-- **Todoist Tasks Bulk Create**: Create multiple tasks at once for improved efficiency
-- **Todoist Tasks Bulk Update**: Update multiple tasks based on search criteria with the same strict `due_before`/`due_after` filtering used by single-task queries
-- **Todoist Tasks Bulk Delete**: Delete multiple tasks based on search criteria with timezone-aware due comparisons
-- **Todoist Tasks Bulk Complete**: Complete multiple tasks based on search criteria with timezone-aware due comparisons
-
-### Comment Management
-
-- **Todoist Comment Create**: Add comments to tasks with optional file attachments
-- **Todoist Comment Get**: Retrieve comments for tasks or projects
-
-### Label Management
-
-- **Todoist Label Get**: List all labels with their IDs and colors
-- **Todoist Label Create**: Create new labels with optional color and ordering
-- **Todoist Label Update**: Update existing labels (name, color, order, favorite status)
-- **Todoist Label Delete**: Remove labels from your workspace
-- **Todoist Label Stats**: Get detailed usage statistics for all labels
-
-### Project Management
-
-- **Todoist Project Create**: Create new projects with optional color and favorite status
-- **Todoist Project Get**: List all projects with their IDs and names
-
-### Section Management
-
-- **Todoist Section Create**: Create sections within projects with optional ordering
-- **Todoist Section Get**: List sections within projects
-- **Todoist Section Update**: Update section names (by ID or partial name search)
-- **Todoist Section Delete**: Delete sections and all contained tasks (by ID or partial name search)
-
-### Reminder Management (Requires Pro/Business)
-
-- **Todoist Reminder Get**: List all reminders, optionally filtered by task
-- **Todoist Reminder Create**: Create reminders (relative, absolute, or location-based)
-- **Todoist Reminder Update**: Update existing reminder settings
-- **Todoist Reminder Delete**: Remove reminders from tasks
-
-### Testing & Validation
-
-- **Todoist Test Connection**: Validate API token and test connectivity
-- **Todoist Test All Features**: Two modes - basic (read-only API tests) and enhanced (full CRUD testing with cleanup)
-- **Todoist Test Performance**: Benchmark API response times with configurable iterations
+For detailed tool documentation with parameters and examples, see **[TOOLS_REFERENCE.md](TOOLS_REFERENCE.md)**.
 
 ## Troubleshooting
 
@@ -339,12 +320,38 @@ The server provides 37 tools organized by entity type:
 "Update meeting task to be in section 67890"
 "Mark the PR review task as complete"
 
+# Task duration for time blocking
+"Create task 'Deep work session' with 90 minute duration"
+"Update task 'Meeting' to have a 2 day duration"
+
 # Task identification by ID (more reliable than name search)
 "Get task with ID 1234567890"
 "Update task ID 1234567890 to priority 4"
 "Complete task with ID 1234567890"
+"Reopen task with ID 1234567890"
 "Delete task ID 1234567890"
 ```
+
+### Quick Add
+
+The Quick Add tool parses natural language text like the Todoist app, supporting multiple features in a single command:
+
+```
+"Quick add: Buy groceries tomorrow #Shopping @errands p1"
+"Quick add: Review PR next Monday #Work @code-review p2 //Check error handling"
+"Quick add: Call mom {deadline in 3 days}"
+"Quick add: Team meeting today at 2pm #Work @meetings with reminder 1 hour before"
+```
+
+**Quick Add Syntax:**
+
+- **Due dates**: Natural language dates like "tomorrow", "next Friday", "Jan 23", "in 3 days"
+- **Projects**: `#ProjectName` (no spaces in project names)
+- **Labels**: `@label` (e.g., "@urgent", "@work")
+- **Assignees**: `+name` (for shared projects)
+- **Priority**: `p1` (urgent), `p2`, `p3`, `p4` (lowest)
+- **Deadlines**: `{in 3 days}` or `{March 15}`
+- **Descriptions**: `//your description here` (must be at the end)
 
 ### Subtask Management
 

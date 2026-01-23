@@ -222,6 +222,84 @@ export function validateTaskContent(content: string): string {
   });
 }
 
+/**
+ * Validates task duration amount
+ * @param duration - Duration amount in minutes or days
+ */
+export function validateDuration(duration?: number): void {
+  if (duration !== undefined) {
+    if (typeof duration !== "number" || !Number.isFinite(duration)) {
+      throw new ValidationError(
+        "Duration must be a finite number",
+        "duration"
+      );
+    }
+
+    if (!Number.isInteger(duration)) {
+      throw new ValidationError(
+        "Duration must be an integer",
+        "duration"
+      );
+    }
+
+    if (duration < 1) {
+      throw new ValidationError(
+        "Duration must be at least 1",
+        "duration"
+      );
+    }
+
+    // Todoist allows up to 24 hours (1440 minutes) or 365 days
+    if (duration > 1440) {
+      throw new ValidationError(
+        "Duration cannot exceed 1440 (24 hours in minutes or 365 days)",
+        "duration"
+      );
+    }
+  }
+}
+
+/**
+ * Validates task duration unit
+ * @param unit - Duration unit ('minute' or 'day')
+ */
+export function validateDurationUnit(unit?: string): void {
+  if (unit !== undefined) {
+    if (typeof unit !== "string") {
+      throw new ValidationError(
+        "Duration unit must be a string",
+        "duration_unit"
+      );
+    }
+
+    const validUnits = ["minute", "day"];
+    if (!validUnits.includes(unit)) {
+      throw new ValidationError(
+        `Duration unit must be one of: ${validUnits.join(", ")}`,
+        "duration_unit"
+      );
+    }
+  }
+}
+
+/**
+ * Validates duration and duration_unit together
+ * If one is provided, the other must also be provided (or use defaults)
+ */
+export function validateDurationPair(duration?: number, durationUnit?: string): void {
+  validateDuration(duration);
+  validateDurationUnit(durationUnit);
+
+  // If duration is provided without unit, we'll default to 'minute' in the handler
+  // If unit is provided without duration, it's invalid
+  if (durationUnit !== undefined && duration === undefined) {
+    throw new ValidationError(
+      "Duration unit requires a duration amount to be specified",
+      "duration_unit"
+    );
+  }
+}
+
 export function validatePriority(priority?: number): void {
   if (priority !== undefined) {
     if (!Number.isInteger(priority) || priority < 1 || priority > 4) {
@@ -651,7 +729,12 @@ export function validateOperationFrequency(
   }
 }
 
-import type { CreateLabelArgs, UpdateLabelArgs } from "./types.js";
+import type {
+  CreateLabelArgs,
+  UpdateLabelArgs,
+  CreateFilterArgs,
+  UpdateFilterArgs,
+} from "./types.js";
 
 export function validateLabelData(data: CreateLabelArgs): CreateLabelArgs {
   const sanitizedName = validateLabelName(data.name);
@@ -681,6 +764,126 @@ export function validateLabelUpdate(data: UpdateLabelArgs): UpdateLabelArgs {
   if (data.order !== undefined) {
     validateLabelOrder(data.order);
     updates.order = data.order;
+  }
+
+  if (data.is_favorite !== undefined) {
+    updates.is_favorite = data.is_favorite;
+  }
+
+  return updates;
+}
+
+// Filter validation constants
+export const FILTER_VALIDATION_LIMITS = {
+  FILTER_NAME_MAX: 100,
+  FILTER_QUERY_MAX: 500,
+} as const;
+
+/**
+ * Validates filter name
+ */
+export function validateFilterName(name: string): string {
+  return validateAndSanitizeContent(name, "name", {
+    maxLength: FILTER_VALIDATION_LIMITS.FILTER_NAME_MAX,
+    allowHtml: false,
+    required: true,
+  });
+}
+
+/**
+ * Validates filter query
+ */
+export function validateFilterQuery(query: string): string {
+  if (!query || typeof query !== "string") {
+    throw new ValidationError("Filter query is required and must be a string", "query");
+  }
+
+  const trimmed = query.trim();
+  if (trimmed.length === 0) {
+    throw new ValidationError("Filter query cannot be empty", "query");
+  }
+
+  if (trimmed.length > FILTER_VALIDATION_LIMITS.FILTER_QUERY_MAX) {
+    throw new ValidationError(
+      `Filter query must be ${FILTER_VALIDATION_LIMITS.FILTER_QUERY_MAX} characters or less`,
+      "query"
+    );
+  }
+
+  // Check for suspicious patterns in query (XSS prevention)
+  const suspiciousPatterns = detectSuspiciousPatterns(trimmed);
+  if (suspiciousPatterns.length > 0) {
+    throw new ValidationError(
+      "Filter query contains potentially malicious content",
+      "query"
+    );
+  }
+
+  return trimmed;
+}
+
+/**
+ * Validates filter order
+ */
+export function validateFilterOrder(order?: number): void {
+  if (order !== undefined) {
+    if (!Number.isInteger(order) || order < 0) {
+      throw new ValidationError(
+        "Filter order must be a non-negative integer",
+        "item_order"
+      );
+    }
+  }
+}
+
+/**
+ * Validates filter color (same as label color)
+ */
+export function validateFilterColor(color?: string): void {
+  // Filters use the same color scheme as labels
+  validateLabelColor(color);
+}
+
+/**
+ * Validates and sanitizes filter creation data
+ */
+export function validateFilterData(data: CreateFilterArgs): CreateFilterArgs {
+  const sanitizedName = validateFilterName(data.name);
+  const sanitizedQuery = validateFilterQuery(data.query);
+  validateFilterColor(data.color);
+  validateFilterOrder(data.item_order);
+
+  return {
+    name: sanitizedName,
+    query: sanitizedQuery,
+    color: data.color,
+    item_order: data.item_order,
+    is_favorite: data.is_favorite,
+  };
+}
+
+/**
+ * Validates and sanitizes filter update data
+ */
+export function validateFilterUpdate(data: UpdateFilterArgs): UpdateFilterArgs {
+  const updates: UpdateFilterArgs = {};
+
+  if (data.name !== undefined) {
+    updates.name = validateFilterName(data.name);
+  }
+
+  if (data.query !== undefined) {
+    updates.query = validateFilterQuery(data.query);
+  }
+
+  if (data.color !== undefined) {
+    validateFilterColor(data.color);
+    updates.color = data.color;
+  }
+
+  if (data.item_order !== undefined) {
+    validateFilterOrder(data.item_order);
+    updates.item_order = data.item_order;
   }
 
   if (data.is_favorite !== undefined) {

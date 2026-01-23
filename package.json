@@ -1,6 +1,6 @@
 {
   "name": "@greirson/mcp-todoist",
-  "version": "0.10.0",
+  "version": "1.0.0",
   "description": "MCP server for Todoist API",
   "main": "dist/index.js",
   "module": "./src/index.ts",
@@ -10,8 +10,7 @@
     "mcp-todoist": "dist/index.js"
   },
   "files": [
-    "dist",
-    "smithery.yaml"
+    "dist"
   ],
   "scripts": {
     "build": "tsc && shx chmod +x dist/*.js",
@@ -45,13 +44,15 @@
   },
   "homepage": "https://github.com/greirson/mcp-todoist#readme",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.18.2",
-    "@doist/todoist-api-typescript": "^5.5.1"
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "@doist/todoist-api-typescript": "^5.5.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.6.1",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.48.0",
     "@typescript-eslint/parser": "^8.48.0",
     "eslint": "^9.27.0",

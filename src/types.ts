@@ -1,3 +1,16 @@
+/**
+ * Duration unit type for task durations
+ */
+export type DurationUnit = "minute" | "day";
+
+/**
+ * Task duration configuration
+ */
+export interface TaskDuration {
+  amount: number;
+  unit: DurationUnit;
+}
+
 export interface CreateTaskArgs {
   content: string;
   description?: string;
@@ -8,6 +21,23 @@ export interface CreateTaskArgs {
   project_id?: string;
   section_id?: string;
   parent_id?: string;
+  duration?: number;
+  duration_unit?: DurationUnit;
+  assignee_id?: string;
+  child_order?: number;
+  day_order?: number;
+  is_collapsed?: boolean;
+}
+
+// Collaborator interfaces
+export interface TodoistCollaborator {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface GetCollaboratorsArgs {
+  project_id: string;
 }
 
 export interface GetTasksArgs {
@@ -33,11 +63,45 @@ export interface UpdateTaskArgs {
   project_id?: string;
   section_id?: string;
   labels?: string[];
+  duration?: number;
+  duration_unit?: DurationUnit;
+  assignee_id?: string;
+  child_order?: number;
+  day_order?: number;
+  is_collapsed?: boolean;
+}
+
+export interface ReopenTaskArgs {
+  task_name?: string;
+  task_id?: string;
 }
 
 export interface TaskNameArgs {
   task_name?: string;
   task_id?: string;
+}
+
+export interface QuickAddTaskArgs {
+  text: string;
+  note?: string;
+  reminder?: string;
+  auto_reminder?: boolean;
+}
+
+export interface QuickAddTaskResult {
+  id: string;
+  content: string;
+  description?: string;
+  project_id?: string;
+  project_name?: string;
+  section_id?: string;
+  parent_id?: string;
+  labels?: string[];
+  priority?: number;
+  due?: TodoistTaskDueData | null;
+  deadline?: { date: string } | null;
+  assignee_id?: string;
+  url?: string;
 }
 
 export interface GetSectionsArgs {
@@ -48,6 +112,29 @@ export interface CreateProjectArgs {
   name: string;
   color?: string;
   is_favorite?: boolean;
+  parent_id?: string;
+  description?: string;
+  view_style?: "list" | "board";
+}
+
+export interface UpdateProjectArgs {
+  project_id?: string;
+  project_name?: string;
+  name?: string;
+  color?: string;
+  is_favorite?: boolean;
+  description?: string;
+  view_style?: "list" | "board";
+}
+
+export interface ProjectNameArgs {
+  project_id?: string;
+  project_name?: string;
+}
+
+export interface GetProjectCollaboratorsArgs {
+  project_id?: string;
+  project_name?: string;
 }
 
 export interface CreateSectionArgs {
@@ -78,12 +165,16 @@ export interface TodoistTaskData {
   deadlineDate?: string;
   projectId?: string;
   sectionId?: string;
+  duration?: number;
+  durationUnit?: DurationUnit;
 }
 
 export interface TodoistProjectData {
   name: string;
   color?: string;
   isFavorite?: boolean;
+  parentId?: string;
+  viewStyle?: "list" | "board";
 }
 
 export interface TodoistSectionData {
@@ -113,6 +204,7 @@ export interface TodoistTask {
   sectionId?: string | null;
   parentId?: string | null;
   isCompleted?: boolean;
+  duration?: TaskDuration | null;
 }
 
 export interface TodoistProject {
@@ -120,6 +212,17 @@ export interface TodoistProject {
   name: string;
   color?: string;
   isFavorite?: boolean;
+  parentId?: string | null;
+  description?: string;
+  viewStyle?: string;
+  isArchived?: boolean;
+  isShared?: boolean;
+}
+
+export interface TodoistCollaborator {
+  id: string;
+  name: string;
+  email: string;
 }
 
 export interface TodoistSection {
@@ -149,6 +252,8 @@ export interface BulkUpdateTasksArgs {
     project_id?: string;
     section_id?: string;
     labels?: string[];
+    duration?: number;
+    duration_unit?: DurationUnit;
   };
 }
 
@@ -460,6 +565,50 @@ export interface DeleteReminderArgs {
   reminder_id: string;
 }
 
+// Filter operation interfaces (Sync API)
+export interface TodoistFilter {
+  id: string;
+  name: string;
+  query: string;
+  color?: string;
+  item_order?: number;
+  is_deleted?: boolean;
+  is_favorite?: boolean;
+  is_frozen?: boolean;
+}
+
+export interface CreateFilterArgs {
+  name: string;
+  query: string;
+  color?: string;
+  item_order?: number;
+  is_favorite?: boolean;
+}
+
+export interface UpdateFilterArgs {
+  filter_id?: string;
+  filter_name?: string;
+  name?: string;
+  query?: string;
+  color?: string;
+  item_order?: number;
+  is_favorite?: boolean;
+}
+
+export interface FilterNameArgs {
+  filter_id?: string;
+  filter_name?: string;
+}
+
+// Sync API response interfaces
+export interface SyncApiResponse {
+  sync_token?: string;
+  full_sync?: boolean;
+  filters?: TodoistFilter[];
+  sync_status?: Record<string, string | { error_code: number; error: string }>;
+  temp_id_mapping?: Record<string, string>;
+}
+
 export interface SyncCommand {
   type: string;
   uuid: string;
@@ -479,7 +628,6 @@ export type RemindersResponse =
   | TodoistReminder[]
   | { reminders?: TodoistReminder[] };
 
-// Completed tasks interfaces (Sync API)
 export interface GetCompletedTasksArgs {
   project_id?: string;
   since?: string;
@@ -505,3 +653,340 @@ export interface CompletedTasksResponse {
   projects: Record<string, TodoistProject>;
   sections: Record<string, TodoistSection>;
 }
+
+export interface FindDuplicatesArgs {
+  threshold?: number;
+  project_id?: string;
+  include_completed?: boolean;
+}
+
+export interface DuplicateGroup {
+  similarity: number;
+  tasks: DuplicateTask[];
+}
+
+export interface DuplicateTask {
+  id: string;
+  content: string;
+  description?: string;
+  projectId?: string;
+  projectName?: string;
+  due?: string;
+  priority?: number;
+  labels?: string[];
+  isCompleted?: boolean;
+}
+
+export interface MergeDuplicatesArgs {
+  keep_task_id: string;
+  duplicate_task_ids: string[];
+  action: "complete" | "delete";
+}
+
+// Activity log interfaces (Phase 1: Activity Logs)
+// Based on Todoist Sync API activity/get endpoint
+
+export type ActivityEventType =
+  | "added"
+  | "updated"
+  | "deleted"
+  | "completed"
+  | "uncompleted"
+  | "archived"
+  | "unarchived"
+  | "shared"
+  | "left";
+
+export type ActivityObjectType =
+  | "item"
+  | "note"
+  | "project"
+  | "section"
+  | "label"
+  | "filter"
+  | "reminder";
+
+export interface ActivityLogEvent {
+  id: string;
+  object_type: ActivityObjectType;
+  object_id: string;
+  event_type: ActivityEventType;
+  event_date: string;
+  parent_project_id?: string;
+  parent_item_id?: string;
+  initiator_id?: string;
+  extra_data?: Record<string, unknown>;
+}
+
+export interface GetActivityArgs {
+  object_type?: ActivityObjectType;
+  object_id?: string;
+  event_type?: ActivityEventType;
+  parent_project_id?: string;
+  parent_item_id?: string;
+  initiator_id?: string;
+  since?: string;
+  until?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GetActivityByProjectArgs {
+  project_id: string;
+  event_type?: ActivityEventType;
+  object_type?: ActivityObjectType;
+  since?: string;
+  until?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface GetActivityByDateRangeArgs {
+  since: string;
+  until: string;
+  object_type?: ActivityObjectType;
+  event_type?: ActivityEventType;
+  project_id?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export interface ActivityResponse {
+  events: ActivityLogEvent[];
+  count: number;
+}
+
+export interface MoveTaskArgs {
+  task_id?: string;
+  task_name?: string;
+  project_id?: string;
+  section_id?: string;
+  parent_id?: string;
+}
+
+export interface ReorderTaskArgs {
+  task_id?: string;
+  task_name?: string;
+  child_order: number;
+}
+
+export interface BulkReorderTasksArgs {
+  items: { id: string; child_order: number }[];
+}
+
+export interface CloseTaskArgs {
+  task_id?: string;
+  task_name?: string;
+}
+
+export interface UpdateDayOrderArgs {
+  items: { id: string; day_order: number }[];
+}
+
+export interface MoveSectionArgs {
+  section_id?: string;
+  section_name?: string;
+  project_id: string;
+}
+
+export interface ReorderSectionsArgs {
+  project_id: string;
+  sections: { id: string; section_order: number }[];
+}
+
+export interface ArchiveSectionArgs {
+  section_id?: string;
+  section_name?: string;
+  project_id?: string;
+}
+
+export interface UnarchiveSectionArgs {
+  section_id?: string;
+  section_name?: string;
+  project_id?: string;
+}
+
+export interface ReorderProjectsArgs {
+  projects: { id: string; child_order: number }[];
+}
+
+export interface MoveProjectToParentArgs {
+  project_id?: string;
+  project_name?: string;
+  parent_id?: string;
+}
+
+export interface GetArchivedProjectsArgs {
+  limit?: number;
+  offset?: number;
+}
+
+export interface UserInfo {
+  id: string;
+  email: string;
+  full_name: string;
+  inbox_project_id: string;
+  team_inbox_id?: string;
+  avatar_medium?: string;
+  avatar_big?: string;
+  avatar_s640?: string;
+  is_premium: boolean;
+  premium_until?: string;
+  business_account_id?: string;
+  date_format: number;
+  time_format: number;
+  start_day: number;
+  start_page: string;
+  next_week: number;
+  timezone: string;
+  lang: string;
+  joined_at: string;
+  sort_order: number;
+  days_off: number[];
+  default_reminder?: string;
+  auto_reminder?: number;
+  karma: number;
+  karma_trend: string;
+  completed_count: number;
+  completed_today: number;
+}
+
+export interface ProductivityStats {
+  karma_last_update: number;
+  karma_trend: string;
+  days_items: { date: string; total_completed: number }[];
+  completed_count: number;
+  karma_update_reasons: {
+    positive_karma_reasons: number[];
+    negative_karma_reasons: number[];
+  };
+  karma: number;
+  week_items: { date: string; total_completed: number }[];
+  goals: {
+    karma_disabled: number;
+    user_id: string;
+    max_weekly_streak: { count: number; start: string; end: string };
+    ignore_days: number[];
+    vacation_mode: number;
+    current_weekly_streak: { count: number; start: string; end: string };
+    current_daily_streak: { count: number; start: string; end: string };
+    weekly_goal: number;
+    max_daily_streak: { count: number; start: string; end: string };
+    daily_goal: number;
+  };
+}
+
+export interface SharedLabel {
+  name: string;
+}
+
+export interface RenameSharedLabelArgs {
+  name: string;
+  new_name: string;
+}
+
+export interface RemoveSharedLabelArgs {
+  name: string;
+}
+
+// Phase 7: Backups & Project Notes
+
+export interface TodoistBackup {
+  version: string;
+  url: string;
+}
+
+export interface GetBackupsArgs {}
+
+export interface DownloadBackupArgs {
+  version: string;
+}
+
+export interface ProjectNote {
+  id: string;
+  project_id: string;
+  content: string;
+  posted_at: string;
+  posted_uid: string;
+  is_deleted: boolean;
+  file_attachment?: {
+    file_name: string;
+    file_size: number;
+    file_type: string;
+    file_url: string;
+    upload_state: string;
+  };
+}
+
+export interface GetProjectNotesArgs {
+  project_id: string;
+}
+
+export interface CreateProjectNoteArgs {
+  project_id: string;
+  content: string;
+}
+
+export interface UpdateProjectNoteArgs {
+  note_id: string;
+  content: string;
+}
+
+export interface DeleteProjectNoteArgs {
+  note_id: string;
+}
+
+// Phase 8: Collaboration & Sharing
+
+export interface Workspace {
+  id: string;
+  name: string;
+  is_default: boolean;
+}
+
+export interface Invitation {
+  id: string;
+  inviter_id: string;
+  project_id?: string;
+  message?: string;
+}
+
+export interface InviteToProjectArgs {
+  project_id: string;
+  email: string;
+  message?: string;
+}
+
+export interface AcceptInvitationArgs {
+  invitation_id: string;
+  invitation_secret: string;
+}
+
+export interface RejectInvitationArgs {
+  invitation_id: string;
+  invitation_secret: string;
+}
+
+export interface DeleteInvitationArgs {
+  invitation_id: string;
+}
+
+export interface LiveNotification {
+  id: string;
+  created_at: string;
+  notification_type: string;
+  is_unread: boolean;
+  from_uid?: string;
+  project_id?: string;
+  item_id?: string;
+}
+
+export interface GetLiveNotificationsArgs {
+  limit?: number;
+}
+
+export interface MarkNotificationReadArgs {
+  notification_id: string;
+}
+
+export interface MarkAllNotificationsReadArgs {}
