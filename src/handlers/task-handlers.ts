@@ -142,7 +142,7 @@ export async function handleCreateTask(
     validateLabels(args.labels);
     validateProjectId(args.project_id);
     validateSectionId(args.section_id);
-    validateDurationPair(args.duration, args.duration_unit);
+    validateDurationPair(args.duration, args.duration_unit, args.due_string);
 
     const taskData: TodoistTaskData = {
       content: sanitizedContent,
@@ -205,12 +205,10 @@ export async function handleCreateTask(
     const isDryRun = (task as any).__dryRun === true;
     const prefix = isDryRun ? "[DRY-RUN] " : "";
 
-    // Format duration for display
+    // Format duration for display - only show if API returned it (not from input args)
     const durationDisplay = task.duration
       ? `\nDuration: ${task.duration.amount} ${task.duration.unit}${task.duration.amount !== 1 ? "s" : ""}`
-      : args.duration
-        ? `\nDuration: ${args.duration} ${args.duration_unit || "minute"}${args.duration !== 1 ? "s" : ""}`
-        : "";
+      : "";
 
     return `${prefix}Task created:\nID: ${task.id}\nTitle: ${task.content}${
       task.description ? `\nDescription: ${task.description}` : ""
@@ -425,7 +423,7 @@ export async function handleUpdateTask(
   // Validate that at least one identifier is provided
   validateTaskIdentifier(taskId, taskName);
   validateLabels(args.labels);
-  validateDurationPair(args.duration, args.duration_unit);
+  validateDurationPair(args.duration, args.duration_unit, args.due_string);
 
   // Clear cache since we're updating
   taskCache.clear();
@@ -518,10 +516,9 @@ export async function handleUpdateTask(
       }`
     : "";
 
-  // Format duration for display
-  const durationProvided = args.duration !== undefined;
-  const durationLine = durationProvided
-    ? `\nNew Duration: ${args.duration} ${args.duration_unit || "minute"}${args.duration !== 1 ? "s" : ""}`
+  // Format duration for display - show from API response, not input args
+  const durationLine = latestTask.duration
+    ? `\nNew Duration: ${latestTask.duration.amount} ${latestTask.duration.unit}${latestTask.duration.amount !== 1 ? "s" : ""}`
     : "";
 
   return `${prefix}Task "${matchingTask.content}" updated:\nNew Title: ${
@@ -665,7 +662,11 @@ export async function handleBulkCreateTasks(
         validateLabels(taskArgs.labels);
         validateProjectId(taskArgs.project_id);
         validateSectionId(taskArgs.section_id);
-        validateDurationPair(taskArgs.duration, taskArgs.duration_unit);
+        validateDurationPair(
+          taskArgs.duration,
+          taskArgs.duration_unit,
+          taskArgs.due_string
+        );
 
         const taskData: TodoistTaskData = {
           content: taskArgs.content,
@@ -808,7 +809,11 @@ export async function handleBulkUpdateTasks(
     const errors: string[] = [];
 
     validateLabels(args.updates.labels);
-    validateDurationPair(args.updates.duration, args.updates.duration_unit);
+    validateDurationPair(
+      args.updates.duration,
+      args.updates.duration_unit,
+      args.updates.due_string
+    );
 
     const updateData: Partial<TodoistTaskData> = {};
     if (args.updates.content) updateData.content = args.updates.content;

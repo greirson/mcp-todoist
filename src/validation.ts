@@ -229,24 +229,15 @@ export function validateTaskContent(content: string): string {
 export function validateDuration(duration?: number): void {
   if (duration !== undefined) {
     if (typeof duration !== "number" || !Number.isFinite(duration)) {
-      throw new ValidationError(
-        "Duration must be a finite number",
-        "duration"
-      );
+      throw new ValidationError("Duration must be a finite number", "duration");
     }
 
     if (!Number.isInteger(duration)) {
-      throw new ValidationError(
-        "Duration must be an integer",
-        "duration"
-      );
+      throw new ValidationError("Duration must be an integer", "duration");
     }
 
     if (duration < 1) {
-      throw new ValidationError(
-        "Duration must be at least 1",
-        "duration"
-      );
+      throw new ValidationError("Duration must be at least 1", "duration");
     }
 
     // Todoist allows up to 24 hours (1440 minutes) or 365 days
@@ -283,10 +274,36 @@ export function validateDurationUnit(unit?: string): void {
 }
 
 /**
+ * Checks if a due_string contains a time component (required for duration/time blocking)
+ * Time patterns: "at HH:MM", "HH:MM", "H:MM", "Ham", "Hpm", etc.
+ */
+export function hasTimeComponent(dueString?: string): boolean {
+  if (!dueString) return false;
+
+  // Common patterns that indicate a time is included:
+  // - "at 14:00", "at 2pm", "at 10:30am"
+  // - "tomorrow 3pm", "monday 10:00"
+  // - ISO datetime format "2024-01-15T14:00:00"
+  const timePatterns = [
+    /\bat\s+\d{1,2}(:\d{2})?\s*(am|pm)?/i, // "at 2pm", "at 14:00"
+    /\d{1,2}:\d{2}\s*(am|pm)?/i, // "14:00", "2:30pm"
+    /\d{1,2}\s*(am|pm)/i, // "2pm", "10am"
+    /T\d{2}:\d{2}/, // ISO format "T14:00"
+  ];
+
+  return timePatterns.some((pattern) => pattern.test(dueString));
+}
+
+/**
  * Validates duration and duration_unit together
  * If one is provided, the other must also be provided (or use defaults)
+ * Duration requires a due time (not just a date) for time blocking to work
  */
-export function validateDurationPair(duration?: number, durationUnit?: string): void {
+export function validateDurationPair(
+  duration?: number,
+  durationUnit?: string,
+  dueString?: string
+): void {
   validateDuration(duration);
   validateDurationUnit(durationUnit);
 
@@ -297,6 +314,24 @@ export function validateDurationPair(duration?: number, durationUnit?: string): 
       "Duration unit requires a duration amount to be specified",
       "duration_unit"
     );
+  }
+
+  // Duration requires a due time for time blocking to work
+  if (duration !== undefined) {
+    if (!dueString) {
+      throw new ValidationError(
+        "Duration requires a due_string with a time for time blocking. " +
+          'Use a due_string like "tomorrow at 2pm" or "monday 10:00"',
+        "duration"
+      );
+    }
+    if (!hasTimeComponent(dueString)) {
+      throw new ValidationError(
+        "Duration requires a due time (not just a date) for time blocking. " +
+          'Use a due_string with a time like "tomorrow at 2pm" or "monday 10:00"',
+        "duration"
+      );
+    }
   }
 }
 
@@ -795,7 +830,10 @@ export function validateFilterName(name: string): string {
  */
 export function validateFilterQuery(query: string): string {
   if (!query || typeof query !== "string") {
-    throw new ValidationError("Filter query is required and must be a string", "query");
+    throw new ValidationError(
+      "Filter query is required and must be a string",
+      "query"
+    );
   }
 
   const trimmed = query.trim();
