@@ -31,12 +31,32 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 
 #### Core Infrastructure
 
-- **`src/index.ts`**: Main server entry point with request routing
-- **`src/types.ts`**: TypeScript type definitions and interfaces
-- **`src/type-guards.ts`**: Runtime type validation functions
+- **`src/index.ts`**: Main server entry point (121 lines) - delegates routing to router module
+- **`src/router/`**: Tool routing module (extracted from index.ts):
+  - `index.ts` - Route dispatcher function
+  - `legacy-router.ts` - Legacy 60+ individual tool routing
+  - `unified-router.ts` - Unified 19 tool routing
+- **`src/types/`**: Modularized TypeScript type definitions (extracted from types.ts):
+  - `task-types.ts`, `project-types.ts`, `bulk-types.ts`, `comment-types.ts`
+  - `label-types.ts`, `api-types.ts`, `subtask-types.ts`, `reminder-types.ts`
+  - `filter-types.ts`, `activity-types.ts`, `collaboration-types.ts`
+  - `index.ts` - Re-exports all types
+- **`src/type-guards/`**: Modularized runtime type validation (extracted from type-guards.ts):
+  - `task-guards.ts`, `project-guards.ts`, `bulk-guards.ts`, `comment-label-guards.ts`
+  - `subtask-guards.ts`, `reminder-guards.ts`, `filter-guards.ts`, `advanced-guards.ts`
+  - `index.ts` - Re-exports all guards
+- **`src/validation/`**: Modularized input validation (extracted from validation.ts):
+  - `sanitization.ts` - XSS prevention and security patterns
+  - `task-validation.ts`, `date-validation.ts`, `id-validation.ts`
+  - `content-validation.ts`, `bulk-validation.ts`
+  - `index.ts` - Re-exports all validators
+- **`src/cache/`**: Modularized caching infrastructure (extracted from cache.ts):
+  - `simple-cache.ts` - SimpleCache class with TTL
+  - `cache-manager.ts` - CacheManager singleton
+  - `index.ts` - Re-exports
 - **`src/errors.ts`**: Custom error types with structured error handling
-- **`src/validation.ts`**: Input validation and sanitization
-- **`src/cache.ts`**: Simple in-memory caching for API optimization
+
+**Backwards Compatibility:** Original files (`src/types.ts`, `src/type-guards.ts`, `src/validation.ts`, `src/cache.ts`) are thin re-export files maintaining all existing import paths.
 
 #### Modular Tool Organization
 
@@ -64,7 +84,13 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 #### Business Logic Handlers
 
 - **`src/handlers/`**: Domain-separated business logic:
-  - `task-handlers.ts` - Task CRUD operations and bulk operations
+  - **`src/handlers/task/`**: Modularized task handlers (extracted from task-handlers.ts):
+    - `crud.ts` - Single task operations (create, get, update, delete, complete, reopen)
+    - `bulk.ts` - Bulk operations and filterTasksByCriteria
+    - `completed.ts` - Completed tasks retrieval via Sync API
+    - `quick-add.ts` - Quick add with natural language parsing
+    - `index.ts` - Re-exports all task handlers
+  - `task-handlers.ts` - Re-exports from task/ for backwards compatibility
   - `subtask-handlers.ts` - Hierarchical task management and parent-child relationships
   - `project-handlers.ts` - Project, section, and collaborator operations
   - `comment-handlers.ts` - Comment creation and retrieval operations
