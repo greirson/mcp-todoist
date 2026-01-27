@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-01-26
+
+### Fixed
+
+- Task duration now requires `due_string` with a time component (e.g., "today at 2pm") - Todoist API silently ignores duration without a specific time
+
+### Changed
+
+- Modularized codebase for improved maintainability:
+  - Split `types.ts` into 11 domain-specific type modules
+  - Split `type-guards.ts` into 8 domain-specific guard modules
+  - Split `validation.ts` into 6 focused validation modules
+  - Split `cache.ts` into SimpleCache and CacheManager modules
+  - Split `task-handlers.ts` into crud, bulk, completed, and quick-add modules
+  - Extracted tool routing from `index.ts` into dedicated router module
+- All original import paths preserved via re-export files for backwards compatibility
+
 ## [1.0.0] - 2026-01-21
 
 ### Added
