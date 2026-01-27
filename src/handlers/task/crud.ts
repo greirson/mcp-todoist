@@ -18,6 +18,7 @@ import {
   validateSectionId,
   validateTaskIdentifier,
   validateDurationPair,
+  validateLimit,
 } from "../../validation/index.js";
 import type { DurationUnit } from "../../types/index.js";
 import {
@@ -215,8 +216,6 @@ export async function handleGetTasks(
   validatePriority(args.priority);
   validateProjectId(args.project_id);
   if (args.limit !== undefined) {
-    // validateLimit expects (limit, maxLimit?) - don't pass undefined maxLimit
-    const { validateLimit } = await import("../../validation/index.js");
     validateLimit(args.limit);
   }
   if (args.due_before) {
