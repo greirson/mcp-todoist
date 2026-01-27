@@ -2,180 +2,58 @@
 
 An MCP (Model Context Protocol) server that connects Claude with Todoist for complete task and project management through natural language.
 
-## Quick Start
+## Installation
 
-1. Get your [Todoist API token](https://todoist.com/app/settings/integrations)
-2. Add to Claude Desktop config:
-   ```json
-   {
-     "mcpServers": {
-       "todoist": {
-         "command": "npx",
-         "args": ["@greirson/mcp-todoist"],
-         "env": {
-           "TODOIST_API_TOKEN": "your_api_token_here"
-         }
-       }
-     }
-   }
-   ```
-3. Restart Claude Desktop
-4. Ask Claude: _"Show me my Todoist projects"_
+### Claude Desktop (One-Click Install)
 
-**That's it!** You can now manage your Todoist tasks directly through Claude.
+1. Download **[todoist-mcp.mcpb](https://github.com/greirson/mcp-todoist/releases/latest)** from the latest release
+2. Double-click the file (or drag onto Claude Desktop)
+3. Enter your [Todoist API token](https://todoist.com/app/settings/integrations/developer) when prompted
+4. Start chatting: _"Show me my Todoist projects"_
 
-## Table of Contents
+### Claude Code / Other MCP Clients
 
-- [Features](#features)
-- [Installation & Setup](#installation--setup)
-- [Dry-Run Mode](#dry-run-mode)
-- [Tools Overview](#tools-overview)
-- [Usage Examples](#usage-examples)
-- [Getting Started Workflow](#getting-started-workflow)
-- [Best Practices](#best-practices)
-- [Troubleshooting](#troubleshooting)
-- [Development](#development)
-- [Changelog](#changelog)
+```bash
+claude mcp add todoist -e TODOIST_API_TOKEN=your_token -- npx @greirson/mcp-todoist
+```
+
+<details>
+<summary>Manual JSON configuration</summary>
+
+Add to your MCP client config (`claude_desktop_config.json`, `~/.claude.json`, etc.):
+
+```json
+{
+  "mcpServers": {
+    "todoist": {
+      "command": "npx",
+      "args": ["@greirson/mcp-todoist"],
+      "env": {
+        "TODOIST_API_TOKEN": "your_api_token_here"
+      }
+    }
+  }
+}
+```
+
+**Config locations:**
+
+- Claude Desktop (macOS): `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Claude Desktop (Windows): `%APPDATA%\Claude\claude_desktop_config.json`
+- Claude Code: `~/.claude.json`
+
+</details>
 
 ## Features
 
-- **Complete Task Management**: Create, read, update, delete, and complete tasks with full attribute support
-- **Hierarchical Subtasks**: Create subtasks, convert tasks to subtasks, promote subtasks, and view task hierarchies with completion tracking
-- **Bulk Operations**: Efficiently create, update, delete, or complete multiple tasks at once
-- **Comment System**: Add comments to tasks and retrieve comments with attachment support
-- **Label Management**: Full CRUD operations for labels with usage statistics and analytics
-- **Reminder Management**: Create, update, and delete reminders (relative, absolute, location-based) via Sync API
-- **Project & Section Organization**: Create and manage projects and sections
-- **Dry-Run Mode**: Test automations and operations without making real changes
-- **Enhanced Testing**: Basic API validation and comprehensive CRUD testing with automatic cleanup
-- **Smart Discovery**: List projects and sections to find IDs for organization
-- **Rich Task Attributes**: Support for descriptions, due dates, priorities, labels, deadlines, and project assignment
-- **Natural Language Interface**: Use everyday language to manage your Todoist workspace
-- **Performance Optimized**: 30-second caching for GET operations to reduce API calls
-- **Robust Error Handling**: Structured error responses with custom error types
-- **Input Validation**: Comprehensive validation and sanitization of all inputs
-- **Type Safety**: Full TypeScript implementation with runtime type checking
-
-## Installation & Setup
-
-### Step 1: Get Your Todoist API Token
-
-1. Log in to your [Todoist account](https://todoist.com)
-2. Go to **Settings** > **Integrations** > **Developer**
-3. Copy your **API token** (keep this secure!)
-
-### Step 2: Configure Your Client
-
-<details>
-<summary><strong>Claude Desktop</strong></summary>
-
-**Config file location:**
-
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-
-**Add this configuration:**
-
-```json
-{
-  "mcpServers": {
-    "todoist": {
-      "command": "npx",
-      "args": ["@greirson/mcp-todoist"],
-      "env": {
-        "TODOIST_API_TOKEN": "your_api_token_here"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>Claude Code (CLI)</strong></summary>
-
-**Quick setup (recommended):**
-
-```bash
-claude mcp add todoist -e TODOIST_API_TOKEN=your_api_token_here -- npx @greirson/mcp-todoist
-```
-
-**Or add manually to `~/.claude.json`:**
-
-```json
-{
-  "mcpServers": {
-    "todoist": {
-      "command": "npx",
-      "args": ["@greirson/mcp-todoist"],
-      "env": {
-        "TODOIST_API_TOKEN": "your_api_token_here"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>Opencode</strong></summary>
-
-**Add to `.opencode.json` in your project root:**
-
-```json
-{
-  "mcpServers": {
-    "todoist": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["@greirson/mcp-todoist"],
-      "env": {
-        "TODOIST_API_TOKEN": "your_api_token_here"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>Global npm Installation (Alternative)</strong></summary>
-
-If you prefer to install globally instead of using npx:
-
-```bash
-npm install -g @greirson/mcp-todoist
-```
-
-Then use `"command": "mcp-todoist"` instead of npx in your config:
-
-```json
-{
-  "mcpServers": {
-    "todoist": {
-      "command": "mcp-todoist",
-      "env": {
-        "TODOIST_API_TOKEN": "your_api_token_here"
-      }
-    }
-  }
-}
-```
-
-</details>
-
-### Step 3: Restart Your Client
-
-Close and reopen your client to load the MCP server.
-
-### Step 4: Verify Installation
-
-Try asking: _"Show me my Todoist projects"_
-
-You should see a list of your projects, confirming the integration is working!
+- **19 MCP Tools** for complete Todoist management
+- **Task Management**: Create, update, delete, complete, reopen tasks with priorities, due dates, labels
+- **Bulk Operations**: Process multiple tasks efficiently
+- **Subtasks**: Hierarchical task management with completion tracking
+- **Projects & Sections**: Full organization support
+- **Labels, Filters, Reminders**: Pro/Business features supported
+- **Natural Language**: Quick add with Todoist's natural language parsing
+- **Dry-Run Mode**: Test operations without making changes
 
 ## Dry-Run Mode
 
@@ -432,49 +310,6 @@ When dry-run mode is enabled (DRYRUN=true), use normal commands - they'll automa
 ```
 
 All these operations will validate against your real data but won't make any changes.
-
-## Getting Started Workflow
-
-### 1. First Steps
-
-```
-"Test my Todoist connection"
-"Show me all my Todoist projects"
-"Create a new project called 'Claude Integration Test'"
-```
-
-### 2. Basic Task Management
-
-```
-"Create a task 'Try out MCP integration' in my Inbox"
-"Add a high priority task 'Review project setup' due tomorrow"
-"Show me all my tasks"
-```
-
-### 3. Advanced Organization
-
-```
-"Create a section called 'In Progress' in my work project"
-"Move the setup task to the In Progress section"
-"Add a comment 'This is working great!' to my test task"
-```
-
-### 4. Bulk Operations
-
-```
-"Create multiple tasks: 'Plan meeting agenda', 'Prepare slides', 'Send invites'"
-"Complete all tasks containing 'test' in the Claude project"
-"Update all high priority tasks to be due next week"
-```
-
-## Best Practices
-
-- **Start Simple**: Begin with basic task creation and project viewing
-- **Use Natural Language**: Ask questions as you normally would
-- **Test with Dry-Run**: Use dry-run mode to validate complex operations before executing
-- **Leverage Bulk Operations**: Use bulk tools when working with multiple tasks
-- **Organize First**: Set up projects and sections before creating many tasks
-- **Regular Cleanup**: Use bulk operations to clean up completed or outdated tasks
 
 ## Development
 
