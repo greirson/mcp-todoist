@@ -1,0 +1,139 @@
+{
+  "manifest_version": "0.3",
+  "name": "todoist-mcp",
+  "display_name": "Todoist MCP Server",
+  "version": "1.0.1",
+  "description": "Comprehensive Todoist integration for Claude - manage tasks, projects, labels, and more with 19 powerful tools",
+  "long_description": "A feature-rich MCP server providing complete Todoist integration for Claude Desktop. This extension enables natural language task management with support for:\n\n- **Task Management**: Create, update, delete, complete, and reopen tasks with full attribute support including priorities, due dates, labels, and time blocking\n- **Bulk Operations**: Efficiently process multiple tasks at once with flexible search criteria\n- **Project Management**: Full CRUD for projects, sections, and collaborators\n- **Subtask Support**: Hierarchical task management with parent-child relationships\n- **Labels & Filters**: Organize with labels and create custom filters (Pro/Business)\n- **Reminders**: Set absolute or relative reminders (Pro/Business)\n- **Collaboration**: Task assignment and shared project workflows\n- **Activity Tracking**: Audit trails and productivity statistics\n- **Natural Language**: Quick add tasks using Todoist's natural language parsing\n\nPerfect for productivity-focused workflows, this extension provides 19 specialized tools covering all aspects of task and project management.",
+  "author": {
+    "name": "greirson",
+    "url": "https://github.com/greirson"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/greirson/mcp-todoist.git"
+  },
+  "homepage": "https://github.com/greirson/mcp-todoist#readme",
+  "documentation": "https://github.com/greirson/mcp-todoist/blob/main/TOOLS_REFERENCE.md",
+  "support": "https://github.com/greirson/mcp-todoist/issues",
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"],
+      "env": {
+        "TODOIST_API_TOKEN": "${user_config.todoist_api_token}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "todoist_task",
+      "description": "Manage Todoist tasks - create, read, update, delete, complete, reopen, or quick add using natural language"
+    },
+    {
+      "name": "todoist_task_bulk",
+      "description": "Perform bulk operations on Todoist tasks - create, update, delete, or complete multiple tasks at once"
+    },
+    {
+      "name": "todoist_subtask",
+      "description": "Manage subtasks - create, bulk create, convert tasks to subtasks, promote subtasks, or view hierarchy"
+    },
+    {
+      "name": "todoist_project",
+      "description": "Manage Todoist projects - create, read, update, delete, archive, or get collaborators"
+    },
+    {
+      "name": "todoist_project_ops",
+      "description": "Advanced project operations - reorder, move to parent, or get archived projects"
+    },
+    {
+      "name": "todoist_section",
+      "description": "Manage Todoist sections - create, read, update, delete, move, reorder, or archive"
+    },
+    {
+      "name": "todoist_label",
+      "description": "Manage Todoist labels - create, read, update, delete, or get usage statistics"
+    },
+    {
+      "name": "todoist_comment",
+      "description": "Manage comments on tasks and projects - create, read, update, or delete"
+    },
+    {
+      "name": "todoist_reminder",
+      "description": "Manage task reminders - create, read, update, or delete (Pro/Business plan required)"
+    },
+    {
+      "name": "todoist_filter",
+      "description": "Manage custom filters - create, read, update, or delete (Pro/Business plan required)"
+    },
+    {
+      "name": "todoist_collaboration",
+      "description": "Manage collaboration features - invitations, notifications, and workspace operations"
+    },
+    {
+      "name": "todoist_user",
+      "description": "Get user information - profile info, productivity stats, or karma history"
+    },
+    {
+      "name": "todoist_utility",
+      "description": "Utility operations - test connection, test features, test performance, find/merge duplicates"
+    },
+    {
+      "name": "todoist_task_ops",
+      "description": "Advanced task operations - move, reorder, or close tasks"
+    },
+    {
+      "name": "todoist_completed",
+      "description": "Retrieve completed tasks - get single, get all, or get statistics"
+    },
+    {
+      "name": "todoist_activity",
+      "description": "Access activity logs - get log, get events, or get summary"
+    },
+    {
+      "name": "todoist_backup",
+      "description": "Access automatic backups - list available backups or download"
+    },
+    {
+      "name": "todoist_notes",
+      "description": "Manage project notes - create, read, update, or delete (for collaborators)"
+    },
+    {
+      "name": "todoist_shared_labels",
+      "description": "Manage shared workspace labels - create, read, rename, or remove (Business plan)"
+    }
+  ],
+  "keywords": [
+    "todoist",
+    "task-management",
+    "productivity",
+    "projects",
+    "tasks",
+    "gtd",
+    "todo",
+    "labels",
+    "reminders",
+    "collaboration"
+  ],
+  "license": "MIT",
+  "privacy_policies": ["https://todoist.com/privacy"],
+  "user_config": {
+    "todoist_api_token": {
+      "type": "string",
+      "title": "Todoist API Token",
+      "description": "Your Todoist API token. Get it from Settings > Integrations > Developer in the Todoist app (https://app.todoist.com/app/settings/integrations/developer)",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}
