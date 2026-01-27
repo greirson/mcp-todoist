@@ -103,16 +103,17 @@ Due dates vs deadlines: due_string/due_date sets when task appears in "Today", d
         description:
           "User ID to assign task to (only works in shared projects)",
       },
-      // Duration for time blocking
+      // Duration for time blocking - REQUIRES due_string with a time
       duration: {
         type: "number",
         description:
-          "Task duration amount for time blocking (e.g., 30 for 30 minutes, 2 for 2 days)",
+          "Task duration amount for time blocking (e.g., 30 for 30 minutes, 2 for 2 days). REQUIRES due_string with a time (e.g., 'tomorrow at 2pm')",
       },
       duration_unit: {
         type: "string",
         enum: ["minute", "day"],
-        description: "Duration unit: 'minute' (default) or 'day'",
+        description:
+          "Duration unit: 'minute' (default) or 'day'. Duration requires due_string with a time",
       },
       // Task ordering
       child_order: {
@@ -256,12 +257,14 @@ Safety: Empty content_contains matches NO tasks (not all tasks). At least one va
             },
             duration: {
               type: "number",
-              description: "Duration amount for time blocking (optional)",
+              description:
+                "Duration amount for time blocking. REQUIRES due_string with a time (optional)",
             },
             duration_unit: {
               type: "string",
               enum: ["minute", "day"],
-              description: "Duration unit (optional)",
+              description:
+                "Duration unit. Duration requires due_string with a time (optional)",
             },
             assignee_id: {
               type: "string",
@@ -363,12 +366,13 @@ Safety: Empty content_contains matches NO tasks (not all tasks). At least one va
           },
           duration: {
             type: "number",
-            description: "New duration amount",
+            description: "New duration amount. REQUIRES due_string with a time",
           },
           duration_unit: {
             type: "string",
             enum: ["minute", "day"],
-            description: "New duration unit",
+            description:
+              "New duration unit. Duration requires due_string with a time",
           },
         },
         description:

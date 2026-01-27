@@ -50,12 +50,12 @@ export const CREATE_TASK_TOOL: Tool = {
       duration: {
         type: "number",
         description:
-          "Task duration amount for time blocking (e.g., 30 for 30 minutes, 2 for 2 days) (optional)",
+          "Task duration amount for time blocking (e.g., 30 for 30 minutes, 2 for 2 days). REQUIRES due_string with a time (e.g., 'tomorrow at 2pm') (optional)",
       },
       duration_unit: {
         type: "string",
         description:
-          "Duration unit: 'minute' or 'day'. Defaults to 'minute' if duration is provided (optional)",
+          "Duration unit: 'minute' or 'day'. Defaults to 'minute' if duration is provided. Duration requires due_string with a time (optional)",
         enum: ["minute", "day"],
       },
       child_order: {
@@ -195,12 +195,12 @@ export const UPDATE_TASK_TOOL: Tool = {
       duration: {
         type: "number",
         description:
-          "New task duration amount for time blocking (e.g., 30 for 30 minutes) (optional)",
+          "New task duration amount for time blocking (e.g., 30 for 30 minutes). REQUIRES due_string with a time (e.g., 'tomorrow at 2pm') (optional)",
       },
       duration_unit: {
         type: "string",
         description:
-          "Duration unit: 'minute' or 'day'. Defaults to 'minute' if duration is provided (optional)",
+          "Duration unit: 'minute' or 'day'. Defaults to 'minute' if duration is provided. Duration requires due_string with a time (optional)",
         enum: ["minute", "day"],
       },
       child_order: {
@@ -340,12 +340,12 @@ export const BULK_CREATE_TASKS_TOOL: Tool = {
             duration: {
               type: "number",
               description:
-                "Task duration amount for time blocking (e.g., 30 for 30 minutes) (optional)",
+                "Task duration amount for time blocking (e.g., 30 for 30 minutes). REQUIRES due_string with a time (optional)",
             },
             duration_unit: {
               type: "string",
               description:
-                "Duration unit: 'minute' or 'day'. Defaults to 'minute' (optional)",
+                "Duration unit: 'minute' or 'day'. Defaults to 'minute'. Requires due_string with a time (optional)",
               enum: ["minute", "day"],
             },
           },
@@ -438,12 +438,12 @@ export const BULK_UPDATE_TASKS_TOOL: Tool = {
           duration: {
             type: "number",
             description:
-              "New task duration amount for time blocking (optional)",
+              "New task duration amount for time blocking. REQUIRES due_string with a time (optional)",
           },
           duration_unit: {
             type: "string",
             description:
-              "Duration unit: 'minute' or 'day'. Defaults to 'minute' (optional)",
+              "Duration unit: 'minute' or 'day'. Defaults to 'minute'. Requires due_string with a time (optional)",
             enum: ["minute", "day"],
           },
         },
