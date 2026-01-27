@@ -57,6 +57,28 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
+      - name: Update MCPB manifest version
+        run: |
+          TAG_VERSION="${{ steps.version.outputs.VERSION }}"
+          # Update version in manifest.json using node
+          node -e "
+            const fs = require('fs');
+            const manifest = JSON.parse(fs.readFileSync('mcpb/manifest.json', 'utf8'));
+            manifest.version = '$TAG_VERSION';
+            fs.writeFileSync('mcpb/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
+            console.log('Updated manifest.json version to: $TAG_VERSION');
+          "
+
+      - name: Build MCPB package
+        run: npm run build:mcpb
+
+      - name: Rename MCPB with version
+        run: |
+          TAG_VERSION="${{ steps.version.outputs.VERSION }}"
+          mv mcpb/todoist-mcp.mcpb mcpb/todoist-mcp-v${TAG_VERSION}.mcpb
+          echo "MCPB_FILE=mcpb/todoist-mcp-v${TAG_VERSION}.mcpb" >> $GITHUB_OUTPUT
+        id: mcpb
+
       - name: Update package.json version
         run: |
           CURRENT_VERSION=$(node -p "require('./package.json').version")
@@ -82,9 +104,16 @@ jobs:
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for full details.
 
             ## Installation
+
+            ### NPM (CLI)
             ```bash
             npm install -g @greirson/mcp-todoist@${{ steps.version.outputs.VERSION }}
             ```
+
+            ### Claude Desktop (MCPB)
+            Download `todoist-mcp-v${{ steps.version.outputs.VERSION }}.mcpb` below and double-click to install, or drag and drop onto Claude Desktop.
+          files: |
+            ${{ steps.mcpb.outputs.MCPB_FILE }}
           draft: false
           prerelease: false
         env:

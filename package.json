@@ -24,7 +24,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "prepublishOnly": "npm run lint && npm run test && npm run build",
-    "preversion": "npm run lint && npm run test"
+    "preversion": "npm run lint && npm run test",
+    "build:mcpb": "bash scripts/build-mcpb.sh"
   },
   "repository": {
     "type": "git",
