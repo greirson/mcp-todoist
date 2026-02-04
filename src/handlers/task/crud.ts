@@ -330,27 +330,11 @@ export async function handleGetTasks(
     );
   }
 
-  // Handle @label syntax in filter parameter
-  if (filterString) {
-    const labelMatches = filterString.match(/@([\w-]+)/g);
-    if (labelMatches) {
-      const requiredLabels = labelMatches.map((m) => m.substring(1));
-
-      // Check if it's an AND condition (all labels required)
-      if (filterString.includes("&")) {
-        filteredTasks = filteredTasks.filter((task) => {
-          if (!Array.isArray(task.labels)) return false;
-          return requiredLabels.every((label) => task.labels!.includes(label));
-        });
-      } else {
-        // OR condition (any label matches)
-        filteredTasks = filteredTasks.filter((task) => {
-          if (!Array.isArray(task.labels)) return false;
-          return requiredLabels.some((label) => task.labels!.includes(label));
-        });
-      }
-    }
-  }
+  // NOTE: We intentionally do NOT apply client-side @label filtering when filterString is used.
+  // The getTasksByFilter() API endpoint correctly parses and evaluates complex filter syntax
+  // including labels, boolean operators (& |), and parentheses. Adding client-side filtering
+  // here would break complex queries like "(@labelA | @labelB) & today" because the naive
+  // regex extraction doesn't understand boolean logic.
 
   const apiPriorityFilter = toApiPriority(args.priority);
   if (apiPriorityFilter !== undefined) {
