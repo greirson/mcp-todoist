@@ -119,19 +119,20 @@ describe("Label Filter Fix (Issue #35)", () => {
     // NOTE: When using the filter parameter, we rely entirely on the Todoist API's
     // getTasksByFilter() endpoint to handle complex filter syntax including labels,
     // boolean operators, and parentheses. No client-side filtering is applied.
+    //
+    // These tests mock getTasksByFilter to return ALL 4 tasks, then verify that
+    // handleGetTasks returns all of them unchanged. The old buggy code would have
+    // applied client-side @label extraction and filtered some tasks out.
 
     it("should pass @label filter to API and return results directly", async () => {
       const args: GetTasksArgs = {
         filter: "@urgent",
       };
 
-      // Mock the API to return pre-filtered results (as the real API would)
-      const filteredTasks = mockTasks.filter((t) =>
-        t.labels.includes("urgent")
-      );
+      // Return ALL tasks -- handler must not filter any out client-side
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(filteredTasks);
+        .mockResolvedValue(mockTasks);
 
       const result = await handleGetTasks(mockTodoistClient, args);
       expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith({
@@ -139,46 +140,74 @@ describe("Label Filter Fix (Issue #35)", () => {
         lang: undefined,
         limit: undefined,
       });
-      expect(result).toContain("2 tasks found");
+      // All 4 tasks must come through; old code would have dropped task2 and task4
+      expect(result).toContain("4 tasks found");
       expect(result).toContain("Task with urgent label");
+      expect(result).toContain("Task with test-label");
       expect(result).toContain("Task with both labels");
+      expect(result).toContain("Task without labels");
     });
 
-    it("should pass complex filter syntax to API without client-side processing", async () => {
+    it("should not apply client-side label filtering to complex filter results", async () => {
       const args: GetTasksArgs = {
         filter: "(@urgent | @test-label) & today",
       };
 
-      // Mock API returning tasks that match the complex filter
-      const filteredTasks = [mockTasks[0], mockTasks[1]]; // API correctly evaluates OR logic
+      // Return ALL tasks -- old code would extract ["urgent","test-label"],
+      // see "&", require BOTH labels, and return only task3
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(filteredTasks);
+        .mockResolvedValue(mockTasks);
 
       const result = await handleGetTasks(mockTodoistClient, args);
-      // Verify the complex filter is passed directly to the API
       expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith({
         query: "(@urgent | @test-label) & today",
         lang: undefined,
         limit: undefined,
       });
-      expect(result).toContain("2 tasks found");
+      expect(result).toContain("4 tasks found");
+      expect(result).toContain("Task with urgent label");
+      expect(result).toContain("Task with test-label");
+      expect(result).toContain("Task with both labels");
+      expect(result).toContain("Task without labels");
     });
 
-    it("should not apply additional client-side label filtering to API results", async () => {
+    it("should not reduce API results when filter contains @label syntax", async () => {
       const args: GetTasksArgs = {
         filter: "@urgent & @test-label",
       };
 
-      // Mock API returning the correctly filtered result
-      const filteredTasks = [mockTasks[2]]; // Only "Task with both labels"
+      // Return ALL tasks -- old code would require both labels and return only task3
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(filteredTasks);
+        .mockResolvedValue(mockTasks);
 
       const result = await handleGetTasks(mockTodoistClient, args);
-      expect(result).toContain("1 task found");
+      expect(result).toContain("4 tasks found");
+      expect(result).toContain("Task with urgent label");
+      expect(result).toContain("Task with test-label");
       expect(result).toContain("Task with both labels");
+      expect(result).toContain("Task without labels");
+    });
+
+    it("should pass hyphenated label filter to API without mangling", async () => {
+      const args: GetTasksArgs = {
+        filter: "@test-label",
+      };
+
+      mockTodoistClient.getTasksByFilter = jest
+        .fn()
+        .mockResolvedValue(mockTasks);
+
+      const result = await handleGetTasks(mockTodoistClient, args);
+      // Verify hyphenated label name passes through to API intact
+      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith({
+        query: "@test-label",
+        lang: undefined,
+        limit: undefined,
+      });
+      // All tasks returned -- no client-side filtering
+      expect(result).toContain("4 tasks found");
     });
   });
 

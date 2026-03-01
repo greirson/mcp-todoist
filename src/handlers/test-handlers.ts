@@ -273,8 +273,9 @@ export async function handleTestAllFeatures(
 ): Promise<ComprehensiveTestResult | unknown> {
   // Use enhanced testing if requested
   if (args?.mode === "enhanced") {
-    const { handleTestAllFeaturesEnhanced } =
-      await import("./test-handlers-enhanced/index.js");
+    const { handleTestAllFeaturesEnhanced } = await import(
+      "./test-handlers-enhanced/index.js"
+    );
     return handleTestAllFeaturesEnhanced(todoistClient, apiToken);
   }
 

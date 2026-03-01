@@ -34,9 +34,10 @@ export class TaskNotFoundError extends TodoistMCPError {
 export class ProjectNotFoundError extends TodoistMCPError {
   constructor(identifier: string) {
     // Check if it looks like an error message already
-    const message = identifier.includes("found") || identifier.includes("required")
-      ? identifier
-      : `Could not find project "${identifier}"`;
+    const message =
+      identifier.includes("found") || identifier.includes("required")
+        ? identifier
+        : `Could not find project "${identifier}"`;
     super(message, "PROJECT_NOT_FOUND", 404);
     this.name = "ProjectNotFoundError";
   }
