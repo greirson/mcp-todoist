@@ -1,8 +1,42 @@
 import { describe, expect, test, beforeEach, jest } from "@jest/globals";
 import type { TodoistApi } from "@doist/todoist-api-typescript";
-import { handleGetTasks } from "../handlers/task-handlers";
 import { CacheManager } from "../cache.js";
 import type { TodoistTask } from "../types.js";
+
+// Mock the api-helpers module so fetchAllTasks/fetchAllTasksByFilter delegate to mock client
+jest.mock("../utils/api-helpers.js", () => {
+  const actual = jest.requireActual("../utils/api-helpers.js") as Record<
+    string,
+    unknown
+  >;
+  return {
+    ...actual,
+    fetchAllTasks: jest.fn(
+      async (client: { getTasks: () => Promise<unknown> }) => {
+        const result = await client.getTasks();
+        if (Array.isArray(result)) return result;
+        const obj = result as { results?: unknown[] };
+        return obj?.results || [];
+      }
+    ),
+    fetchAllTasksByFilter: jest.fn(
+      async (
+        client: {
+          getTasksByFilter: (args: unknown) => Promise<unknown>;
+        },
+        query: string,
+        lang?: string
+      ) => {
+        const result = await client.getTasksByFilter({ query, lang });
+        if (Array.isArray(result)) return result;
+        const obj = result as { results?: unknown[] };
+        return obj?.results || [];
+      }
+    ),
+  };
+});
+
+import { handleGetTasks } from "../handlers/task-handlers";
 
 type ApiTasksResponse = Awaited<ReturnType<TodoistApi["getTasks"]>>;
 type ApiFilterResponse = Awaited<ReturnType<TodoistApi["getTasksByFilter"]>>;
@@ -48,7 +82,6 @@ describe("handleGetTasks", () => {
     expect(getTasksByFilter).toHaveBeenCalledWith({
       query: "today",
       lang: "en",
-      limit: undefined,
     });
     expect(getTasks).not.toHaveBeenCalled();
     expect(response).toContain("date=2025-09-18");

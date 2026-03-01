@@ -109,7 +109,7 @@ Task created successfully (simulated):
 ID: 100001
 Title: Test Task
 Project: Work (2203306141)
-Priority: 4 (Normal)
+Priority: 4 (P4/Normal)
 ```
 
 ### Supported Operations
@@ -227,7 +227,7 @@ The Quick Add tool parses natural language text like the Todoist app, supporting
 - **Projects**: `#ProjectName` (no spaces in project names)
 - **Labels**: `@label` (e.g., "@urgent", "@work")
 - **Assignees**: `+name` (for shared projects)
-- **Priority**: `p1` (urgent), `p2`, `p3`, `p4` (lowest)
+- **Priority**: `p1` (urgent/highest), `p2` (high), `p3` (medium), `p4` (normal/lowest)
 - **Deadlines**: `{in 3 days}` or `{March 15}`
 - **Descriptions**: `//your description here` (must be at the end)
 

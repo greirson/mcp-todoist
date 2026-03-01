@@ -1,4 +1,5 @@
 import { TodoistApi } from "@doist/todoist-api-typescript";
+import { fetchAllTasks } from "../utils/api-helpers.js";
 
 interface ApiResponse {
   results?: unknown[];
@@ -67,10 +68,8 @@ async function testTaskOperations(
 ): Promise<FeatureTestResult> {
   const startTime = Date.now();
   try {
-    // Test task retrieval
-    const result = await todoistClient.getTasks();
-    // Handle various API response formats
-    const taskArray = extractArrayFromResponse(result);
+    // Test task retrieval with pagination
+    const taskArray = await fetchAllTasks(todoistClient);
 
     return {
       feature: "Task Operations",
@@ -207,10 +206,8 @@ async function testCommentOperations(
 ): Promise<FeatureTestResult> {
   const startTime = Date.now();
   try {
-    // Get a task to test comments
-    const result = await todoistClient.getTasks();
-    // Handle various API response formats
-    const taskArray = extractArrayFromResponse(result);
+    // Get a task to test comments (with pagination)
+    const taskArray = await fetchAllTasks(todoistClient);
 
     if (taskArray.length === 0) {
       return {

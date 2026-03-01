@@ -57,7 +57,7 @@ describe("Collaboration Handlers", () => {
       expect(result).toContain("(default)");
       expect(result).toContain("Workspace 2");
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.todoist.com/sync/v9",
+        "https://api.todoist.com/api/v1/sync",
         expect.objectContaining({
           method: "POST",
           headers: expect.objectContaining({

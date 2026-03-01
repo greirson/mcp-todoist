@@ -58,7 +58,7 @@ describe("Activity Handlers", () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("https://api.todoist.com/sync/v9/activity/get"),
+        expect.stringContaining("https://api.todoist.com/api/v1/activities"),
         expect.objectContaining({
           method: "GET",
           headers: { Authorization: "Bearer test-token-123" },

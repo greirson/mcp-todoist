@@ -13,6 +13,7 @@ import {
 } from "../errors.js";
 import { validateLabelData, validateLabelUpdate } from "../validation.js";
 import { SimpleCache } from "../cache.js";
+import { fetchAllTasks } from "../utils/api-helpers.js";
 
 // Cache for label data (30 second TTL)
 const labelCache = new SimpleCache<TodoistLabel[]>(30000);
@@ -215,20 +216,20 @@ export async function handleGetLabelStats(
     sortedStats = cached;
   } else {
     try {
-      const [labelsResponse, tasksResponse] = await Promise.all([
+      const [labelsResponse, tasks] = await Promise.all([
         todoistClient.getLabels(),
-        todoistClient.getTasks(),
+        fetchAllTasks(todoistClient),
       ]);
 
       const labels = extractArrayFromResponse(labelsResponse) as TodoistLabel[];
-      const tasks = extractArrayFromResponse(tasksResponse) as Array<{
-        labels?: string[];
-        isCompleted?: boolean;
-        createdAt?: string;
-      }>;
+
+      // Cast tasks to include createdAt which exists in the API response but not in TodoistTask interface
+      const tasksWithMeta = tasks as Array<
+        (typeof tasks)[number] & { createdAt?: string }
+      >;
 
       const stats = labels.map((label) => {
-        const tasksWithLabel = tasks.filter((task) =>
+        const tasksWithLabel = tasksWithMeta.filter((task) =>
           task.labels?.includes(label.name)
         );
 

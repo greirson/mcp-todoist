@@ -3,7 +3,7 @@
  */
 
 import { TodoistApi } from "@doist/todoist-api-typescript";
-import { TodoistTaskDueData } from "../types.js";
+import { TodoistTask, TodoistTaskDueData } from "../types.js";
 import { formatDueDetails } from "./datetime-utils.js";
 import { fromApiPriority } from "./priority-mapper.js";
 import { AuthenticationError } from "../errors.js";
@@ -36,6 +36,100 @@ export function extractArrayFromResponse<T>(result: unknown): T[] {
 
   const responseObj = result as TodoistAPIResponse<T>;
   return responseObj?.results || responseObj?.data || [];
+}
+
+/**
+ * Generic paginated response shape used by Todoist API v1 endpoints.
+ */
+interface PaginatedResponse<T> {
+  results: T[];
+  nextCursor: string | null;
+}
+
+/**
+ * Fetches all pages from a paginated Todoist API v1 endpoint.
+ *
+ * @param fetchPage - Function that takes a cursor and returns a paginated response
+ * @returns All items collected across all pages
+ */
+export async function fetchAllPaginated<T>(
+  fetchPage: (cursor?: string | null) => Promise<PaginatedResponse<T>>
+): Promise<T[]> {
+  const allItems: T[] = [];
+  let cursor: string | null | undefined = undefined;
+  let pageCount = 0;
+  const maxPages = 50;
+
+  do {
+    pageCount++;
+    if (pageCount > maxPages) {
+      console.error(
+        `[fetchAllPaginated] Safety limit reached (${maxPages} pages, ${allItems.length} items). Stopping.`
+      );
+      break;
+    }
+    const response = await fetchPage(cursor);
+    allItems.push(...response.results);
+    cursor = response.nextCursor || null;
+  } while (cursor);
+
+  return allItems;
+}
+
+/**
+ * Optional filter parameters for getTasks() (excluding pagination params).
+ */
+interface GetTasksFilterParams {
+  projectId?: string;
+  sectionId?: string;
+  parentId?: string;
+  label?: string;
+  ids?: string[];
+}
+
+/**
+ * Fetches ALL tasks across all pages from the Todoist API using cursor-based pagination.
+ *
+ * @param todoistClient - The Todoist API client
+ * @param params - Optional filter parameters (projectId, label, etc.)
+ * @returns All tasks matching the filter criteria, merged across all pages
+ */
+export async function fetchAllTasks(
+  todoistClient: TodoistApi,
+  params?: GetTasksFilterParams
+): Promise<TodoistTask[]> {
+  return fetchAllPaginated<TodoistTask>(
+    (cursor) =>
+      todoistClient.getTasks({
+        ...params,
+        cursor,
+        limit: 200,
+      }) as Promise<PaginatedResponse<TodoistTask>>
+  );
+}
+
+/**
+ * Fetches ALL tasks matching a filter query across all pages.
+ *
+ * @param todoistClient - The Todoist API client
+ * @param query - The Todoist filter query string
+ * @param lang - Optional language for filter interpretation
+ * @returns All tasks matching the filter, merged across all pages
+ */
+export async function fetchAllTasksByFilter(
+  todoistClient: TodoistApi,
+  query: string,
+  lang?: string
+): Promise<TodoistTask[]> {
+  return fetchAllPaginated<TodoistTask>(
+    (cursor) =>
+      todoistClient.getTasksByFilter({
+        query,
+        lang,
+        cursor,
+        limit: 200,
+      }) as Promise<PaginatedResponse<TodoistTask>>
+  );
 }
 
 /**
@@ -187,17 +281,24 @@ export function safeNumberExtract(value: unknown, defaultValue = 0): number {
  * @throws Error if project name is not found
  */
 export async function resolveProjectIdentifier(
-  todoistClient: { getProjects: () => Promise<unknown> },
+  todoistClient: {
+    getProjects: (args?: {
+      cursor?: string | null;
+      limit?: number;
+    }) => Promise<{
+      results: { id: string; name: string }[];
+      nextCursor: string | null;
+    }>;
+  },
   projectIdentifier: string
 ): Promise<string> {
   if (!projectIdentifier || projectIdentifier.trim().length === 0) {
     throw new Error("Project identifier cannot be empty");
   }
 
-  // First, try to get all projects
-  const result = await todoistClient.getProjects();
-  const projects = extractArrayFromResponse<{ id: string; name: string }>(
-    result
+  // Fetch all pages of projects using cursor-based pagination with a high limit per page
+  const projects = await fetchAllPaginated<{ id: string; name: string }>(
+    (cursor) => todoistClient.getProjects({ cursor, limit: 200 })
   );
 
   // Check if the identifier matches a project ID exactly

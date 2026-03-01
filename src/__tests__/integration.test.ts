@@ -67,7 +67,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
       expect(featureNames).toContain("Label Operations");
       expect(featureNames).toContain("Section Operations");
       expect(featureNames).toContain("Comment Operations");
-    }, 30000); // 30 second timeout for comprehensive tests
+    }, 120000); // 2 minute timeout for comprehensive feature tests hitting live API
   });
 
   describe("Performance Tests", () => {
@@ -112,7 +112,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
       if (taskOps?.status === "success") {
         expect(taskOps.details).toBeDefined();
       }
-    });
+    }, 120000);
 
     test("Project operations should always succeed", async () => {
       const result = (await handleTestAllFeatures(todoistClient)) as any;
@@ -123,7 +123,7 @@ describeIfToken("Todoist MCP Integration Tests", () => {
       expect(projectOps).toBeDefined();
       expect(projectOps?.status).toBe("success");
       expect(projectOps?.details?.projectCount).toBeGreaterThanOrEqual(0);
-    });
+    }, 120000);
   });
 
   describe("Completed Tasks (Sync API)", () => {

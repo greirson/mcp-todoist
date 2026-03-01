@@ -14,7 +14,10 @@ import {
   TodoistSection,
   TodoistCollaborator,
 } from "../types.js";
-import { extractArrayFromResponse } from "../utils/api-helpers.js";
+import {
+  extractArrayFromResponse,
+  fetchAllPaginated,
+} from "../utils/api-helpers.js";
 import { ProjectNotFoundError, ValidationError } from "../errors.js";
 import { CacheManager } from "../cache.js";
 
@@ -36,8 +39,13 @@ async function findProject(
 
   // Search by name
   if (projectName) {
-    const result = await todoistClient.getProjects();
-    const projects = extractArrayFromResponse<TodoistProject>(result);
+    const projects = await fetchAllPaginated<TodoistProject>(
+      (cursor) =>
+        todoistClient.getProjects({ cursor, limit: 200 }) as Promise<{
+          results: TodoistProject[];
+          nextCursor: string | null;
+        }>
+    );
     const searchTerm = projectName.toLowerCase();
 
     const matchingProject = projects.find(
@@ -63,10 +71,14 @@ async function findProject(
 export async function handleGetProjects(
   todoistClient: TodoistApi
 ): Promise<string> {
-  const result = await todoistClient.getProjects();
-
-  // Handle the new API response format with 'results' property
-  const projects = extractArrayFromResponse<TodoistProject>(result);
+  // Fetch all projects using cursor-based pagination with a high limit per page
+  const projects = await fetchAllPaginated<TodoistProject>(
+    (cursor) =>
+      todoistClient.getProjects({ cursor, limit: 200 }) as Promise<{
+        results: TodoistProject[];
+        nextCursor: string | null;
+      }>
+  );
 
   // Build a map of project parents for hierarchy display
   const projectMap = new Map<string, TodoistProject>();
