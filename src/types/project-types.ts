@@ -140,12 +140,11 @@ export interface TodoistSectionData {
 }
 
 /**
- * Response for completed tasks with project/section context
+ * Response for completed tasks from API v1 (cursor-based pagination)
  */
 export interface CompletedTasksResponse {
   items: CompletedTask[];
-  projects: Record<string, TodoistProject>;
-  sections: Record<string, TodoistSection>;
+  next_cursor: string | null;
 }
 
 /**

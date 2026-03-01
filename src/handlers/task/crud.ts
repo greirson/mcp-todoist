@@ -22,9 +22,10 @@ import {
 } from "../../validation/index.js";
 import type { DurationUnit } from "../../types/index.js";
 import {
-  extractArrayFromResponse,
   createCacheKey,
   formatTaskForDisplay,
+  fetchAllTasks,
+  fetchAllTasksByFilter,
 } from "../../utils/api-helpers.js";
 import {
   formatDueDetails,
@@ -90,8 +91,7 @@ export async function findTaskByIdOrName(
 
   // If not found by ID or ID not provided, try by name
   if (!task && taskName) {
-    const result = await todoistClient.getTasks();
-    const tasks = extractArrayFromResponse<TodoistTask>(result);
+    const tasks = await fetchAllTasks(todoistClient);
     const matchingTask = tasks.find((t: TodoistTask) =>
       t.content.toLowerCase().includes(taskName.toLowerCase())
     );
@@ -246,18 +246,16 @@ export async function handleGetTasks(
     const filterCacheKey = createCacheKey("tasks_filter", {
       filter: filterString,
       lang: language,
-      limit: args.limit,
     });
     tasks = taskCache.get(filterCacheKey);
 
     if (!tasks) {
       try {
-        const result = await todoistClient.getTasksByFilter({
-          query: filterString,
-          lang: language,
-          limit: args.limit,
-        });
-        tasks = extractArrayFromResponse<TodoistTask>(result);
+        tasks = await fetchAllTasksByFilter(
+          todoistClient,
+          filterString,
+          language
+        );
         taskCache.set(filterCacheKey, tasks);
       } catch (error: unknown) {
         // Check if it's a 400 Bad Request from invalid filter syntax
@@ -274,28 +272,22 @@ export async function handleGetTasks(
       }
     }
   } else {
-    const apiParams: Record<string, string | number | undefined> = {};
+    const fetchParams: Record<string, string | undefined> = {};
     if (args.project_id) {
-      apiParams.projectId = args.project_id;
+      fetchParams.projectId = args.project_id;
     }
     if (args.label_id) {
-      apiParams.label = args.label_id;
-    }
-    if (args.limit && args.limit > 0) {
-      apiParams.limit = args.limit;
+      fetchParams.label = args.label_id;
     }
 
-    const cacheKey = createCacheKey("tasks", apiParams);
+    const cacheKey = createCacheKey("tasks", fetchParams);
     tasks = taskCache.get(cacheKey);
 
     if (!tasks) {
-      const result = await todoistClient.getTasks(
-        Object.keys(apiParams).length > 0
-          ? (apiParams as Parameters<typeof todoistClient.getTasks>[0])
-          : undefined
+      tasks = await fetchAllTasks(
+        todoistClient,
+        Object.keys(fetchParams).length > 0 ? fetchParams : undefined
       );
-      // Handle both array response and object response formats
-      tasks = extractArrayFromResponse<TodoistTask>(result);
       taskCache.set(cacheKey, tasks);
     }
   }

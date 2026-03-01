@@ -1,7 +1,25 @@
 import { describe, expect, test, jest } from "@jest/globals";
-import { handleBulkUpdateTasks } from "../handlers/task-handlers";
 import type { TodoistApi } from "@doist/todoist-api-typescript";
 import type { TodoistTask } from "../types.js";
+
+// Mock the api-helpers module so fetchAllTasks delegates to mock client
+jest.mock("../utils/api-helpers.js", () => {
+  const actual = jest.requireActual("../utils/api-helpers.js") as Record<
+    string,
+    unknown
+  >;
+  return {
+    ...actual,
+    fetchAllTasks: jest.fn(
+      async (client: { getTasks: () => Promise<unknown> }) => {
+        const result = await client.getTasks();
+        return Array.isArray(result) ? result : [];
+      }
+    ),
+  };
+});
+
+import { handleBulkUpdateTasks } from "../handlers/task-handlers";
 
 type MockUpdateInput = Partial<TodoistTask>;
 

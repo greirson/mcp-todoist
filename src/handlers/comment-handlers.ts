@@ -15,6 +15,7 @@ import { validateCommentContent } from "../validation.js";
 import {
   extractArrayFromResponse,
   createCacheKey,
+  fetchAllTasks,
 } from "../utils/api-helpers.js";
 import { ErrorHandler } from "../utils/error-handling.js";
 
@@ -56,8 +57,7 @@ export async function handleCreateComment(
       commentData.taskId = args.task_id;
     } else if (args.task_name) {
       // Search for task by name
-      const result = await todoistClient.getTasks();
-      const tasks = extractArrayFromResponse<TodoistTask>(result);
+      const tasks = await fetchAllTasks(todoistClient);
       const matchingTask = tasks.find((task: TodoistTask) =>
         task.content.toLowerCase().includes(args.task_name!.toLowerCase())
       );
@@ -122,8 +122,7 @@ export async function handleGetComments(
       }
     } else if (args.task_name) {
       // Search for task by name, then get comments
-      const taskResult = await todoistClient.getTasks();
-      const tasks = extractArrayFromResponse<TodoistTask>(taskResult);
+      const tasks = await fetchAllTasks(todoistClient);
       const matchingTask = tasks.find((task: TodoistTask) =>
         task.content.toLowerCase().includes(args.task_name!.toLowerCase())
       );

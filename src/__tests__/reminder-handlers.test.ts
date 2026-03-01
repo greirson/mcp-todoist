@@ -8,6 +8,23 @@ global.fetch = mockFetch;
 // Set up environment
 process.env.TODOIST_API_TOKEN = "test-token";
 
+// Mock the api-helpers module so fetchAllTasks delegates to mock client
+jest.mock("../utils/api-helpers.js", () => {
+  const actual = jest.requireActual("../utils/api-helpers.js") as Record<
+    string,
+    unknown
+  >;
+  return {
+    ...actual,
+    fetchAllTasks: jest.fn(
+      async (client: { getTasks: () => Promise<unknown> }) => {
+        const result = await client.getTasks();
+        return Array.isArray(result) ? result : [];
+      }
+    ),
+  };
+});
+
 // Import handlers after setting up mocks
 import {
   handleGetReminders,

@@ -16,12 +16,11 @@ import {
   TodoistAPIError,
 } from "../errors.js";
 import { SimpleCache } from "../cache.js";
+import { fetchAllTasks } from "../utils/api-helpers.js";
+import { SYNC_API_URL } from "../utils/api-constants.js";
 
 // Cache for reminder data (30 second TTL)
 const reminderCache = new SimpleCache<TodoistReminder[]>(30000);
-
-// Todoist Sync API base URL
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
 
 /**
  * Get the API token from the TodoistApi client
@@ -39,12 +38,11 @@ function getApiToken(): string {
  * Make a Sync API request
  */
 async function syncRequest(
-  endpoint: string,
   body: Record<string, unknown>
 ): Promise<SyncResponse> {
   const token = getApiToken();
 
-  const response = await fetch(`${SYNC_API_URL}${endpoint}`, {
+  const response = await fetch(SYNC_API_URL, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -90,7 +88,7 @@ async function fetchReminders(): Promise<TodoistReminder[]> {
     return cached;
   }
 
-  const response = await syncRequest("/sync", {
+  const response = await syncRequest({
     sync_token: "*",
     resource_types: JSON.stringify(["reminders"]),
   });
@@ -122,8 +120,7 @@ async function findTask(
     throw new ValidationError("Either task_id or task_name must be provided");
   }
 
-  const tasks = await todoistClient.getTasks();
-  const taskArray = Array.isArray(tasks) ? tasks : [];
+  const taskArray = await fetchAllTasks(todoistClient);
   const matchingTask = taskArray.find((t) =>
     t.content.toLowerCase().includes(taskName.toLowerCase())
   );
@@ -276,7 +273,7 @@ export async function handleCreateReminder(
   const tempId = generateUUID();
   const uuid = generateUUID();
 
-  const response = await syncRequest("/sync", {
+  const response = await syncRequest({
     commands: JSON.stringify([
       {
         type: "reminder_add",
@@ -368,7 +365,7 @@ export async function handleUpdateReminder(
 
   const uuid = generateUUID();
 
-  const response = await syncRequest("/sync", {
+  const response = await syncRequest({
     commands: JSON.stringify([
       {
         type: "reminder_update",
@@ -415,7 +412,7 @@ export async function handleDeleteReminder(
 
   const uuid = generateUUID();
 
-  const response = await syncRequest("/sync", {
+  const response = await syncRequest({
     commands: JSON.stringify([
       {
         type: "reminder_delete",

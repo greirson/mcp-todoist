@@ -81,7 +81,7 @@ Due dates vs deadlines: due_string/due_date sets when task appears in "Today", d
       // Priority and organization
       priority: {
         type: "number",
-        description: "Priority 1 (highest/urgent) to 4 (lowest/normal)",
+        description: "Priority: 1=P1 (urgent), 2=P2, 3=P3, 4=P4 (normal)",
         enum: [1, 2, 3, 4],
       },
       project_id: {

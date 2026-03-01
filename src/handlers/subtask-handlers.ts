@@ -11,7 +11,6 @@ import type {
   TaskNode,
   TaskHierarchy,
   TodoistTask,
-  TasksResponse,
 } from "../types.js";
 import { TaskNotFoundError, ValidationError } from "../errors.js";
 import {
@@ -19,7 +18,7 @@ import {
   validatePriority,
   validateDateString,
 } from "../validation.js";
-import { extractArrayFromResponse } from "../utils/api-helpers.js";
+import { fetchAllTasks } from "../utils/api-helpers.js";
 import { ErrorHandler } from "../utils/error-handling.js";
 import { SimpleCache } from "../cache.js";
 import { toApiPriority } from "../utils/priority-mapper.js";
@@ -70,8 +69,7 @@ async function findTask(
       if (cachedTasks) {
         tasks = cachedTasks;
       } else {
-        const response = (await todoistClient.getTasks()) as TasksResponse;
-        tasks = extractArrayFromResponse(response);
+        tasks = await fetchAllTasks(todoistClient);
         taskCache.set("todoist_tasks", tasks);
       }
 
@@ -263,8 +261,7 @@ export async function handleGetTaskHierarchy(
     });
 
     // Get all tasks for hierarchy building
-    const response = (await todoistClient.getTasks()) as TasksResponse;
-    const allTasks = extractArrayFromResponse(response) as TodoistTask[];
+    const allTasks = await fetchAllTasks(todoistClient);
 
     // Find the topmost parent by traversing upward
     let topmostParent = requestedTask;

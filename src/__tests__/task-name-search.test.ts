@@ -6,6 +6,35 @@ import { ValidationError } from "../errors.js";
 // Mock the TodoistApi
 jest.mock("@doist/todoist-api-typescript");
 
+// Mock the api-helpers module so fetchAllTasks delegates to mock client
+jest.mock("../utils/api-helpers.js", () => {
+  const actual = jest.requireActual("../utils/api-helpers.js") as Record<
+    string,
+    unknown
+  >;
+  return {
+    ...actual,
+    fetchAllTasks: jest.fn(
+      async (client: { getTasks: () => Promise<unknown> }) => {
+        const result = await client.getTasks();
+        return Array.isArray(result) ? result : [];
+      }
+    ),
+    fetchAllTasksByFilter: jest.fn(
+      async (
+        client: {
+          getTasksByFilter: (args: unknown) => Promise<unknown>;
+        },
+        query: string,
+        lang?: string
+      ) => {
+        const result = await client.getTasksByFilter({ query, lang });
+        return Array.isArray(result) ? result : [];
+      }
+    ),
+  };
+});
+
 describe("Task Name Search Functionality", () => {
   let mockTodoistClient: TodoistApi;
 
@@ -72,7 +101,7 @@ describe("Task Name Search Functionality", () => {
 
       const result = await handleGetTasks(mockTodoistClient, args);
 
-      expect(mockTodoistClient.getTasks).toHaveBeenCalledWith(undefined);
+      expect(mockTodoistClient.getTasks).toHaveBeenCalled();
       expect(result).toContain("Bobo McJiggles Task");
       expect(result).toContain("Another Bobo McJiggles Task");
       expect(result).not.toContain("Regular Task");

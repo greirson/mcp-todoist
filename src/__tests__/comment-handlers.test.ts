@@ -22,6 +22,23 @@ jest.mock("@doist/todoist-api-typescript", () => ({
   })),
 }));
 
+// Mock the api-helpers module so fetchAllTasks delegates to mock client
+jest.mock("../utils/api-helpers.js", () => {
+  const actual = jest.requireActual("../utils/api-helpers.js") as Record<
+    string,
+    unknown
+  >;
+  return {
+    ...actual,
+    fetchAllTasks: jest.fn(
+      async (client: { getTasks: () => Promise<unknown> }) => {
+        const result = await client.getTasks();
+        return Array.isArray(result) ? result : [];
+      }
+    ),
+  };
+});
+
 // Mock the cache module
 jest.mock("../cache.js", () => ({
   SimpleCache: jest.fn().mockImplementation(() => ({

@@ -60,7 +60,7 @@ describe("Project Notes Handlers", () => {
       expect(result).toContain("Test note content");
       expect(result).toContain("Another note");
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.todoist.com/sync/v9",
+        "https://api.todoist.com/api/v1/sync",
         expect.objectContaining({
           method: "POST",
           headers: expect.objectContaining({
@@ -147,7 +147,7 @@ describe("Project Notes Handlers", () => {
       expect(result).toContain("Project note created successfully");
       expect(result).toContain("New note content");
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.todoist.com/sync/v9",
+        "https://api.todoist.com/api/v1/sync",
         expect.objectContaining({
           method: "POST",
         })

@@ -58,7 +58,7 @@ Manage Todoist tasks - create, read, update, delete, complete, reopen, or quick 
 | `due_string`    | string | Due date in natural language (e.g., 'tomorrow', 'next Monday')                 |
 | `due_date`      | string | Due date in YYYY-MM-DD format                                                  |
 | `deadline_date` | string | Actual deadline in YYYY-MM-DD format                                           |
-| `priority`      | number | Priority 1 (highest) to 4 (lowest)                                             |
+| `priority`      | number | Priority: 1=P1 (urgent), 2=P2, 3=P3, 4=P4 (normal)                             |
 | `project_id`    | string | Project ID to assign task to                                                   |
 | `section_id`    | string | Section ID within project                                                      |
 | `labels`        | array  | Array of label names to assign                                                 |
@@ -101,7 +101,7 @@ Perform bulk operations on Todoist tasks - create, update, delete, or complete m
 | `tasks`            | array  | Array of task objects to create (for bulk_create)                          |
 | `search_criteria`  | object | Criteria to find tasks (for bulk_update)                                   |
 | `project_id`       | string | Filter by project ID                                                       |
-| `priority`         | number | Filter by priority 1-4                                                     |
+| `priority`         | number | Filter by priority: 1=P1 (urgent), 2=P2, 3=P3, 4=P4 (normal)              |
 | `due_before`       | string | Filter tasks due before date (YYYY-MM-DD)                                  |
 | `due_after`        | string | Filter tasks due after date (YYYY-MM-DD)                                   |
 | `content_contains` | string | Filter tasks containing text                                               |

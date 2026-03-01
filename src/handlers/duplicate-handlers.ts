@@ -9,7 +9,7 @@ import {
 } from "../types.js";
 import { ValidationError, TaskNotFoundError } from "../errors.js";
 import { CacheManager } from "../cache.js";
-import { extractArrayFromResponse } from "../utils/api-helpers.js";
+import { fetchAllPaginated, fetchAllTasks } from "../utils/api-helpers.js";
 
 const cacheManager = CacheManager.getInstance();
 
@@ -84,8 +84,13 @@ export async function handleFindDuplicates(
 
   const projectMap = new Map<string, string>();
   try {
-    const projectsResponse = await todoistClient.getProjects();
-    const projects = extractArrayFromResponse<TodoistProject>(projectsResponse);
+    const projects = await fetchAllPaginated<TodoistProject>(
+      (cursor) =>
+        todoistClient.getProjects({ cursor, limit: 200 }) as Promise<{
+          results: TodoistProject[];
+          nextCursor: string | null;
+        }>
+    );
     projects.forEach((p) => projectMap.set(p.id, p.name));
   } catch {
     /* intentionally empty - project name lookup is optional */
@@ -93,12 +98,10 @@ export async function handleFindDuplicates(
 
   let tasks: TodoistTask[];
   try {
-    const params: { projectId?: string } = {};
-    if (args.project_id) {
-      params.projectId = args.project_id;
-    }
-    const response = await todoistClient.getTasks(params);
-    tasks = extractArrayFromResponse<TodoistTask>(response);
+    tasks = await fetchAllTasks(
+      todoistClient,
+      args.project_id ? { projectId: args.project_id } : undefined
+    );
   } catch (error) {
     throw new ValidationError(
       `Failed to fetch tasks: ${error instanceof Error ? error.message : "Unknown error"}`

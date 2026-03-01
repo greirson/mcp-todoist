@@ -11,9 +11,29 @@ jest.mock("../cache.js", () => ({
   },
 }));
 
-// Mock the api-helpers module
+// Mock the api-helpers module - fetchAllTasks delegates to the mock client's getTasks,
+// fetchAllPaginated calls the provided fetch function and extracts results
 jest.mock("../utils/api-helpers.js", () => ({
   extractArrayFromResponse: jest.fn((response: unknown) => response),
+  fetchAllTasks: jest.fn(
+    async (
+      client: { getTasks: (params?: unknown) => Promise<unknown> },
+      params?: unknown
+    ) => {
+      const result = await client.getTasks(params);
+      return Array.isArray(result) ? result : [];
+    }
+  ),
+  fetchAllPaginated: jest.fn(
+    async (fetchPage: () => Promise<{ results: unknown[] }>) => {
+      try {
+        const response = await fetchPage();
+        return Array.isArray(response) ? response : response?.results || [];
+      } catch {
+        return [];
+      }
+    }
+  ),
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-unused-vars

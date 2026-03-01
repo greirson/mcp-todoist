@@ -1,8 +1,7 @@
 import { TodoistBackup, DownloadBackupArgs } from "../types.js";
 import { TodoistAPIError, ValidationError } from "../errors.js";
 import { SimpleCache } from "../cache.js";
-
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+import { API_V1_BASE } from "../utils/api-constants.js";
 
 const backupsCache = new SimpleCache<TodoistBackup[]>(30000);
 
@@ -26,11 +25,10 @@ export async function handleGetBackups(): Promise<string> {
 
   const token = getApiToken();
 
-  const response = await fetch(`${SYNC_API_URL}/backups/get`, {
-    method: "POST",
+  const response = await fetch(`${API_V1_BASE}/backups`, {
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/x-www-form-urlencoded",
     },
   });
 
@@ -79,11 +77,10 @@ export async function handleDownloadBackup(
   let backups = cached;
 
   if (!backups) {
-    const response = await fetch(`${SYNC_API_URL}/backups/get`, {
-      method: "POST",
+    const response = await fetch(`${API_V1_BASE}/backups`, {
+      method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/x-www-form-urlencoded",
       },
     });
 

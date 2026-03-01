@@ -7,17 +7,14 @@ import {
   CloseTaskArgs,
   UpdateDayOrderArgs,
   SyncApiResponse,
-  TodoistTask,
-  TasksResponse,
 } from "../types.js";
 import {
   ValidationError,
   TaskNotFoundError,
   TodoistAPIError,
 } from "../errors.js";
-import { extractArrayFromResponse } from "../utils/api-helpers.js";
-
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+import { fetchAllTasks } from "../utils/api-helpers.js";
+import { SYNC_API_URL } from "../utils/api-constants.js";
 
 function getApiToken(): string {
   const token = process.env.TODOIST_API_TOKEN;
@@ -96,8 +93,7 @@ async function findTaskByName(
   api: TodoistApi,
   taskName: string
 ): Promise<string> {
-  const response = (await api.getTasks()) as TasksResponse;
-  const tasks = extractArrayFromResponse(response) as TodoistTask[];
+  const tasks = await fetchAllTasks(api);
   const normalizedSearch = taskName.toLowerCase();
 
   const exactMatch = tasks.find(

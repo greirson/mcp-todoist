@@ -13,6 +13,23 @@ jest.mock("uuid", () => ({
   v4: jest.fn(() => "test-uuid-1234"),
 }));
 
+// Mock the api-helpers module so fetchAllTasks delegates to mock client
+jest.mock("../utils/api-helpers.js", () => {
+  const actual = jest.requireActual("../utils/api-helpers.js") as Record<
+    string,
+    unknown
+  >;
+  return {
+    ...actual,
+    fetchAllTasks: jest.fn(
+      async (client: { getTasks: () => Promise<unknown> }) => {
+        const result = await client.getTasks();
+        return Array.isArray(result) ? result : [];
+      }
+    ),
+  };
+});
+
 // Store original env
 const originalEnv = process.env;
 
@@ -56,7 +73,7 @@ describe("Item Operations Handlers", () => {
       );
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.todoist.com/sync/v9",
+        "https://api.todoist.com/api/v1/sync",
         expect.objectContaining({
           method: "POST",
           headers: expect.objectContaining({
