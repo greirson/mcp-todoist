@@ -73,7 +73,7 @@ describe("Project Operations Handlers", () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.todoist.com/sync/v9",
+        "https://api.todoist.com/api/v1/sync",
         expect.objectContaining({
           method: "POST",
           headers: {
@@ -317,7 +317,7 @@ describe("Project Operations Handlers", () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.todoist.com/sync/v9",
+        "https://api.todoist.com/api/v1/sync",
         expect.objectContaining({
           method: "POST",
           headers: {

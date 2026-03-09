@@ -2,7 +2,7 @@ import { UserInfo, ProductivityStats, SyncApiResponse } from "../types.js";
 import { TodoistAPIError } from "../errors.js";
 import { SimpleCache } from "../cache.js";
 
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+const SYNC_API_URL = "https://api.todoist.com/api/v1/sync";
 
 const userCache = new SimpleCache<UserInfo>(30000);
 const statsCache = new SimpleCache<ProductivityStats>(30000);
@@ -114,7 +114,7 @@ export async function handleGetProductivityStats(): Promise<string> {
   const token = getApiToken();
 
   const response = await fetch(
-    "https://api.todoist.com/sync/v9/completed/get_stats",
+    "https://api.todoist.com/api/v1/completed/get_stats",
     {
       method: "POST",
       headers: {

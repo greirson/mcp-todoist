@@ -21,7 +21,7 @@ import { SimpleCache } from "../cache.js";
 const reminderCache = new SimpleCache<TodoistReminder[]>(30000);
 
 // Todoist Sync API base URL
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+const SYNC_API_URL = "https://api.todoist.com/api/v1/sync";
 
 /**
  * Get the API token from the TodoistApi client

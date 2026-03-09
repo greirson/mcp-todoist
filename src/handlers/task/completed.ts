@@ -59,7 +59,7 @@ export async function handleGetCompletedTasks(
     }
 
     const queryString = params.toString();
-    const url = `https://api.todoist.com/sync/v9/completed/get_all${queryString ? `?${queryString}` : ""}`;
+    const url = `https://api.todoist.com/api/v1/completed/get_all${queryString ? `?${queryString}` : ""}`;
 
     const response = await fetch(url, {
       method: "GET",

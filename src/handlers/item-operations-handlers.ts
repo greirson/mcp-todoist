@@ -17,7 +17,7 @@ import {
 } from "../errors.js";
 import { extractArrayFromResponse } from "../utils/api-helpers.js";
 
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+const SYNC_API_URL = "https://api.todoist.com/api/v1/sync";
 
 function getApiToken(): string {
   const token = process.env.TODOIST_API_TOKEN;

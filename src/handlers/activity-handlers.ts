@@ -12,7 +12,7 @@ import { SimpleCache } from "../cache.js";
 const activityCache = new SimpleCache<ActivityResponse>(30000);
 
 // Base URL for Todoist Sync API
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+const SYNC_API_URL = "https://api.todoist.com/api/v1";
 
 /**
  * Get the API token from the environment

@@ -52,7 +52,7 @@ describe("Backup Handlers", () => {
       const result = await handleGetBackups();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.todoist.com/sync/v9/backups/get",
+        "https://api.todoist.com/api/v1/backups/get",
         {
           method: "POST",
           headers: {

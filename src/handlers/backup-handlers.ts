@@ -2,7 +2,7 @@ import { TodoistBackup, DownloadBackupArgs } from "../types.js";
 import { TodoistAPIError, ValidationError } from "../errors.js";
 import { SimpleCache } from "../cache.js";
 
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+const SYNC_API_URL = "https://api.todoist.com/api/v1";
 
 const backupsCache = new SimpleCache<TodoistBackup[]>(30000);
 
