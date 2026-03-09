@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Sync API v9 Deprecation**: Migrated all deprecated `sync/v9` endpoints to the new `api/v1/sync` endpoint. The Todoist Sync API v9 now returns `410 Gone`, breaking `task_move`, `task_close`, `task_reorder`, and other sync-based operations. Updated 11 handler files and 7 test files. (PR #75, fixes #74)
 - Remove incorrect client-side `@label` filtering when using `filter` parameter with `getTasksByFilter()` API -- complex filter queries like `(@labelA | @labelB) & today` were being mangled by naive regex extraction that didn't understand boolean logic (PR #69, thanks @dieend)
 
 ## [1.0.1] - 2026-01-26
@@ -140,7 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical Implementation
 
-- **Sync API Integration**: Uses Todoist Sync API v9 endpoint `/sync/v9/completed/get_all`
+- **Sync API Integration**: Uses Todoist API v1 endpoint `/api/v1/completed/get_all`
 - **Quick Add API Integration**: Direct integration with `POST /api/v1/tasks/quick`
 - **Type Definitions**: Added `GetCompletedTasksArgs`, `CompletedTask`, `CompletedTasksResponse`, `QuickAddTaskArgs`, `QuickAddTaskResult`, `DurationUnit`, `TaskDuration`, `ReopenTaskArgs` interfaces
 - **Type Guards**: Added `isGetCompletedTasksArgs`, `isQuickAddTaskArgs`, and `isReopenTaskArgs` validation functions
