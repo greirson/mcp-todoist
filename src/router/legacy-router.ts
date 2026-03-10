@@ -92,6 +92,8 @@ import {
   handleBulkCompleteTasks,
   handleQuickAddTask,
 } from "../handlers/task-handlers.js";
+import { handleGetCompletedTasks } from "../handlers/task/completed.js";
+import { GetCompletedTasksArgs } from "../types/index.js";
 import {
   handleGetProjects,
   handleGetSections,
@@ -730,6 +732,12 @@ export async function handleLegacyToolCall(
       );
       return JSON.stringify(featuresResult, null, 2);
     }
+
+    case "todoist_completed_tasks_get":
+      return await handleGetCompletedTasks(
+        client,
+        args as GetCompletedTasksArgs
+      );
 
     case "todoist_test_performance": {
       const performanceResult = await handleTestPerformance(

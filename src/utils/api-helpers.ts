@@ -214,6 +214,8 @@ export function formatTaskForDisplay(task: {
   assigneeId?: string | null;
   assignedByUid?: string | null;
   responsibleUid?: string | null;
+  projectId?: string;
+  projectName?: string;
 }): string {
   const displayPriority = fromApiPriority(task.priority);
   const dueDetails = formatDueDetails(
@@ -222,7 +224,12 @@ export function formatTaskForDisplay(task: {
   // Show assignment info (responsibleUid is the Todoist API field for assigned user)
   const assigneeDisplay = task.responsibleUid || task.assigneeId;
   const assignedByDisplay = task.assignedByUid;
-  return `- ${task.content}${task.id ? ` (ID: ${task.id})` : ""}${
+  const projectDisplay = task.projectName
+    ? `\n  Project: ${task.projectName}`
+    : task.projectId
+      ? `\n  Project ID: ${task.projectId}`
+      : "";
+  return `- ${task.content}${task.id ? ` (ID: ${task.id})` : ""}${projectDisplay}${
     task.description ? `\n  Description: ${task.description}` : ""
   }${dueDetails ? `\n  Due: ${dueDetails}` : ""}${
     task.deadline ? `\n  Deadline: ${task.deadline.date}` : ""
@@ -318,6 +325,29 @@ export async function resolveProjectIdentifier(
 
   // If not found, throw an error
   throw new Error(`Project not found: "${projectIdentifier}"`);
+}
+
+/**
+ * Resolves an array of project IDs to their display names.
+ * Uses Promise.all for parallel lookups. Deduplicates IDs first.
+ */
+export async function resolveProjectNames(
+  todoistClient: TodoistApi,
+  projectIds: string[]
+): Promise<Record<string, string>> {
+  const uniqueIds = [...new Set(projectIds.filter(Boolean))];
+  if (uniqueIds.length === 0) return {};
+  const entries = await Promise.all(
+    uniqueIds.map(async (id) => {
+      try {
+        const project = await todoistClient.getProject(id);
+        return [id, project.name] as const;
+      } catch {
+        return [id, "Unknown Project"] as const;
+      }
+    })
+  );
+  return Object.fromEntries(entries);
 }
 
 /**

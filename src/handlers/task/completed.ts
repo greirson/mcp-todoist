@@ -10,7 +10,7 @@ import {
   validateProjectId,
   VALIDATION_LIMITS,
 } from "../../validation/index.js";
-import { extractApiToken } from "../../utils/api-helpers.js";
+import { extractApiToken, resolveProjectNames } from "../../utils/api-helpers.js";
 import { ErrorHandler } from "../../utils/error-handling.js";
 import { API_V1_BASE } from "../../utils/api-constants.js";
 
@@ -85,19 +85,8 @@ export async function handleGetCompletedTasks(
       return "No completed tasks found matching the criteria.";
     }
 
-    // Build project name lookup by fetching unique project IDs via SDK
-    const uniqueProjectIds = [
-      ...new Set(data.items.map((item) => item.project_id)),
-    ];
-    const projectNames: Record<string, string> = {};
-    for (const projectId of uniqueProjectIds) {
-      try {
-        const project = await todoistClient.getProject(projectId);
-        projectNames[projectId] = project.name;
-      } catch {
-        projectNames[projectId] = "Unknown Project";
-      }
-    }
+    const projectIds = data.items.map((item) => item.project_id);
+    const projectNames = await resolveProjectNames(todoistClient, projectIds);
 
     const taskCount = data.items.length;
     const taskWord = taskCount === 1 ? "task" : "tasks";
