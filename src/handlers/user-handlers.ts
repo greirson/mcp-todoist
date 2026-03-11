@@ -1,8 +1,7 @@
 import { UserInfo, ProductivityStats, SyncApiResponse } from "../types.js";
 import { TodoistAPIError } from "../errors.js";
 import { SimpleCache } from "../cache.js";
-
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+import { SYNC_API_URL, API_V1_BASE } from "../utils/api-constants.js";
 
 const userCache = new SimpleCache<UserInfo>(30000);
 const statsCache = new SimpleCache<ProductivityStats>(30000);
@@ -113,16 +112,12 @@ export async function handleGetProductivityStats(): Promise<string> {
 
   const token = getApiToken();
 
-  const response = await fetch(
-    "https://api.todoist.com/sync/v9/completed/get_stats",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
-  );
+  const response = await fetch(`${API_V1_BASE}/tasks/completed/stats`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   if (!response.ok) {
     const errorText = await response.text();

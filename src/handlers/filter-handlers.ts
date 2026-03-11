@@ -14,12 +14,10 @@ import {
 } from "../errors.js";
 import { validateFilterData, validateFilterUpdate } from "../validation.js";
 import { SimpleCache } from "../cache.js";
+import { SYNC_API_URL } from "../utils/api-constants.js";
 
 // Cache for filter data (30 second TTL)
 const filterCache = new SimpleCache<TodoistFilter[]>(30000);
-
-// Base URL for Todoist Sync API
-const SYNC_API_URL = "https://api.todoist.com/api/v1/sync";
 
 /**
  * Get the API token from the environment or from the client

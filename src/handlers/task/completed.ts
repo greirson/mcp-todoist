@@ -13,6 +13,7 @@ import {
 } from "../../validation/index.js";
 import { extractApiToken } from "../../utils/api-helpers.js";
 import { ErrorHandler } from "../../utils/error-handling.js";
+import { API_V1_BASE } from "../../utils/api-constants.js";
 
 /**
  * Fetches completed tasks from the Todoist Sync API.
@@ -42,24 +43,19 @@ export async function handleGetCompletedTasks(
     if (args.project_id) {
       params.append("project_id", args.project_id);
     }
-    if (args.since) {
-      params.append("since", args.since);
-    }
-    if (args.until) {
-      params.append("until", args.until);
-    }
+    // v1 endpoint requires since/until -- provide defaults if not specified
+    const since =
+      args.since ||
+      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const until = args.until || new Date().toISOString();
+    params.append("since", since);
+    params.append("until", until);
     if (args.limit !== undefined) {
       params.append("limit", args.limit.toString());
     }
-    if (args.offset !== undefined) {
-      params.append("offset", args.offset.toString());
-    }
-    if (args.annotate_notes !== undefined) {
-      params.append("annotate_notes", args.annotate_notes.toString());
-    }
 
     const queryString = params.toString();
-    const url = `https://api.todoist.com/sync/v9/completed/get_all${queryString ? `?${queryString}` : ""}`;
+    const url = `${API_V1_BASE}/tasks/completed/by_completion_date${queryString ? `?${queryString}` : ""}`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -95,7 +91,9 @@ export async function handleGetCompletedTasks(
 
     for (const item of data.items) {
       const projectName =
-        data.projects[item.project_id]?.name || "Unknown Project";
+        data.projects?.[item.project_id]?.name ||
+        item.project_id ||
+        "Unknown Project";
       const completedDate = item.completed_at.split("T")[0];
 
       result += `- ${item.content}\n`;

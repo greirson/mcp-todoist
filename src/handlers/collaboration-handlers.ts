@@ -13,8 +13,7 @@ import {
 } from "../types.js";
 import { TodoistAPIError, ValidationError } from "../errors.js";
 import { SimpleCache } from "../cache.js";
-
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+import { SYNC_API_URL } from "../utils/api-constants.js";
 
 const workspacesCache = new SimpleCache<Workspace[]>(30000);
 const invitationsCache = new SimpleCache<Invitation[]>(30000);

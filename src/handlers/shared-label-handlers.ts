@@ -7,8 +7,7 @@ import {
 } from "../types.js";
 import { ValidationError, TodoistAPIError } from "../errors.js";
 import { SimpleCache } from "../cache.js";
-
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+import { SYNC_API_URL } from "../utils/api-constants.js";
 
 const sharedLabelsCache = new SimpleCache<SharedLabel[]>(30000);
 

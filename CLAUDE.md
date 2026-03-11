@@ -126,6 +126,7 @@ The codebase follows a clean, domain-driven architecture with focused modules fo
 #### Utility Modules
 
 - **`src/utils/`**: Shared utility functions:
+  - `api-constants.ts` - Centralized API URL constants for Todoist API v1
   - `api-helpers.ts` - API response handling and formatting utilities
   - `error-handling.ts` - Centralized error management with context tracking
   - `dry-run-wrapper.ts` - Dry-run mode implementation for safe testing and validation

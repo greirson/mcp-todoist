@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Migrate Todoist Sync API v9 to API v1**: All `sync/v9` endpoints now return 410 Gone. Migrated all 11 handler files to the official API v1 endpoints:
+  - Sync commands: `sync/v9` -> `api/v1/sync` (7 files)
+  - Activity log: `sync/v9/activity/get` -> `api/v1/activities`
+  - Backups: `sync/v9/backups/get` (POST) -> `api/v1/backups` (GET)
+  - Completed tasks: `sync/v9/completed/get_all` -> `api/v1/tasks/completed/by_completion_date`
+  - Productivity stats: `sync/v9/completed/get_stats` (POST) -> `api/v1/tasks/completed/stats` (GET)
+  - Centralized all API URLs in `src/utils/api-constants.ts`
+  - Updated `CompletedTasksResponse` type for v1 response format (`next_cursor`, optional `projects`/`sections`)
+  - Added default `since`/`until` params for completed tasks endpoint (required by v1)
 - Remove incorrect client-side `@label` filtering when using `filter` parameter with `getTasksByFilter()` API -- complex filter queries like `(@labelA | @labelB) & today` were being mangled by naive regex extraction that didn't understand boolean logic (PR #69, thanks @dieend)
 
 ## [1.0.1] - 2026-01-26

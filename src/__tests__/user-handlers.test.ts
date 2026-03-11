@@ -67,7 +67,7 @@ describe("User Handlers", () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.todoist.com/sync/v9",
+        "https://api.todoist.com/api/v1/sync",
         expect.objectContaining({
           method: "POST",
           headers: {
@@ -186,12 +186,11 @@ describe("User Handlers", () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.todoist.com/sync/v9/completed/get_stats",
+        "https://api.todoist.com/api/v1/tasks/completed/stats",
         expect.objectContaining({
-          method: "POST",
+          method: "GET",
           headers: {
             Authorization: "Bearer test-token",
-            "Content-Type": "application/x-www-form-urlencoded",
           },
         })
       );
@@ -274,7 +273,7 @@ describe("User Handlers", () => {
 
       expect(mockFetch).toHaveBeenCalledTimes(1);
       expect(mockFetch).toHaveBeenCalledWith(
-        "https://api.todoist.com/sync/v9",
+        "https://api.todoist.com/api/v1/sync",
         expect.objectContaining({
           method: "POST",
           headers: {

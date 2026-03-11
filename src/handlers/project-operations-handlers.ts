@@ -8,8 +8,7 @@ import {
 } from "../types.js";
 import { ValidationError, TodoistAPIError } from "../errors.js";
 import { extractArrayFromResponse } from "../utils/api-helpers.js";
-
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+import { SYNC_API_URL } from "../utils/api-constants.js";
 
 function getApiToken(): string {
   const token = process.env.TODOIST_API_TOKEN;
