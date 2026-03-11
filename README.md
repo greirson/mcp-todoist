@@ -410,7 +410,47 @@ For migration guides and breaking changes, see the full changelog.
 
 ## Contributing
 
-Contributions are welcome! Feel free to submit a Pull Request.
+Contributions are welcome! This project is actively maintained and I appreciate the community's interest in improving it.
+
+### A Note on AI-Assisted Contributions
+
+I use [Claude Code](https://docs.anthropic.com/en/docs/claude-code) as part of my own development workflow -- AI-assisted coding is a normal part of how this project is built. I encourage contributors to use whatever tools make them productive, including AI coding assistants.
+
+That said, AI tools make it very easy to generate large volumes of code that looks correct but introduces subtle issues: incorrect API mappings, performance regressions, breaking type changes, or scope creep that bundles unrelated features together. I've seen PRs that swap a URL prefix without realizing the API paths themselves changed, or that add pagination by fetching every page every time without preserving the `limit` parameter.
+
+Because of this, **every PR receives thorough architectural review**. This isn't about gatekeeping -- it's about maintaining a codebase that hundreds of people depend on through their MCP clients. PRs that appear to be unreviewed AI output will receive detailed feedback on what needs to change and why, so you can learn and resubmit.
+
+### PR Requirements
+
+Before submitting a pull request, please ensure:
+
+1. **One concern per PR.** A bug fix is one PR. A new feature is another. A documentation update is another. If your diff touches 40+ files across unrelated features, it needs to be split. Mixed-scope PRs will be sent back for splitting.
+
+2. **You understand what your code does.** If an AI tool wrote it, read it critically before submitting. Can you explain why each change is necessary? Could you debug it if it broke? If not, it's not ready.
+
+3. **Tests are included or updated.** New features need tests. Bug fixes need a test that would have caught the bug. If you're changing API endpoints, verify they work against the live API -- don't just trust that a URL swap is sufficient.
+
+4. **Manual verification is done.** Run `npm run build` and `npm test` locally. If you're changing API integration code, test against your own Todoist account (dry-run mode is available with `DRYRUN=true`). Include evidence of verification in your PR description.
+
+5. **CI must pass.** PRs with failing CI checks will not be reviewed until they're green.
+
+### What Makes a Good PR
+
+- A clear, descriptive title and body explaining *what* and *why*
+- A focused diff that's easy to review (under 200 lines changed is ideal)
+- Tests that demonstrate the change works
+- Updated documentation if the change affects user-facing behavior
+- No unrelated formatting changes, refactors, or "while I'm here" improvements
+
+### Getting Started
+
+1. Fork the repository
+2. Create a feature branch from `main`
+3. Make your changes following the guidelines above
+4. Run `npm run build && npm test && npm run lint` to verify
+5. Submit your PR with a clear description
+
+If you're unsure whether a change is wanted or how to approach it, **open an issue first** to discuss. This saves everyone time and helps align on the right approach before code is written.
 
 ## License
 
