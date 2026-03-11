@@ -5,10 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.3] - 2026-03-11
 
 ### Fixed
 
+- **Fix `todoist_completed_tasks_get` "Unknown tool" error** (Issue #71, #77): Tool was defined in schema but missing from legacy router switch statement — added routing case so calls now reach the handler correctly
+- **Fix unified activity router action name mismatch** (Issue #77): Tool enum defined `by_project`/`by_date` but router matched on `get_by_project`/`get_by_date_range` — aligned router cases to match the tool schema
+- **Fix activity handler error swallowing** (Issue #77): Catch blocks wrapped `TodoistAPIError` with generic messages, hiding HTTP status codes — now re-throws API errors directly so users see the real error (e.g., 403, 410)
 - **Migrate Todoist Sync API v9 to API v1**: All `sync/v9` endpoints now return 410 Gone. Migrated all 11 handler files to the official API v1 endpoints:
   - Sync commands: `sync/v9` -> `api/v1/sync` (7 files)
   - Activity log: `sync/v9/activity/get` -> `api/v1/activities`

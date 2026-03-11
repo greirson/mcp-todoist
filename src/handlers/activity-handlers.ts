@@ -138,6 +138,9 @@ export async function handleGetActivity(
 
     return formatActivityEvents(events);
   } catch (error) {
+    if (error instanceof TodoistAPIError) {
+      throw error;
+    }
     throw new TodoistAPIError(
       "Failed to fetch activity log",
       error instanceof Error ? error : undefined
@@ -174,6 +177,9 @@ export async function handleGetActivityByProject(
 
     return formatActivityEvents(events);
   } catch (error) {
+    if (error instanceof TodoistAPIError) {
+      throw error;
+    }
     throw new TodoistAPIError(
       `Failed to fetch activity log for project ${args.project_id}`,
       error instanceof Error ? error : undefined
@@ -210,6 +216,9 @@ export async function handleGetActivityByDateRange(
 
     return formatActivityEvents(events);
   } catch (error) {
+    if (error instanceof TodoistAPIError) {
+      throw error;
+    }
     throw new TodoistAPIError(
       `Failed to fetch activity log for date range ${args.since} to ${args.until}`,
       error instanceof Error ? error : undefined

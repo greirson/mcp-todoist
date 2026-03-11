@@ -22,11 +22,11 @@ export async function handleActivityAction(
   switch (action) {
     case "get":
       return handleGetActivity(args as unknown as GetActivityArgs);
-    case "get_by_project":
+    case "by_project":
       return handleGetActivityByProject(
         args as unknown as GetActivityByProjectArgs
       );
-    case "get_by_date_range":
+    case "by_date":
       return handleGetActivityByDateRange(
         args as unknown as GetActivityByDateRangeArgs
       );

@@ -78,6 +78,7 @@ import {
   isDeleteInvitationArgs,
   isGetLiveNotificationsArgs,
   isMarkNotificationReadArgs,
+  isGetCompletedTasksArgs,
 } from "../type-guards.js";
 import {
   handleCreateTask,
@@ -91,6 +92,7 @@ import {
   handleBulkDeleteTasks,
   handleBulkCompleteTasks,
   handleQuickAddTask,
+  handleGetCompletedTasks,
 } from "../handlers/task-handlers.js";
 import {
   handleGetProjects,
@@ -259,6 +261,12 @@ export async function handleLegacyToolCall(
         throw new Error("Invalid arguments for todoist_task_reopen");
       }
       return await handleReopenTask(client, args);
+
+    case "todoist_completed_tasks_get":
+      if (!isGetCompletedTasksArgs(args)) {
+        throw new Error("Invalid arguments for todoist_completed_tasks_get");
+      }
+      return await handleGetCompletedTasks(client, args);
 
     case "todoist_project_get":
       if (!isGetProjectsArgs(args)) {
