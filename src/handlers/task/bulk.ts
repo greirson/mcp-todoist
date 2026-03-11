@@ -20,7 +20,7 @@ import {
 import type { DurationUnit } from "../../types/index.js";
 import {
   resolveProjectIdentifier,
-  extractArrayFromResponse,
+  fetchAllTasks,
 } from "../../utils/api-helpers.js";
 import { getDueDateOnly } from "../../utils/datetime-utils.js";
 import { toApiPriority } from "../../utils/priority-mapper.js";
@@ -213,8 +213,7 @@ export async function handleBulkUpdateTasks(
 
     validateBulkSearchCriteria(args.search_criteria);
 
-    const result = await todoistClient.getTasks();
-    const allTasks = extractArrayFromResponse<TodoistTask>(result);
+    const allTasks = await fetchAllTasks(todoistClient);
     const matchingTasks = filterTasksByCriteria(allTasks, args.search_criteria);
 
     if (matchingTasks.length === 0) {
@@ -366,8 +365,7 @@ export async function handleBulkDeleteTasks(
 
     validateBulkSearchCriteria(args.search_criteria);
 
-    const result = await todoistClient.getTasks();
-    const allTasks = extractArrayFromResponse<TodoistTask>(result);
+    const allTasks = await fetchAllTasks(todoistClient);
     const matchingTasks = filterTasksByCriteria(allTasks, args.search_criteria);
 
     if (matchingTasks.length === 0) {
@@ -424,8 +422,7 @@ export async function handleBulkCompleteTasks(
 
     validateBulkSearchCriteria(args.search_criteria);
 
-    const result = await todoistClient.getTasks();
-    const allTasks = extractArrayFromResponse<TodoistTask>(result);
+    const allTasks = await fetchAllTasks(todoistClient);
     const matchingTasks = filterTasksByCriteria(allTasks, args.search_criteria);
 
     if (matchingTasks.length === 0) {

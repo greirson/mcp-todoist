@@ -52,8 +52,12 @@ describe("Label Filter Fix (Issue #35)", () => {
 
   beforeEach(() => {
     mockTodoistClient = new TodoistApi("test-token") as jest.Mocked<TodoistApi>;
-    mockTodoistClient.getTasks = jest.fn().mockResolvedValue(mockTasks);
-    mockTodoistClient.getTasksByFilter = jest.fn().mockResolvedValue(mockTasks);
+    mockTodoistClient.getTasks = jest
+      .fn()
+      .mockResolvedValue({ results: mockTasks, nextCursor: null });
+    mockTodoistClient.getTasksByFilter = jest
+      .fn()
+      .mockResolvedValue({ results: mockTasks, nextCursor: null });
     mockTodoistClient.getLabels = jest.fn().mockResolvedValue(mockLabels);
   });
 
@@ -132,14 +136,14 @@ describe("Label Filter Fix (Issue #35)", () => {
       // Return ALL tasks -- handler must not filter any out client-side
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(mockTasks);
+        .mockResolvedValue({ results: mockTasks, nextCursor: null });
 
       const result = await handleGetTasks(mockTodoistClient, args);
-      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith({
-        query: "@urgent",
-        lang: undefined,
-        limit: undefined,
-      });
+      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith(
+        expect.objectContaining({
+          query: "@urgent",
+        })
+      );
       // All 4 tasks must come through; old code would have dropped task2 and task4
       expect(result).toContain("4 tasks found");
       expect(result).toContain("Task with urgent label");
@@ -157,14 +161,14 @@ describe("Label Filter Fix (Issue #35)", () => {
       // see "&", require BOTH labels, and return only task3
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(mockTasks);
+        .mockResolvedValue({ results: mockTasks, nextCursor: null });
 
       const result = await handleGetTasks(mockTodoistClient, args);
-      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith({
-        query: "(@urgent | @test-label) & today",
-        lang: undefined,
-        limit: undefined,
-      });
+      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith(
+        expect.objectContaining({
+          query: "(@urgent | @test-label) & today",
+        })
+      );
       expect(result).toContain("4 tasks found");
       expect(result).toContain("Task with urgent label");
       expect(result).toContain("Task with test-label");
@@ -180,7 +184,7 @@ describe("Label Filter Fix (Issue #35)", () => {
       // Return ALL tasks -- old code would require both labels and return only task3
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(mockTasks);
+        .mockResolvedValue({ results: mockTasks, nextCursor: null });
 
       const result = await handleGetTasks(mockTodoistClient, args);
       expect(result).toContain("4 tasks found");
@@ -197,15 +201,15 @@ describe("Label Filter Fix (Issue #35)", () => {
 
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(mockTasks);
+        .mockResolvedValue({ results: mockTasks, nextCursor: null });
 
       const result = await handleGetTasks(mockTodoistClient, args);
       // Verify hyphenated label name passes through to API intact
-      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith({
-        query: "@test-label",
-        lang: undefined,
-        limit: undefined,
-      });
+      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith(
+        expect.objectContaining({
+          query: "@test-label",
+        })
+      );
       // All tasks returned -- no client-side filtering
       expect(result).toContain("4 tasks found");
     });
@@ -225,7 +229,10 @@ describe("Label Filter Fix (Issue #35)", () => {
 
       mockTodoistClient.getTasks = jest
         .fn()
-        .mockResolvedValue(tasksWithUndefinedLabels);
+        .mockResolvedValue({
+          results: tasksWithUndefinedLabels,
+          nextCursor: null,
+        });
 
       const args: GetTasksArgs = {
         label_id: "urgent",
