@@ -112,15 +112,12 @@ export async function handleGetProductivityStats(): Promise<string> {
 
   const token = getApiToken();
 
-  const response = await fetch(
-    `${API_V1_BASE}/tasks/completed/stats`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await fetch(`${API_V1_BASE}/tasks/completed/stats`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   if (!response.ok) {
     const errorText = await response.text();
