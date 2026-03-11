@@ -12,7 +12,7 @@ const createMockTodoistClient = (
   updateTask: jest.MockedFunction<any>;
   moveTasks: jest.MockedFunction<any>;
 } => {
-  const getTasks = jest.fn(async (): Promise<TodoistTask[]> => tasks);
+  const getTasks = jest.fn(async () => ({ results: tasks, nextCursor: null }));
   const updateTask = jest.fn(
     async (
       taskId: string,

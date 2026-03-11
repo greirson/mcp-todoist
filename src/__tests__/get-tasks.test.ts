@@ -3,6 +3,10 @@ import type { TodoistApi } from "@doist/todoist-api-typescript";
 import { handleGetTasks } from "../handlers/task-handlers";
 import { CacheManager } from "../cache.js";
 import type { TodoistTask } from "../types.js";
+import {
+  mockPaginatedGetTasks,
+  mockPaginatedGetTasksByFilter,
+} from "./helpers/mock-pagination.js";
 
 type ApiTasksResponse = Awaited<ReturnType<TodoistApi["getTasks"]>>;
 type ApiFilterResponse = Awaited<ReturnType<TodoistApi["getTasksByFilter"]>>;
@@ -27,12 +31,8 @@ describe("handleGetTasks", () => {
       },
     ];
 
-    const getTasksByFilter = jest
-      .fn<TodoistApi["getTasksByFilter"]>()
-      .mockResolvedValue({ results: tasks } as unknown as ApiFilterResponse);
-    const getTasks = jest
-      .fn<TodoistApi["getTasks"]>()
-      .mockResolvedValue([] as unknown as ApiTasksResponse);
+    const getTasksByFilter = mockPaginatedGetTasksByFilter(tasks);
+    const getTasks = mockPaginatedGetTasks([]);
 
     const client = {
       getTasksByFilter,
@@ -45,11 +45,12 @@ describe("handleGetTasks", () => {
       lang: "en",
     });
 
-    expect(getTasksByFilter).toHaveBeenCalledWith({
-      query: "today",
-      lang: "en",
-      limit: undefined,
-    });
+    expect(getTasksByFilter).toHaveBeenCalledWith(
+      expect.objectContaining({
+        query: "today",
+        lang: "en",
+      })
+    );
     expect(getTasks).not.toHaveBeenCalled();
     expect(response).toContain("date=2025-09-18");
     expect(response).toContain("timezone=America/New_York");
@@ -91,9 +92,7 @@ describe("handleGetTasks", () => {
       },
     ];
 
-    const getTasks = jest
-      .fn<TodoistApi["getTasks"]>()
-      .mockResolvedValue(tasks as unknown as ApiTasksResponse);
+    const getTasks = mockPaginatedGetTasks(tasks);
 
     const client = {
       getTasks,
@@ -147,9 +146,7 @@ describe("handleGetTasks", () => {
       },
     ];
 
-    const getTasks = jest
-      .fn<TodoistApi["getTasks"]>()
-      .mockResolvedValue(tasks as unknown as ApiTasksResponse);
+    const getTasks = mockPaginatedGetTasks(tasks);
 
     const client = {
       getTasks,

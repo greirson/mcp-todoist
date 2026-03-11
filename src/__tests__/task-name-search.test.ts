@@ -50,7 +50,9 @@ describe("Task Name Search Functionality", () => {
 
   beforeEach(() => {
     mockTodoistClient = {
-      getTasks: jest.fn().mockResolvedValue(mockTasks),
+      getTasks: jest
+        .fn()
+        .mockResolvedValue({ results: mockTasks, nextCursor: null }),
       getTasksByFilter: jest.fn(),
       getTask: jest.fn(),
     } as any;
@@ -72,7 +74,7 @@ describe("Task Name Search Functionality", () => {
 
       const result = await handleGetTasks(mockTodoistClient, args);
 
-      expect(mockTodoistClient.getTasks).toHaveBeenCalledWith(undefined);
+      expect(mockTodoistClient.getTasks).toHaveBeenCalled();
       expect(result).toContain("Bobo McJiggles Task");
       expect(result).toContain("Another Bobo McJiggles Task");
       expect(result).not.toContain("Regular Task");
@@ -145,15 +147,15 @@ describe("Task Name Search Functionality", () => {
       const filterResults = [mockTasks[0]];
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(filterResults);
+        .mockResolvedValue({ results: filterResults, nextCursor: null });
 
       const result = await handleGetTasks(mockTodoistClient, args);
 
-      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith({
-        query: "today",
-        lang: undefined,
-        limit: undefined,
-      });
+      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith(
+        expect.objectContaining({
+          query: "today",
+        })
+      );
       expect(result).toContain("Bobo McJiggles Task");
     });
 
@@ -165,15 +167,15 @@ describe("Task Name Search Functionality", () => {
       const filterResults = [mockTasks[0], mockTasks[1]];
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(filterResults);
+        .mockResolvedValue({ results: filterResults, nextCursor: null });
 
       const result = await handleGetTasks(mockTodoistClient, args);
 
-      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith({
-        query: 'search:"bobo"',
-        lang: undefined,
-        limit: undefined,
-      });
+      expect(mockTodoistClient.getTasksByFilter).toHaveBeenCalledWith(
+        expect.objectContaining({
+          query: 'search:"bobo"',
+        })
+      );
       expect(result).toContain("Bobo McJiggles Task");
       expect(result).toContain("Another Bobo McJiggles Task");
     });
@@ -189,7 +191,9 @@ describe("Task Name Search Functionality", () => {
         .mockRejectedValue(networkError);
 
       // Ensure getTasks is also mocked to avoid fallback
-      mockTodoistClient.getTasks = jest.fn().mockRejectedValue(networkError);
+      mockTodoistClient.getTasks = jest
+        .fn()
+        .mockRejectedValue(networkError);
 
       await expect(handleGetTasks(mockTodoistClient, args)).rejects.toThrow(
         "Network error"
@@ -208,7 +212,7 @@ describe("Task Name Search Functionality", () => {
       const filterResults = [mockTasks[0], mockTasks[1]];
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(filterResults);
+        .mockResolvedValue({ results: filterResults, nextCursor: null });
 
       const result = await handleGetTasks(mockTodoistClient, args);
 
@@ -227,7 +231,7 @@ describe("Task Name Search Functionality", () => {
       // Filter returns all tasks
       mockTodoistClient.getTasksByFilter = jest
         .fn()
-        .mockResolvedValue(mockTasks);
+        .mockResolvedValue({ results: mockTasks, nextCursor: null });
 
       const result = await handleGetTasks(mockTodoistClient, args);
 

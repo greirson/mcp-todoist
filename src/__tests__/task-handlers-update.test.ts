@@ -114,7 +114,10 @@ describe("handleBulkUpdateTasks move support", () => {
 
     const getTasks = jest
       .fn<TodoistApi["getTasks"]>()
-      .mockResolvedValue(tasks as unknown as ApiTasksResponse);
+      .mockResolvedValue({
+        results: tasks,
+        nextCursor: null,
+      } as unknown as ApiTasksResponse);
     const updateTask = jest
       .fn<TodoistApi["updateTask"]>()
       .mockResolvedValue(tasks[0] as unknown as ApiTaskUpdate);
