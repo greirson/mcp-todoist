@@ -9,8 +9,7 @@ import {
 } from "../types.js";
 import { TodoistAPIError, ValidationError } from "../errors.js";
 import { SimpleCache } from "../cache.js";
-
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
+import { SYNC_API_URL } from "../utils/api-constants.js";
 
 const projectNotesCache = new SimpleCache<ProjectNote[]>(30000);
 

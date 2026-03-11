@@ -7,12 +7,10 @@ import {
 } from "../types.js";
 import { TodoistAPIError } from "../errors.js";
 import { SimpleCache } from "../cache.js";
+import { API_V1_BASE } from "../utils/api-constants.js";
 
 // Cache for activity data (30 second TTL)
 const activityCache = new SimpleCache<ActivityResponse>(30000);
-
-// Base URL for Todoist Sync API
-const SYNC_API_URL = "https://api.todoist.com/sync/v9";
 
 /**
  * Get the API token from the environment
@@ -43,7 +41,7 @@ async function fetchActivity(
     }
   }
 
-  const url = `${SYNC_API_URL}/activity/get?${queryParams.toString()}`;
+  const url = `${API_V1_BASE}/activities?${queryParams.toString()}`;
 
   const response = await fetch(url, {
     method: "GET",
@@ -61,12 +59,15 @@ async function fetchActivity(
 
   const data = await response.json();
 
-  // The API returns an object with "events" array or directly an array
+  // The API returns an object with "events" array, "results" array (v1), or directly an array
   if (Array.isArray(data)) {
     return data as ActivityLogEvent[];
   }
   if (data && Array.isArray(data.events)) {
     return data.events as ActivityLogEvent[];
+  }
+  if (data && Array.isArray(data.results)) {
+    return data.results as ActivityLogEvent[];
   }
 
   return [];

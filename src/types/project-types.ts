@@ -144,8 +144,10 @@ export interface TodoistSectionData {
  */
 export interface CompletedTasksResponse {
   items: CompletedTask[];
-  projects: Record<string, TodoistProject>;
-  sections: Record<string, TodoistSection>;
+  next_cursor?: string | null;
+  // v9 fields (no longer returned by v1, kept optional for compatibility)
+  projects?: Record<string, TodoistProject>;
+  sections?: Record<string, TodoistSection>;
 }
 
 /**
