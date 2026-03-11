@@ -77,10 +77,17 @@ describe("handleUpdateTask section moves", () => {
       },
     ] as unknown as ApiTaskList);
 
+    const getProjects = jest
+      .fn<TodoistApi["getProjects"]>()
+      .mockResolvedValue([
+        { id: "proj-new", name: "New Project" },
+      ] as unknown as ApiProjectsResponse);
+
     const todoistClient = {
       getTask,
       updateTask,
       moveTasks,
+      getProjects,
     } as unknown as TodoistApi;
 
     const message = await handleUpdateTask(todoistClient, {
@@ -95,7 +102,7 @@ describe("handleUpdateTask section moves", () => {
     expect(moveTasks).toHaveBeenCalledWith(["a1"], {
       projectId: "proj-new",
     });
-    expect(message).toContain("New Project ID: proj-new");
+    expect(message).toContain("New Project: New Project");
     expect(message).toContain("New Title: Updated");
   });
 });
