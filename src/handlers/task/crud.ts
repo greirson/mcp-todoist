@@ -25,6 +25,7 @@ import {
   extractArrayFromResponse,
   createCacheKey,
   formatTaskForDisplay,
+  resolveProjectNames,
 } from "../../utils/api-helpers.js";
 import {
   formatDueDetails,
@@ -194,6 +195,23 @@ export async function handleCreateTask(
       ? `\nDuration: ${task.duration.amount} ${task.duration.unit}${task.duration.amount !== 1 ? "s" : ""}`
       : "";
 
+    // Resolve project name
+    let projectDisplay = args.project_id
+      ? `\nProject ID: ${args.project_id}`
+      : "";
+    if (task.projectId) {
+      try {
+        const names = await resolveProjectNames(todoistClient, [
+          task.projectId,
+        ]);
+        if (names[task.projectId]) {
+          projectDisplay = `\nProject: ${names[task.projectId]}`;
+        }
+      } catch {
+        // Fall back to ID display
+      }
+    }
+
     return `${prefix}Task created:\nID: ${task.id}\nTitle: ${task.content}${
       task.description ? `\nDescription: ${task.description}` : ""
     }${dueDetails ? `\nDue: ${dueDetails}` : ""}${
@@ -202,9 +220,7 @@ export async function handleCreateTask(
       task.labels && task.labels.length > 0
         ? `\nLabels: ${task.labels.join(", ")}`
         : ""
-    }${args.deadline_date ? `\nDeadline: ${args.deadline_date}` : ""}${
-      args.project_id ? `\nProject ID: ${args.project_id}` : ""
-    }${args.section_id ? `\nSection ID: ${args.section_id}` : ""}${durationDisplay}`;
+    }${args.deadline_date ? `\nDeadline: ${args.deadline_date}` : ""}${projectDisplay}${args.section_id ? `\nSection ID: ${args.section_id}` : ""}${durationDisplay}`;
   });
 }
 
@@ -228,8 +244,12 @@ export async function handleGetTasks(
   // If task_id is provided, fetch specific task
   if (args.task_id) {
     try {
-      const task = await todoistClient.getTask(args.task_id);
-      return formatTaskForDisplay(task as TodoistTask);
+      const task = (await todoistClient.getTask(args.task_id)) as TodoistTask;
+      const projectId = task.projectId || "";
+      const names = projectId
+        ? await resolveProjectNames(todoistClient, [projectId])
+        : {};
+      return formatTaskForDisplay(task, names[projectId]);
     } catch {
       return `Task with ID "${args.task_id}" not found`;
     }
@@ -369,8 +389,19 @@ export async function handleGetTasks(
     filteredTasks = filteredTasks.slice(0, args.limit);
   }
 
+  // Resolve project names for all tasks in one batch call
+  const projectIds = filteredTasks
+    .map((t) => t.projectId)
+    .filter(Boolean) as string[];
+  const projectNames = await resolveProjectNames(todoistClient, projectIds);
+
   const taskList = filteredTasks
-    .map((task) => formatTaskForDisplay(task))
+    .map((task) =>
+      formatTaskForDisplay(
+        task,
+        task.projectId ? projectNames[task.projectId] : undefined
+      )
+    )
     .join("\n\n");
 
   const taskCount = filteredTasks.length;
@@ -470,10 +501,17 @@ export async function handleUpdateTask(
 
   const displayUpdatedPriority = fromApiPriority(latestTask.priority);
   const updatedDueDetails = formatDueDetails(latestTask.due);
-  const projectLine =
-    requestedProjectId && latestTask.projectId
-      ? `\nNew Project ID: ${latestTask.projectId}`
-      : "";
+  let projectLine = "";
+  if (requestedProjectId && latestTask.projectId) {
+    try {
+      const names = await resolveProjectNames(todoistClient, [
+        latestTask.projectId,
+      ]);
+      projectLine = `\nNew Project: ${names[latestTask.projectId] || latestTask.projectId}`;
+    } catch {
+      projectLine = `\nNew Project ID: ${latestTask.projectId}`;
+    }
+  }
   const sectionLine = requestedSectionId
     ? `\nNew Section ID: ${latestTask.sectionId ?? "None"}`
     : "";

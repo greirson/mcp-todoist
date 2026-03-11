@@ -109,18 +109,22 @@ export function createCacheKey(
  * @param task - The task object to format
  * @returns Formatted string representation of the task
  */
-export function formatTaskForDisplay(task: {
-  id?: string;
-  content: string;
-  description?: string;
-  due?: { string: string } | null;
-  deadline?: { date: string } | null;
-  priority?: number;
-  labels?: string[];
-  assigneeId?: string | null;
-  assignedByUid?: string | null;
-  responsibleUid?: string | null;
-}): string {
+export function formatTaskForDisplay(
+  task: {
+    id?: string;
+    content: string;
+    description?: string;
+    due?: { string: string } | null;
+    deadline?: { date: string } | null;
+    priority?: number;
+    labels?: string[];
+    projectId?: string;
+    assigneeId?: string | null;
+    assignedByUid?: string | null;
+    responsibleUid?: string | null;
+  },
+  projectName?: string
+): string {
   const displayPriority = fromApiPriority(task.priority);
   const dueDetails = formatDueDetails(
     task.due as TodoistTaskDueData | null | undefined
@@ -128,6 +132,11 @@ export function formatTaskForDisplay(task: {
   // Show assignment info (responsibleUid is the Todoist API field for assigned user)
   const assigneeDisplay = task.responsibleUid || task.assigneeId;
   const assignedByDisplay = task.assignedByUid;
+  const projectDisplay = projectName
+    ? `\n  Project: ${projectName}`
+    : task.projectId
+      ? `\n  Project ID: ${task.projectId}`
+      : "";
   return `- ${task.content}${task.id ? ` (ID: ${task.id})` : ""}${
     task.description ? `\n  Description: ${task.description}` : ""
   }${dueDetails ? `\n  Due: ${dueDetails}` : ""}${
@@ -136,9 +145,46 @@ export function formatTaskForDisplay(task: {
     task.labels && task.labels.length > 0
       ? `\n  Labels: ${task.labels.join(", ")}`
       : ""
-  }${assigneeDisplay ? `\n  Assigned To (User ID): ${assigneeDisplay}` : ""}${
+  }${projectDisplay}${assigneeDisplay ? `\n  Assigned To (User ID): ${assigneeDisplay}` : ""}${
     assignedByDisplay ? `\n  Assigned By (User ID): ${assignedByDisplay}` : ""
   }`;
+}
+
+/**
+ * Resolves project IDs to human-readable project names.
+ * Uses a single getProjects() call to build a lookup map (avoids N+1 API pattern).
+ *
+ * @param todoistClient - The Todoist API client
+ * @param projectIds - Array of project IDs to resolve
+ * @returns Map of projectId -> projectName
+ */
+export async function resolveProjectNames(
+  todoistClient: TodoistApi,
+  projectIds: string[]
+): Promise<Record<string, string>> {
+  const uniqueIds = [...new Set(projectIds.filter(Boolean))];
+  if (uniqueIds.length === 0) return {};
+
+  try {
+    // Single API call to get all projects, then build lookup map
+    const response = await todoistClient.getProjects();
+    const projects = extractArrayFromResponse<{ id: string; name: string }>(
+      response
+    );
+    const nameMap: Record<string, string> = {};
+    for (const id of uniqueIds) {
+      const project = projects.find((p) => p.id === id);
+      nameMap[id] = project ? project.name : "Unknown Project";
+    }
+    return nameMap;
+  } catch {
+    // Graceful fallback if project lookup fails
+    const fallback: Record<string, string> = {};
+    for (const id of uniqueIds) {
+      fallback[id] = "Unknown Project";
+    }
+    return fallback;
+  }
 }
 
 /**
