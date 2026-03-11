@@ -31,7 +31,7 @@ export const CREATE_SUBTASK_TOOL: Tool = {
       },
       priority: {
         type: "number",
-        description: "Priority level 1 (highest) to 4 (lowest)",
+        description: "Priority: 1=P1 (urgent) to 4=P4 (normal)",
         minimum: 1,
         maximum: 4,
       },
@@ -85,7 +85,7 @@ export const BULK_CREATE_SUBTASKS_TOOL: Tool = {
             },
             priority: {
               type: "number",
-              description: "Priority level 1 (highest) to 4 (lowest)",
+              description: "Priority: 1=P1 (urgent) to 4=P4 (normal)",
               minimum: 1,
               maximum: 4,
             },
