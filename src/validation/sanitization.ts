@@ -74,20 +74,13 @@ export function sanitizeInput(
   // eslint-disable-next-line no-control-regex
   sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 
-  // If HTML is not allowed, escape it
-  if (!options.allowHtml) {
-    sanitized = sanitized
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#x27;")
-      .replace(/\//g, "&#x2F;");
-  } else {
-    // Even if HTML is allowed, remove dangerous patterns
-    for (const pattern of MALICIOUS_PATTERNS) {
-      sanitized = sanitized.replace(pattern, "");
-    }
+  // Strip malicious patterns (script tags, event handlers, etc.)
+  // Note: We intentionally do NOT HTML-encode here. This content is sent as
+  // JSON to the Todoist REST API, not rendered as HTML. HTML encoding would
+  // break markdown formatting (e.g., " becomes &quot;, / becomes &#x2F;).
+  // Todoist handles its own XSS prevention when rendering content.
+  for (const pattern of MALICIOUS_PATTERNS) {
+    sanitized = sanitized.replace(pattern, "");
   }
 
   // Apply length limit if specified
