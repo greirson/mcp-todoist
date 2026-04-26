@@ -426,6 +426,10 @@ export const BULK_UPDATE_TASKS_TOOL: Tool = {
             },
             description: "Array of label names to assign (optional)",
           },
+          deadline_date: {
+            type: "string",
+            description: "New deadline in YYYY-MM-DD format (optional)",
+          },
           project_id: {
             type: "string",
             description:

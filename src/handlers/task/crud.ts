@@ -393,6 +393,7 @@ export async function handleUpdateTask(
   // Validate that at least one identifier is provided
   validateTaskIdentifier(taskId, taskName);
   validateLabels(args.labels);
+  validateDateString(args.deadline_date, "deadline_date");
   validateDurationPair(args.duration, args.duration_unit, args.due_string);
 
   // Clear cache since we're updating
@@ -414,6 +415,9 @@ export async function handleUpdateTask(
   const labelsProvided = Object.prototype.hasOwnProperty.call(args, "labels");
   if (labelsProvided) {
     updateData.labels = Array.isArray(args.labels) ? args.labels : [];
+  }
+  if (args.deadline_date) {
+    updateData.deadlineDate = args.deadline_date;
   }
 
   // Add duration support
@@ -491,13 +495,20 @@ export async function handleUpdateTask(
     ? `\nNew Duration: ${latestTask.duration.amount} ${latestTask.duration.unit}${latestTask.duration.amount !== 1 ? "s" : ""}`
     : "";
 
+  // Show deadline from API response when present, falling back to input arg
+  // so the user always sees confirmation of what they requested.
+  const deadlineForDisplay = latestTask.deadline?.date ?? args.deadline_date;
+  const deadlineLine = deadlineForDisplay
+    ? `\nNew Deadline: ${deadlineForDisplay}`
+    : "";
+
   return `${prefix}Task "${matchingTask.content}" updated:\nNew Title: ${
     latestTask.content
   }${
     latestTask.description ? `\nNew Description: ${latestTask.description}` : ""
   }${updatedDueDetails ? `\nNew Due Date: ${updatedDueDetails}` : ""}${
     displayUpdatedPriority ? `\nNew Priority: ${displayUpdatedPriority}` : ""
-  }${projectLine}${sectionLine}${labelsLine}${durationLine}`;
+  }${projectLine}${sectionLine}${labelsLine}${deadlineLine}${durationLine}`;
 }
 
 export async function handleDeleteTask(

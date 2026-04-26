@@ -356,6 +356,10 @@ Safety: Empty content_contains matches NO tasks (not all tasks). At least one va
             items: { type: "string" },
             description: "New label names",
           },
+          deadline_date: {
+            type: "string",
+            description: "New deadline in YYYY-MM-DD format",
+          },
           project_id: {
             type: "string",
             description: "Move to project ID or name",

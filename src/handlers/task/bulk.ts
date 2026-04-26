@@ -244,6 +244,7 @@ export async function handleBulkUpdateTasks(
     const errors: string[] = [];
 
     validateLabels(args.updates.labels);
+    validateDateString(args.updates.deadline_date, "deadline_date");
     validateDurationPair(
       args.updates.duration,
       args.updates.duration_unit,
@@ -265,6 +266,9 @@ export async function handleBulkUpdateTasks(
       updateData.labels = Array.isArray(args.updates.labels)
         ? args.updates.labels
         : [];
+    }
+    if (args.updates.deadline_date) {
+      updateData.deadlineDate = args.updates.deadline_date;
     }
 
     // Add duration support for bulk updates

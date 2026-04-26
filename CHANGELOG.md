@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Fix `deadline_date` silently dropped on task update**: `handleUpdateTask` and `handleBulkUpdateTasks` built their `updateData` object without ever reading `args.deadline_date`, so the field was silently discarded before reaching the SDK. The success response also omitted any deadline line, masking the bug. `todoist_task_create` was unaffected.
+  - Validate and pass `deadlineDate` through to the SDK in both single and bulk update handlers
+  - Show `New Deadline:` in the update response (preferring API echo, falling back to input)
+  - Add `deadline_date` to `UpdateTaskArgs` and `BulkUpdateTasksArgs.updates` types
+  - Expose `deadline_date` in the bulk update schemas (legacy + unified); the single-update schemas already exposed it
+  - Add regression tests covering both update paths
+
 ## [1.0.3] - 2026-03-11
 
 ### Fixed

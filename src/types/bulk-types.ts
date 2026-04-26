@@ -35,6 +35,7 @@ export interface BulkUpdateTasksArgs {
     project_id?: string;
     section_id?: string;
     labels?: string[];
+    deadline_date?: string;
     duration?: number;
     duration_unit?: DurationUnit;
   };
